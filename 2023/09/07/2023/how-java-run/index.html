@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="kinoko">
+
+
+
+
+    <meta name="keywords" content="博客,blog,阿菇,阿菇kinoko,kinoko,usamikinoko">
+
+
+<title>Java 运行原理 | 阿菇的博客</title>
+
+
+
+    <link rel="icon" href="/favicon.jpg">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Kinoko&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                <a class="menu-item" href="/archives">Posts</a>
+                
+                <a class="menu-item" href="/category">Categories</a>
+                
+                <a class="menu-item" href="/tag">Tags</a>
+                
+                <a class="menu-item" href="/about">About</a>
+                
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Kinoko&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">
+                    <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"/></svg>
+                    <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE --><path fill="currentColor" d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"/></svg>
+                </div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                <a class="menu-item" href="/archives">Posts</a>
+                
+                <a class="menu-item" href="/category">Categories</a>
+                
+                <a class="menu-item" href="/tag">Tags</a>
+                
+                <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if (toggleMenu.classList.contains("active")) {
+            toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        } else {
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">Java 运行原理</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">kinoko</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">September 7, 2023&nbsp;&nbsp;0:00:00</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Development/">Development</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <p><code>Java</code> 代码从编写到运行，流程如下：</p>
+<ol>
+<li>Java 源程序（.java文件）经过 <em>编译器</em> 编译，变成 Java 字节码；</li>
+<li>Java 字节码经过 <em>JVM</em> 解释执行，传递给解释器；</li>
+<li><em>解释器</em> 将字节码翻译成合适的机器码，在机器中运行；</li>
+</ol>
+<p>这省略了很多细节，我想要相对详细地了解 Java 代码从编写到运行的过程中经历了什么。<br>如果你也感兴趣的话，可以接着往下看。</p>
+<p><img src="https://agu-img.oss-cn-hangzhou.aliyuncs.com/blog/20230927135500.png" alt="20230927135500"></p>
+<h2 id="前置知识-🚀"><a href="#前置知识-🚀" class="headerlink" title="前置知识 🚀"></a>前置知识 🚀</h2><h3 id="JDK-Java开发工具包"><a href="#JDK-Java开发工具包" class="headerlink" title="JDK - Java开发工具包"></a>JDK - Java开发工具包</h3><p>JDK（<em>Java Development Kit</em>）是 Java 开发工具包，提供了 Java 开发环境和运行环境。<br>JDK 包含了 JRE，同时还包含了编译器（javac）和其他开发工具，用于开发、编译、调试和运行 Java 程序。</p>
+<h3 id="JRE-Java运行环境"><a href="#JRE-Java运行环境" class="headerlink" title="JRE - Java运行环境"></a>JRE - Java运行环境</h3><p>JRE（<em>Java Runtime Environment</em>）是 Java 运行时环境，它包含了 Java 虚拟机（JVM）以及运行 Java 程序所需的核心类库和支持文件。<br>JRE 提供了 Java 程序的运行环境，可以执行已经编译好的 Java 字节码。</p>
+<h3 id="JVM-Java虚拟机"><a href="#JVM-Java虚拟机" class="headerlink" title="JVM - Java虚拟机"></a>JVM - Java虚拟机</h3><p>JVM（<em>Java Virtual Machine</em>）Java 程序的执行环境。JVM 介于 Java 编译器和 OS 之间，利用软件方法实现了一个虚拟的计算机，可以解释和执行 Java 字节码。<br>Java 程序在 JVM 上运行，通过 JVM 实现跨平台的特性，这是因为在不同操作系统上的 JVM 都能够执行相同的 Java 字节码。</p>
+<h2 id="编译源代码-✒"><a href="#编译源代码-✒" class="headerlink" title="编译源代码 ✒"></a>编译源代码 ✒</h2><p>开发者主要做的是编写 Java 源文件（<em>source file</em>），通常以 <code>.java</code> 结尾。但文件中的代源码（<em>source code</em>）是给开发者阅读的，而不是机器，源文件不能直接运行。</p>
+<p>比如，我们用 Java 编写了一段 HelloWorld 代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// HelloWorld.java</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">HelloWorld</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Hello, World!&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>💡我们使用 javac（<em>java编译器</em>，JDK中携带）编译这个源文件，将其转化以 <code>.class</code> 结尾为 Java 字节码文件。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">javac HelloWorld.java</span><br><span class="line"><span class="comment"># output: HelloWorld.class</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>编译器是一种将高级语言代码转化为低级语言代码的程序。</p>
+</blockquote>
+<h3 id="javac-编译-Java-源码"><a href="#javac-编译-Java-源码" class="headerlink" title="javac 编译 Java 源码"></a>javac 编译 Java 源码</h3><p>javac 将 Java 源代码作为输入，进行词法分析、语法分析和语义分析等过程，最终生成对应的字节码文件。流程如下：</p>
+<ol>
+<li><p><em>词法分析</em><br>  javac 首先读取源文件的字符流，并将其分解为一系列的词素（<em>token</em>）。词素是源代码中的最小语法单位，如关键字、标识符、操作符和常量等。<br>  该过程的结果是得到规范化的 token 流。</p>
+</li>
+<li><p><em>语法分析</em><br>  javac 对 token 流进行分析，并根据语法规则构建语法树（<em>Syntax Tree</em>）。语法树表示源代码的结构和层次关系。<br>  该过程的结果是得到一个符合 Java 语言规定的抽象语法树。</p>
+</li>
+<li><p><em>语义分析</em><br>  编译器对语法树进行进一步处理，检查代码是否符合语言的语义规则。它会验证变量的声明和使用、类型匹配、函数调用等语义相关的问题，并生成符号表（Symbol Table）来管理变量和函数的信息。<br>  该过程的结果是生成一个经过简化的抽象语法树，更加接近字节码。</p>
+</li>
+<li><p><em>字节码生成</em><br>  将经过简化的抽象语法树生成符合 JVM 规范的字节码。</p>
+</li>
+</ol>
+<p>编译阶段的报错，统称为编译期错误，不会继续生成 .class 文件。</p>
+<h3 id="反编译"><a href="#反编译" class="headerlink" title="反编译"></a>反编译</h3><p>我们可以使用编译器将高级语言代码编译为低级语言代码，自然也可以使用反编译工具将已编译的代码转化为未编译的状代码</p>
+<p>Java反编译（<em>Java Decompilation</em>）是指将 Java 字节码文件转换回 Java 源代码的过程。JDK 中与 javac 相对的反编译器是 javap，可以使用 javap 来反编译 .class 文件。<br>我们可以使用 javap 反编译刚生成的 HelloWorld.class，看看会获得什么：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">javap -c HelloWorld</span><br></pre></td></tr></table></figure>
+
+<p>我们可以看到反编译的结果：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">Compiled from <span class="string">&quot;HelloWorld.java&quot;</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">HelloWorld</span> &#123;</span><br><span class="line">  <span class="keyword">public</span> <span class="title function_">HelloWorld</span><span class="params">()</span>;</span><br><span class="line">    Code:</span><br><span class="line">       <span class="number">0</span>: aload_0</span><br><span class="line">       <span class="number">1</span>: invokespecial #<span class="number">1</span>                  <span class="comment">// Method java/lang/Object.&quot;&lt;init&gt;&quot;:()V</span></span><br><span class="line">       <span class="number">4</span>: <span class="keyword">return</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(java.lang.String[])</span>;</span><br><span class="line">    Code:</span><br><span class="line">       <span class="number">0</span>: getstatic     #<span class="number">7</span>                  <span class="comment">// Field java/lang/System.out:Ljava/io/PrintStream;</span></span><br><span class="line">       <span class="number">3</span>: ldc           #<span class="number">13</span>                 <span class="comment">// String Hello, World!</span></span><br><span class="line">       <span class="number">5</span>: invokevirtual #<span class="number">15</span>                 <span class="comment">// Method java/io/PrintStream.println:(Ljava/lang/String;)V</span></span><br><span class="line">       <span class="number">8</span>: <span class="keyword">return</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="字节码"><a href="#字节码" class="headerlink" title="字节码"></a>字节码</h3><p>Java 源代码经过虚拟机编译器编译后产生的文件（即扩展为 .class 的文件），它不面向任何特定的处理器，只面向虚拟机。</p>
+<h2 id="JVM-📝"><a href="#JVM-📝" class="headerlink" title="JVM 📝"></a>JVM 📝</h2><p>我们已经获得了 .class 字节码文件，来看看它是如何在 JVM 中运行。</p>
+<h3 id="类加载"><a href="#类加载" class="headerlink" title="类加载"></a>类加载</h3><p>💡JVM 中的类加载器（<em>类加载子系统</em>）负责定位并加载类文件，可以分为以下三个小阶段：</p>
+<ol>
+<li><p><em><strong>加载 Loading</strong></em><br>  加载是类加载的第一个阶段。JVM 会根据类的全限定名（<em>Fully Qualified Name</em>）查找并读取类的字节码文件，<br>  将这个字节流所代表的静态存储结构转化为方法区的运行时数据结构，<br>  然后在 Java 堆内存中生成一个代表这个类的 <em>java.lang.Class</em> 实例，作为方法区中这个类的各种数据的访问入口。</p>
+</li>
+<li><p><em><strong>链接 Linking</strong></em><br>  链接是类加载的第二个阶段。JVM 会对加载的类进行一些准备工作，包括以下三步：</p>
+<ul>
+<li>验证：验证字节码的正确性和安全性，检查类的结构、字段和方法的引用是否有效；</li>
+<li>准备：为类的静态变量分配内存空间，并设置默认初始值；</li>
+<li>解析：将符号引用转化为直接引用，即将类、字段和方法的符号引用解析为内存地址引用。</li>
+</ul>
+</li>
+<li><p><em><strong>初始化 Initialization</strong></em><br>  初始化是类加载的最后一个阶段。JVM 会执行类的静态代码块并对静态变量的赋值操作。<br>  初始化阶段是类加载过程中最耗时的阶段，它需要确保类的静态资源正确初始化，并且只会执行一次。直到这一步，才会真正开始执行开发者编写的 java 代码。</p>
+</li>
+</ol>
+<blockquote>
+<p>阅读文章以了解类加载的更多内容：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/25228545">Java 类加载机制</a></p>
+</blockquote>
+<h3 id="执行引擎"><a href="#执行引擎" class="headerlink" title="执行引擎"></a>执行引擎</h3><p>💡执行引擎负责解释或编译字节码为机器码，并执行。</p>
+<p>JVM 执行引擎是 JVM 核心组成部分之一。它负责将字节码指令解释&#x2F;编译为 <em>对应平台</em> 上的机器指令，这是 Java 跨平台特性的关键。</p>
+<p><img src="https://agu-img.oss-cn-hangzhou.aliyuncs.com/blog/20230927180316.png" alt="20230927180316"></p>
+<p>执行引擎的主要有以下工作：</p>
+<ol>
+<li><p><em>字节码验证 Bytecode Verification</em><br>  JVM 首先会对内存中的字节码进行验证，以确保它的结构和语义是正确的。字节码验证是为了防止恶意代码或错误的字节码破坏 JVM 的安全和稳定性。</p>
+</li>
+<li><p><em>解释&#x2F;编译</em><br>  JVM 有两种方式将字节码转化为机器码，但通常混用：</p>
+<ul>
+<li><em>解释执行</em><br>   JVM 使用解释器（<em>Interpreter</em>）逐行读取字节码，并将其转换为机器码，然后由处理器执行。解释执行的优点是简单、跨平台，缺点是效率低下，因为每次执行都需要重新解释。  </li>
+<li><em>编译执行</em><br>   JVM 使用即时编译器（<em>Just-In-Time Compiler</em>）将字节码转化为机器码，并将其缓存起来，以便下次直接执行。编译执行的优点是效率高，缺点是需要额外的编译时间和内存空间。  </li>
+<li><em>混合模式</em><br>   为了兼顾解释执行和编译执行的优势，JVM通常会采用混合模式（Mixed Mode），即对于频繁执行的热点代码，使用编译执行，对于不常执行的冷代码，使用解释执行。这样可以提高程序的整体性能。</li>
+</ul>
+</li>
+<li><p><em>执行机器码 Execution</em><br>  经过解释&#x2F;编译后，字节码被转化为平台特定的机器码。JVM 会将机器码加载到处理器中执行，实现程序的功能。</p>
+</li>
+</ol>
+<p>到此，我们的 Java 源代码就经过了从编写到执行整个过程。</p>
+<h3 id="JVM生命周期"><a href="#JVM生命周期" class="headerlink" title="JVM生命周期"></a>JVM生命周期</h3><p>JVM 在 Java 程序开始运行时运行，结束时也随之结束。</p>
+<p>一个 Java 程序对应一个 JVM 进程。</p>
+<p>JVM 中有两种线程：</p>
+<ul>
+<li><em>守护线程</em><br>JVM 自用，如垃圾回收（<em>GC</em>）</li>
+<li><em>普通进程</em><br>一般 Java 程序的线程</li>
+</ul>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/25713880">Java JVM 运行机制及基本原理</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/o-andy-o/archive/2012/04/11/2442109.html">Java 的运行原理</a></li>
+<li><a target="_blank" rel="noopener" href="https://rensifei.site/2017/03/javac/">javac 源码笔记与简单的编译原理</a></li>
+</ul>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>kinoko</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="http://example.com/2023/09/07/2023/how-java-run/">http://example.com/2023/09/07/2023/how-java-run/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Do you believe in <strong>DESTINY</strong>?</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/Java/"># Java</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2023/09/17/2023/web-usual-auth/">常见Web鉴权方案</a>
+            
+            
+            <a class="next" rel="next" href="/2023/09/02/2023/docker-base/">Docker基础教程</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© kinoko 2022-2025. All rights reserved.</span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

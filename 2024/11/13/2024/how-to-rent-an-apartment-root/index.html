@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="kinoko">
+
+
+
+
+    <meta name="keywords" content="博客,blog,阿菇,阿菇kinoko,kinoko,usamikinoko">
+
+
+<title>实习租房经验帖 | 阿菇的博客</title>
+
+
+
+    <link rel="icon" href="/favicon.jpg">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Kinoko&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                <a class="menu-item" href="/archives">Posts</a>
+                
+                <a class="menu-item" href="/category">Categories</a>
+                
+                <a class="menu-item" href="/tag">Tags</a>
+                
+                <a class="menu-item" href="/about">About</a>
+                
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Kinoko&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">
+                    <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"/></svg>
+                    <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE --><path fill="currentColor" d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"/></svg>
+                </div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                <a class="menu-item" href="/archives">Posts</a>
+                
+                <a class="menu-item" href="/category">Categories</a>
+                
+                <a class="menu-item" href="/tag">Tags</a>
+                
+                <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if (toggleMenu.classList.contains("active")) {
+            toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        } else {
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">实习租房经验帖</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">kinoko</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">November 13, 2024&nbsp;&nbsp;0:00:00</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Life/">Life</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <p>24年暑假有个出来实习的机会，权衡利弊后，感觉很不错。来来回回经过四轮面试，9月份就跑到上海实习了。不比杭州，上海距离学校还是有点距离的，从学校到公司的单趟通勤要3.5h，中间还要地铁高铁地来回折腾，所以直接在公司附近租房住。</p>
+<p>我是在入职报道前提前跑上海来转悠了2天，线下看看房子，转了差不多十家之后回去合计了一下就定下来了，然后入职报道前一天提着行李箱跑到公寓签合同住下来。到写这篇文章的时候，已经住了接近3个月，感觉各方面都还算满意，基本符合我的预期。这两天也比较得闲，遂写这么一篇租房经验贴，给后面的学弟学妹一些参考。</p>
+<p>事先声明，每个人的经济情况不同，租房时看重的条件也不同，我这里就按照我自己的来。</p>
+<h2 id="线上选址"><a href="#线上选址" class="headerlink" title="线上选址"></a>线上选址</h2><p>租房租房，这里的“房”大致可分为两种：居民房和公寓。前者就是传统的租户和房主oneone，商量这商量那的，这个我没有去尝试，坑多是一方面，另一方面是这种居民房相对较少面对短中期的单人租客。所以我在一开始就决定是租公寓。公寓的好处就是拎包入住，配套设施齐全，有专门的公寓前台&#x2F;管家，租户需要做的就是住进去然后按时交水电费和管理费，差不多就是能让你长期住的宾馆。</p>
+<p>因为是短中期实习嘛，不用考虑太长远的事情，所以我线上选址的流程就比较清晰明了了。</p>
+<p>首先是确定你的预算。这个因人而异，没什么建议，自己考虑。</p>
+<p>然后是确认公司房补的范围，比如步行30min、骑行20min、地铁20min这种，具体补贴标准要去咨询公司的hr，各家都不相同。有了这个范围之后就开始以公司为圆心、交通距离为半径开始画圈，找范围内的房子，地铁的话就以离公司最近的地铁站为中点，延地铁线路向两端延申。这一步其实并不麻烦，因为很多租房app都会提供这种功能，你需要做的就是点点点。</p>
+<p>除了通勤距离房补之外呢，还有一种公司补贴是企业和平台有合作，租指定公寓可以适当减免服务费或者房租等。这个也得看公司政策，问hr。</p>
+<p>到这里先停一下：各家app的房源各不相同，同样的范围同样的标准，在不同的租房app你也能搜到很多不同的公寓&#x2F;出租房。设想你有一间房需要出租，你也很难做到把你的房子信息铺满全网的每一个app，公寓也是如此。这就会造成不同平台的房源信息差异。</p>
+<p>在网上搜搜搜的过程中，我找到这样一张图：</p>
+<p><img src="https://img.ma5hr00m.top/blog2409/20240902232646.png" alt="image.png"></p>
+<p>我不去评价这张图如何，我反正是基本都下载了一遍看了看，最后选择了三款app用来看房：自如寓、贝壳找房和Wellcee，这其中又以前两者为主力。</p>
+<p>在我实际使用的三款app里，自如推荐用网页端（移动端交互不方便），贝壳推荐用移动端（网页端交互有问题），Wellcee两者皆可。先选定通勤地点，然后通勤找房，先在房补范围内按照预算筛一轮，然后在房补范围外根据预算筛一轮，留下来的再根据自己的通勤习惯筛一轮（比如说你偏向地铁通勤而不是骑车&#x2F;步行），然后剩下来的就是你的初步目标。</p>
+<blockquote>
+<p>当然，除了预算也得关注点别的因素，水电费、周边环境、装修时间这类的，别到时候线下过去看到难以接受的环境。</p>
+</blockquote>
+<p>选出来十几户准备之后线下去看看，到底选多少取决于你有多长时间看房。我当时是准备在第一天早上从杭州出发，第二天傍晚回杭州，能留在上海看房的时间差不多一天半。但因为经验不足，我错误预估了看房需要花费的时间，线上只选了五户，第一天就看完了，然后第一天赶路的路上和当晚夜里又选了五户，第二天接着看。</p>
+<p>呃呃呃，如果你不喜欢太紧张的赶路，一天下午看三户也就差不多了。上面的看房速度是建立在我提前规划好路线、从南到北一路顺着看、中间没怎么休息的基础上实现的。这其中还有一户是晚上天黑之后看的，地方也稍微有点偏，考虑到安全性我不推荐这么做。</p>
+<h2 id="线下看房"><a href="#线下看房" class="headerlink" title="线下看房"></a>线下看房</h2><p>在有时间的前提下，我极力推荐线下看房，而不是纯线上选房。线下能搜集到的信息远比线上房东公布的靠谱。</p>
+<p>举一个最直接的例子：平台上的房间图片。我个人的感觉是，通过适当的摄影角度，并通过合理的光照和屋内摆设，能把房间拍出来比它实际空间大出50%的效果，尽量不要线上看一个房间就交押金，线下过去发现看腿都伸不开，这个桌子小那个床窄，那时候想再换房就麻烦了。从另一方面来讲，照片拍的房间和价格不一定对应。</p>
+<p>好，话接上回。线上选定目标后，通过平台给的联系方式私信或者直接打电话，预约看房时间。你能在平台上联系到的不一定就是领你看房的人，可能是更高一级的管理者或者是公寓管理员的同事，总之他们会给你安排好时间，肯定会有人领着你看房，这个不用担心。而且不少公寓前台24h有人，只要你人到了随时可以看房。</p>
+<p>在约定好的时间过去，公寓管家领着你看房，一般会先按照线上的初步描述给你找一间空房看，然后根据你提出的进一步要求再领你看别的房间。这种时候我建议多问多看，越细致越好，线下沟通交流的效率高于在微信里你一言我一语的对答。</p>
+<p>然后就到了比较细节的地方：租房应该关注哪些条件。</p>
+<h3 id="租金押金"><a href="#租金押金" class="headerlink" title="租金押金"></a>租金押金</h3><p>正如前文所说，平台上的房间展示图和租金往往不对应，需要和管理员确认。此外，<strong>租金和租期长短有关系</strong>，你租的时间短（如常说的“短租”，一般指1-6个月），租金会有对应的提升，短租3个月一般会在基础租金的基础上提升15%，即标价月租3000的房间，短租3个月的情况下，月租会提升到3450；相应的，长租房（12个月及以上）会有优惠，租金降幅一般是10%左右， 或者长租12个月给你免一个月的房租，或者将优惠体现在服务费等其他支出上（服务费稍后说）。总之，就一句话：长租便宜短租贵。你可能遇到特例，这需要你和管理员沟通。</p>
+<p>然后是押金。短租的话，押金一般是一个月的租金，也就是我们常说的押一租一或者押一租三，押金是房东用来降低租客采取非预期行动的概率的保障，直白点就是掌握在房东手里的租客的把柄。当租客在租期内采取非预期行动时，根据具体的租房合同要支付违约金或者扣除押金。具体的例子是，我们和房东签了三个月租房合同，交了第一个月的租金和押金，一个月过后我们不想租房了，想退房，但是又无法转租，我们执意不交剩下两个月的租金，此时房东就会依照合同扣除那一个月押金。正常流程下，三个月租房期结束，我们也按照合同交完了三个月租金，房东就会退回押金。</p>
+<p>所以我们需要和公寓管家确认押金的退还形式，一般是7个自然工作日内将押金打给我们支付租金的账户，具体情况和管家沟通。</p>
+<h3 id="采光通风"><a href="#采光通风" class="headerlink" title="采光通风"></a>采光通风</h3><p>采光很多人不在意，毕竟白天都在公司，晚上回公寓基本也就没太阳了，白天待在公寓的时间确实不多。但我个人较为在意，而且也怕万一我妹来上海看我，回去再报告给我父母，他夫妻俩再来制裁我。家人这关还是要过的 :P</p>
+<p>公寓的采光大致分三种：无窗、面向天井、面向外侧，租金价格按序递增。</p>
+<p>无窗好理解，就是没有对外的窗户但是有通气管道，或者只有对走廊的窗户，缺点是无自然采光，需要一直开灯，不方便通风导致室内空气污浊，也容易发潮招虫；面向天井的窗户，采光时间大多极短，因为公寓的“天井”很多是一条垂直且窄的墙缝，宽度一般小于 2m，除非是太阳在正上方，不然采光也一般，通风也就比无窗略好一点，而且有可能和天窗对面的房间正对窗户；理想情况是有对外的窗户，不论是对南对北，至少能有一个还算可以的采光，而且一开窗户就有空气自然流动，会舒服很多。</p>
+<p>对外的窗户也分很多情况，或大或小，或朝南或朝北，或高或低，这些就由你自己选择了，采光越理想价格越高。我见过的一个较极端的例子，两间面积配置都相同的复式loft，一个有对外窗但很小，另一个有横跨两层的巨大落地窗，前者 3400，后者 5200，可见一斑。</p>
+<p>通风基本和采光相关，毕竟说到底都是窗户的问题。只需要额外关注两点：一是窗户外是什么环境，要是废料场、饭店排气孔这种当然就比较难以接受；二是窗户玻璃是怎么布置的，双层玻璃确实有冬暖夏凉的功效，但是可能你和隔壁租户公用一个窗户夹层，而外侧玻璃只有一个开口，这就会导致没有正对外层玻璃开口的房间的通风性大幅下降。而且这种公用夹层的双层玻璃设计也会大幅降低隔音效果。</p>
+<p>这点正是我所疏忽的，我初次租房的玻璃就是上述这种双层玻璃公用夹层的设计，而且外侧玻璃开口在隔壁房，我房间的通风性就很差。而且如果我和隔壁住户都开着内层玻璃窗的话，基本也就没有隔音可言，因为本质上这空间就是通的。所以我只能选择每天早上上班前开窗通一天风，晚上回来关上窗户开空调或者开排气扇。</p>
+<h3 id="水电网费"><a href="#水电网费" class="headerlink" title="水电网费"></a>水电网费</h3><p>民水民电和商水商电价格差很多，计量是一度电多少钱，一吨水多少钱，这个需要细说。</p>
+<p>首先是水电费，公寓的水电费一般是比普通小区贵出一级的，但达不到商水商电的程度。以上海自如寓为标准，电费一般是1.4±0.5；水费是7±2，不同城市价格不同，需要自己去调查。电费就这样，水费还可能分冷热水费，前面的水费默认指冷水，热水一般是40±15，或者是用热水器烧冷水，耗电费+冷水获得热水，少部分使用热水器的公寓可能会冷水免费。具体参考公寓的收费标准。</p>
+<p>然后是网费，这个我没法给出一个范围，网络也牵扯到不同公寓的供网标准，有流量免费但需要自备路由器的，有自带路由器需要缴纳网费的，有免费WIFI全覆盖的，有网费包含在服务费里面的……不确定性太大了。</p>
+<p>关于水电费，租客可以要求查水表电表，或者要求公寓提供线上查询的渠道。如果可以线下看到水表电表，入住时记得拍张照，有些苟房东会把初始耗电量耗水量算到租户第一个月水电费，不过公寓一般很少遇到。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">使用量=月末表值-月初表值</span><br></pre></td></tr></table></figure>
+
+<h3 id="服务费"><a href="#服务费" class="headerlink" title="服务费"></a>服务费</h3><p>公寓一般会按照租金比例收取服务费，自如寓是每月租金的 10%，每家公寓的服务费也不相同，也会有个别公寓不收服务费。</p>
+<p>那这个服务费包括什么呢？一般包括住房前的针对房间的一次清洁，住房过程中的维修服务，公共区域的清洁服务，外卖快递的代存等。</p>
+<p>绝大多数公寓在租户交完定金、入住之前，会对房间进行一次大扫除，这会算在服务费中，部分公寓会提供定时清洁服务，或者你喊保洁在你上班的时候收拾一下房间，一般也算在其中。</p>
+<p>用户在租住期间，如果是非人为因素造成了家具家电的损坏或不正常运作（包括空调制冷效果差这种），或者首次入住时发现有家具家电损坏，都可以直接告诉管家，公寓方面负责维修，维修费算在服务费中，不会额外收费。注意，有些损毁，比如马桶堵塞、浴室花洒喷头损坏，可能会不算在维修费中，但不会告诉你，自己去问。也有个别公寓不提供维修服务，也是要先问清楚。</p>
+<p>此外，看房时检查房屋时，记得试试水龙头和马桶抽水，看水压如何，排水是否通畅的；外卖快递的代存好理解，公寓周围可能没有菜鸟驿站一类的设施，前台会先帮你存着，或者是丰巢外卖柜；还有部分公寓有公共晾衣区或公共厨房，使用这类区域一般也会算在服务费中。</p>
+<h3 id="衣服洗晾晒"><a href="#衣服洗晾晒" class="headerlink" title="衣服洗晾晒"></a>衣服洗晾晒</h3><p>很多公寓会有洗衣机，能保证正常用就行，有些高级的可能自带烘干功能。但大多数公寓的房间没法晾衣服，需要在公寓的公共晾衣区晾晒。记得看晾衣区有没有摄像头，以及摄像头能不能用，男生就随意了，女生独居切记安全。</p>
+<blockquote>
+<p>如果二者都没有的话，问问公寓管家是否提供烘干机，都没有的话，可以尝试问能不能降些租金，毕竟你公寓不提供这些基础功能（租金合适的情况下）。</p>
+</blockquote>
+<h3 id="隔音性"><a href="#隔音性" class="headerlink" title="隔音性"></a>隔音性</h3><p>公寓最重要的价值就是晚上睡觉，隔音在此时显得格外重要。</p>
+<p>首先是墙，问问是实心墙还是板墙，自己上手敲敲听声音，区别蛮明显的；然后关注窗户和门的隔音效果，隔音差的话可能需要自备隔音棉；然后是周边环境，公寓附近有没有施工装修的计划。这样基本就差不多了。</p>
+<p>这个其实挺主观的，有些人入睡其实不在意吵不吵（比如我自己），但还是有备无患的好。你可能不在意打游戏的喊闹声，毕竟寝室也有；但你可能很难不去在意隔壁履行人类自然义务的声音，这点部分前辈遇到过，我自己住宾馆也遇到过。</p>
+<p>另外就是上文说过的双层玻璃公用夹层，这个对隔音的影响很大，留意下即可。</p>
+<h3 id="安全性"><a href="#安全性" class="headerlink" title="安全性"></a>安全性</h3><p>问公寓管家，公寓的建成时间、装修时间和开售时间，避免甲醛残留等问题。然后是停水停电的频率，附近是不是经常施工。</p>
+<p>房间内部，看家电方面是否有不合规的使用，墙角有没有渗水、有没有明显缝隙；楼道，是否有配套消防设施，是否堆有其他租户的杂物，是否有电动车充电（这个基本没有，公寓也不傻）；消防通道是否通畅，且通道门是否处于可开启状态；楼下是否有管家值班，或者刷脸刷卡进楼的防护。</p>
+<p>其他一些散点看个人要求，比如低楼层有没有防盗窗等。</p>
+<h3 id="防虫"><a href="#防虫" class="headerlink" title="防虫"></a>防虫</h3><p>唔，对阿菇来说这点非常重要：阿菇对虫子没什么好感。而防虫主要是与环境有关。</p>
+<p>外部环境就是公寓附近有没有餐厅、垃圾废料处理场这种。公寓的统一垃圾桶放在什么地方呢？如果就在住户这层楼，那离你的房间远不远呢？内部环境就是点外卖的外卖盒记得尽早处理掉，自己做饭的话，在饭后赶快处理水池和餐具，房间里不要囤积太多生鲜食物，冰箱也不行，地上的食物残渣一定一定要及时清理……</p>
+<p>然后就是看房时观察房子的窗户、门这种地方，有没有明显、或者说足够大的缝隙足够大型虫子通过，有的话就换房或者问问公寓能不能处理，公寓不能处理的话就问能不能自己处理，这个很重要。举一个简单直观的例子，公寓房间正门的门下那条缝，极大概率是没法阻止虫子爬进来的，你看房的时候要多注意其他已经有人住进去的房间，他们的门缝有没有装防虫罩或者说防尘条。如果你发现很多租户的门都装了这种东西，你就要留个心眼儿了，这东西的主要作用往往不是隔音，是防虫。</p>
+<p>你问我怎么知道的？我住进房间第二天晚上下班回家，躺床上，发现有个不明黑色物体在沿着墙边飞速爬行，那刻我的心拔凉拔凉的，一瞬间我的脑海中闪过了换公寓的打算。定睛一看，是个有我1&#x2F;4个手掌大的蟑螂。而那时我甚至还没有在房间里吃过任何东西。</p>
+<p><img src="https://img.ma5hr00m.top/blog2410/20241113233326.png" alt="image.png"></p>
+<p>当时是晚上12点，对峙了半小时后。我看着它顺畅地从门下钻了出去，然后反手就在京东下单，连夜给自己的门装上了防虫条，再检查了半小时屋里有没有其他虫子，最后惴惴不安的睡去。隔天晚上蹲厕所的时候，发觉脚边窜过去一个黑色不明物体，我处理好之后弹射起来，发现又是一只蟑螂，不过比前一只小很多。又是一次长达半小时的对峙，然后我发现它从房门门轴角落的一个缝隙钻了出去。在思考片刻之后，我采用了大量卫生纸+水的封印术糊上了那处门缝，然后直到现在我都没有再在我的房间里遇到蟑螂。</p>
+<blockquote>
+<p>那处封印我至今没有解开。</p>
+</blockquote>
+<p>说来也奇妙，我就没在公寓楼里的其他地方见过蟑螂。所以防虫这个问题也只能说尽可能避免，就看房那点时间真不容易碰上，住进去之后碰上了再见招拆招。</p>
+<h3 id="复式loft"><a href="#复式loft" class="headerlink" title="复式loft"></a>复式loft</h3><p>这个其实……也没什么好说的，自己觉得能过得去就行。公寓户型要分类的话可以分为两大类：平房和复式loft。前者没什么好说的，后者就是一间房给你分成两层，垂直方向的空间比较大，有个楼梯也比较有想象力。价格上没什么明显的区别，主要影响价格的还是上面的那些+公寓面积。</p>
+<blockquote>
+<p>像我住的这栋公寓，复式loft其实比我现在住的平房还便宜点。</p>
+</blockquote>
+<p>复式loft的缺点我还是能稍微列举出几个的。不方便打扫这点肯定算一个，不方便活动也算一个：如果恰好腿脚不舒服爬楼梯上床休息都困难。此外，如果像我上文那样遇到了小精灵……如果小精灵摆出起飞姿势守在二楼楼梯口，而此时你在一楼，阁下又该如何应对呢？</p>
+<hr>
+<p>除了上面说的这些呢，屋内家电家具配置和公寓周围的配套看个人要求，前者与租金强相关，后者需要自己看房前后考察。</p>
+<p>看房的时候可以带个录音笔全程录音，觉得不错的房间掏出手机拍照即可，公寓管家也不会阻拦你。线下看完没记住或者没问清楚的细节，就线上联系管家进一步确认。这类事情要在付钱之前确认清楚。租房是纯粹的交易行为，租户给房东钱，房东为租户提供住房和对应的服务，客气点就可以了，没有必要觉得问清楚这些问题是不尊重对方。</p>
+<p><img src="https://img.ma5hr00m.top/blog2409/20240904233708.png" alt="image.png"></p>
+<p>租房这种情景下，租金押金定金在谁手上，谁就掌握主动权，像前文说到的入住前的维修，有些鸡贼的房东会满口答应你，签完合同就开始拖，这种时候你也没办法，押金在对方手上，拿捏个房客不还是轻轻松松。</p>
+<p>然后是线下看房的时间规划。别看上面我写了这么多，实际上看一个公寓的时间可以控制在20min以内，看看问问，领着看看公共区域就差不多了，多数时间是在街上到处跑。我是第一天中午12点到的上海，看了5个公寓，跑去公司楼下转悠了一圈，然后晚上找了间网咖休息，第二天从早上9点开始又看了5个公寓，然后在路边和第一天的房东线上交流了1h，最后于下午3点乘高铁回杭州。跑这么两天其实挺累的，也能说是特种兵式看房了。</p>
+<p>看完房的休息时间（我一般是在地铁站或者公寓前台歇会儿）及时记录相关信息，我是用小米笔记直接全记下来，然后回寝室之后掂量掂量又问问管家再要的照片，最后交的定金。</p>
+<p><img src="https://img.ma5hr00m.top/blog2409/20240904235938.png" alt="image.png"></p>
+<h2 id="交钱签合同"><a href="#交钱签合同" class="headerlink" title="交钱签合同"></a>交钱签合同</h2><p>选定之后就没太大问题了，交定金签合同，确保租金服务费这类东西都在合同上有所体现，嘴上承诺但合同没体现的，让房东或公寓管家当场写上或者重新打印合同，签完合同之后取回定金，交钱入住就可以啦。</p>
+<h2 id="后话"><a href="#后话" class="headerlink" title="后话"></a>后话</h2><p>感觉租房就是这样，同一地区同一标准的房子，租金上下浮动在1k左右，很难说捡到大漏，只能通过自己的筛选和调查选出一个相对满意的目标。</p>
+<p>以上就是阿菇的租房经验贴，希望可以对初次租房的小伙伴有所帮助，祝阅读到这篇文章的同学可以租到满意的公寓房间。</p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>kinoko</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="http://example.com/2024/11/13/2024/how-to-rent-an-apartment-root/">http://example.com/2024/11/13/2024/how-to-rent-an-apartment-root/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Do you believe in <strong>DESTINY</strong>?</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/Rental/"># Rental</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2024/11/20/2024/python-venv/">python-venv如何实现切换虚拟环境</a>
+            
+            
+            <a class="next" rel="next" href="/2024/06/20/2024/how-does-clash-work/">你了解Clash吗？</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© kinoko 2022-2025. All rights reserved.</span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

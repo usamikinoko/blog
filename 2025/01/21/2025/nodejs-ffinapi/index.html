@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="kinoko">
+
+
+
+
+    <meta name="keywords" content="博客,blog,阿菇,阿菇kinoko,kinoko,usamikinoko">
+
+
+<title>2025版Nodejs基于ffi-napi实现调用windows API | 阿菇的博客</title>
+
+
+
+    <link rel="icon" href="/favicon.jpg">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Kinoko&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                <a class="menu-item" href="/archives">Posts</a>
+                
+                <a class="menu-item" href="/category">Categories</a>
+                
+                <a class="menu-item" href="/tag">Tags</a>
+                
+                <a class="menu-item" href="/about">About</a>
+                
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Kinoko&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">
+                    <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"/></svg>
+                    <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE --><path fill="currentColor" d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"/></svg>
+                </div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                <a class="menu-item" href="/archives">Posts</a>
+                
+                <a class="menu-item" href="/category">Categories</a>
+                
+                <a class="menu-item" href="/tag">Tags</a>
+                
+                <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if (toggleMenu.classList.contains("active")) {
+            toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        } else {
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">2025版Nodejs基于ffi-napi实现调用windows API</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">kinoko</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">January 21, 2025&nbsp;&nbsp;0:00:00</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Development/">Development</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <p>如题，我想实现的效果是：Electron桌面应用实时监测用户聚焦的软件，将正在使用的软件名称展示给用户并同步到Web服务端。本文只展示Nodejs脚本如何基于ffi-napi实现调用windows API获取用户聚焦的软件名称并展示给用户，不提及与Web服务端的交互（实际上就是省略了签名认证发包同步数据的过程）。</p>
+<blockquote>
+<p>这个需求来自于我正在开发的小项目WhatAmIDoing，等基本功能完成时估计会另写篇文章说说实现思路，项目地址：<a target="_blank" rel="noopener" href="https://github.com/ma5hr00m/WhatAmIDoing">kinoko&#x2F;WhatAmIDoin · GitHub</a>（虽然现在是private）</p>
+</blockquote>
+<p>这次经历略显折磨，Electron桌面开发是我之前没太涉及过的领域，然后环境配置的关键步骤正好又没什么完善的文档，恰好配置过程中各种关于环境版本的小坑还不少，所以折腾了一天。虽然最后降低了node版本有点委曲求全，但所幸还是解决了问题。</p>
+<p>关键应用及版本：</p>
+<ul>
+<li>windows10</li>
+<li>Microsoft Visual Studio2022</li>
+<li>node v16.17.0 | npm v8.15.0 | pnpm v6.35.1</li>
+<li>electron@34</li>
+<li>python 3.12.7</li>
+</ul>
+<p>网上不少相关文章会要求降低node版本到node@12，我没搞清楚为什么要降低这么多，我个人是在node@16即可成功安装。不过我也暂时没找到在node@18+版本中使用ffi-napi的方法。</p>
+<h2 id="node为什么不能直接调用windows-api"><a href="#node为什么不能直接调用windows-api" class="headerlink" title="node为什么不能直接调用windows api"></a>node为什么不能直接调用windows api</h2><p>简单来说就是封装了太多层，为了跨平台的特性舍弃了直接调用windows api的能力。</p>
+<p>先有的javascript再有的nodejs，而javascript被发明之初也只是为了能实现浏览器html页面的简单交互，为了简单易用甚至于放弃了class而转用原型链，这你就不能指望js本身有能和windows api直接交互的能力。而nodejs本身又是基于js运行时的环境，外面套了层引擎，比如著名的v8，更追求跨平台运行的能力，所以也不会说把调用windows api的能力放到首位。</p>
+<blockquote>
+<p>javascript运行原理可以先看看我这篇博客：<a target="_blank" rel="noopener" href="https://blog.kinoko.fun/2024/02/10/how-js-run/#JS-Engine-%E5%BC%95%E6%93%8E">JavaScript执行原理</a>，不算很细，但做做了解也问题不大</p>
+</blockquote>
+<p>windows api这种本身也就能和c&#x2F;cpp等语言对接，后来开发者觉得不太行，nodejs作为服务端语言竟然不能和windows交互，所以ffi-napi这类库应运而生，实现nodejs调用dll的能力。</p>
+<h2 id="环境配置-安装ffi-napi"><a href="#环境配置-安装ffi-napi" class="headerlink" title="环境配置-安装ffi-napi"></a>环境配置-安装ffi-napi</h2><p>说是环境配置，其实重点就一个，那就是怎么安装ffi-napi，网上也能搜到很多相关文章，但我没找到一篇涵盖所有坑的，我是在东拼西凑了几个解决方案之后才成功安装ffi-napi的。</p>
+<p>这里先给出注意事项清单，下面会接着说明为什么要这么配置、怎么配置（有必要的话）以及关键步骤截图，整体来说其实不麻烦，甚至可以说简单，但如果你不了解这个领域同时网上还一堆杂七杂八抄来抄去的资料干扰视线时，这也可以变成一件麻烦事：</p>
+<ul>
+<li>安装python，node-gyp要用</li>
+<li>安装node-gyp，这个是npm自带的，问题是最新版的ffi-napi目前只兼容了node-gyp&lt;10的版本，而&gt;&#x3D;18的npm自带的node-gyp&gt;&#x3D;10，所以为了能用ffi-napi，得降低node版本到node16，我使用的LTS版本是<a href="mailto:&#110;&#x6f;&#100;&#101;&#64;&#x31;&#x36;&#46;&#49;&#x37;&#46;&#48;">node@16.17.0</a></li>
+<li>通过visual studio installer安装C++桌面开发相关库</li>
+<li>通过visual studio installer安装Spectre v14.2 x86&#x2F;64相关库</li>
+<li>通过visual studio installer安装windows SDK，并且要和windows版本对应，注意msvs2022默认安装windows11 SDK，如果是你是win10则需要另外安装windows10 SDK</li>
+<li>npm设置msvs版本变量<code>npm config set msvs_version 2022 --global</code></li>
+<li>msbuild安装（msvs自带）并添加系统&#x2F;用户环境变量</li>
+</ul>
+<p>ok，大致了解之后，现在开始。</p>
+<h3 id="安装python"><a href="#安装python" class="headerlink" title="安装python"></a>安装python</h3><p>windows10如何安装python就直接略过了，网上很多成熟的教程。</p>
+<p>你可能搜到过一些文章，告诉你安装ffi-napi需要python2.x，比如这篇：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/onesea/p/15879795.html">node-ffi从入门到放弃(安装篇) - 威武的大萝卜 - 博客园</a>。</p>
+<p>按照我的步骤走的话不需要降低python版本到2.x，我直接用的我之前安装过的python3.12，上述那篇文章是2022年发布的，应该是比较保守一些，整体环境版本都相对较老（比如文中提及的<code>msvs_version 2017</code>），估计是低版本的node-gyp仍然只支持使用python2.x的构建工具。</p>
+<p>想了解了解可以看这篇文章：<a target="_blank" rel="noopener" href="https://docs.pingcode.com/ask/ask-ask/178419.html">npm安装某些模块为什么需要python – PingCode</a></p>
+<blockquote>
+<p>npm在安装某些模块时需要Python是因为一些依赖包或者模块需要通过node-gyp进行编译，而node-gyp是一个跨平台的命令行工具，它依赖于Python来执行一系列构建操作。这些操作涉及到编译C或C++代码，主要是因为<strong>npm的一些包含原生C&#x2F;C++扩展的模块需要编译成机器码</strong>，这样才能在特定平台上运行，<strong>提高执行效率、直接操作硬件资源、实现与操作系统底层的交互</strong>。</p>
+</blockquote>
+<h3 id="降低node-npm版本适配node-gyp"><a href="#降低node-npm版本适配node-gyp" class="headerlink" title="降低node&#x2F;npm版本适配node-gyp"></a>降低node&#x2F;npm版本适配node-gyp</h3><p>使用nvm安装node&#x2F;npm，可以使用windows包管理器直接安装nvm，不需要手动安装：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scoop install nvm</span><br></pre></td></tr></table></figure>
+
+<p>然后windows下的nvm常见指令就不说了，看看就能明白，也可以去看我之前的文章。</p>
+<p>然后问题回到ffi-napi的安装上。如果你使用的是node&gt;&#x3D;18的版本，对应版本的npm安装ffi-napi时会报错，其中有关键语句时：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&#x27;&quot;call&quot;&#x27;</span> 不是内部或外部命令，也不是可运行的程序或[批处理文件]</span><br></pre></td></tr></table></figure>
+
+<p>这是因为node-gyp&gt;10的版本不支持call命令，所以需要降低node-gyp版本；而<code>npm install</code>时使用的node-gyp库是npm自带的，可以理解为npm的依赖项，据我目前了解应该是没有单独降低npm内置node-gyp版本的方法，所以就需要降低npm版本。</p>
+<p>降低到<a href="mailto:&#110;&#x6f;&#100;&#x65;&#x40;&#49;&#x36;&#46;&#x31;&#55;&#46;&#x30;">node@16.17.0</a>即可，对应<a href="mailto:&#110;&#112;&#109;&#64;&#56;&#46;&#x31;&#x35;&#x2e;&#48;">npm@8.15.0</a>。使用以下指令查看全局node-gyp的版本，</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm list <span class="literal">-g</span> node<span class="literal">-gyp</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img.ma5hr00m.top/2025/20250121175639.png" alt="image.png"></p>
+<h3 id="通过msvs安装各种环境及工具"><a href="#通过msvs安装各种环境及工具" class="headerlink" title="通过msvs安装各种环境及工具"></a>通过msvs安装各种环境及工具</h3><p>如前文所说，node-gyp需要环境和工具去编译cpp&#x2F;c相关库，所以我们这里需要自备cpp变异环境和部分工具；我们需要调用windows API，所以我们也要安装windows SDK。而这些环境及工具都可以通过Microsoft Visual Studio Installer安装。</p>
+<ul>
+<li>使用C++的桌面开发（MSBuidl等工具）</li>
+<li>windows 10 SDK</li>
+<li>MSVC v142</li>
+<li>Spectre v14.2</li>
+</ul>
+<p><img src="https://img.ma5hr00m.top/2025/20250121180916.png" alt="image.png"></p>
+<p>勾选图中这些框选的选项就可以，简单来说就是配置node-gyp需要的编译构建环境和工具。</p>
+<h3 id="添加msbuild环境变量"><a href="#添加msbuild环境变量" class="headerlink" title="添加msbuild环境变量"></a>添加msbuild环境变量</h3><p>用户Path变量</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe</span><br></pre></td></tr></table></figure>
+
+<p>系统Path变量</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">C:\Windows\Microsoft.NET\Framework64\v4.0.30319</span><br></pre></td></tr></table></figure>
+
+<h3 id="npm设置msvs-version全局变量"><a href="#npm设置msvs-version全局变量" class="headerlink" title="npm设置msvs_version全局变量"></a>npm设置msvs_version全局变量</h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm config <span class="built_in">set</span> msvs_version <span class="number">2022</span> <span class="literal">--global</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<p>ok，以上步骤搞定之后，在对应项目中安装ffi-napi就不会报错了。下面我根据需求自定义ddl并在nodejs脚本中调用。</p>
+<h2 id="编写js脚本验证可实现node调用自定义的dll"><a href="#编写js脚本验证可实现node调用自定义的dll" class="headerlink" title="编写js脚本验证可实现node调用自定义的dll"></a>编写js脚本验证可实现node调用自定义的dll</h2><p>dll（动态链接库）是一种包含可由多个程序共享的代码和数据的文件格式。它允许程序在运行时动态加载和链接库中的功能，而不是在编译时将所有代码静态链接到可执行文件中。这种机制使得程序可以节省内存，提高效率，并且便于更新和维护。</p>
+<p>Windows API是微软为Windows操作系统提供的一组接口，允许开发者与操作系统进行交互。许多Windows API函数都是以dll的形式提供的，这意味着开发者可以通过调用这些DLL中的函数来实现各种操作系统功能，如文件管理、图形界面、网络通信等。</p>
+<h3 id="编写dll"><a href="#编写dll" class="headerlink" title="编写dll"></a>编写dll</h3><p>敲代码之前先介绍点相关概念。我之前接触的Web开发中的很多模块是经过了层层封装的，和相对底层的部分有些距离。</p>
+<p>主要就是介绍<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E5%8F%A5%E6%9F%84">句柄 - 维基百科，自由的百科全书</a>，可以先看看wiki.</p>
+<blockquote>
+<p>句柄（Handle）是一个用于标识和管理系统资源的抽象引用。它通常是一个整数或指针，代表操作系统中的某个对象，如窗口、文件、进程、线程等。通过句柄，程序可以对这些资源进行操作，而无需直接访问它们的内存地址。</p>
+</blockquote>
+<p>根据我们要实现的功能，这里自定义dll要做的事情就是先获取用户聚焦窗口的句柄<code>HWND</code>，然后基于窗口句柄获取进程ID，进而得到进程句柄<code>HANDLE</code>获取需要的软件名称。</p>
+<p>启动msvs，创建基于cpp的dll项目，创建后有四个主要的文件，</p>
+<ol>
+<li><strong>dllmain.cpp</strong>：这是dll的入口点文件，包含了dll的初始化和清理代码。它定义了<code>DllMain</code>函数，该函数在dll被加载或卸载时被调用。你可以在这里执行一些初始化操作，比如分配资源，或者在dll卸载时释放资源。</li>
+<li><strong>framework.h</strong>：这个头文件通常用于定义项目中使用的常量、宏、数据结构和函数声明。它可以包含其他必要的头文件，提供项目所需的基础功能。</li>
+<li><strong>pch.cpp</strong>：这是预编译头文件的实现文件。预编译头可以加快编译速度，尤其是在包含大量头文件的项目中。这个文件通常包含了在<code>pch.h</code>中声明的内容。</li>
+<li><strong>pch.h</strong>：这是预编译头文件，通常包含了项目中常用的头文件和库的引用。通过使用预编译头，可以减少编译时间，提高开发效率。</li>
+</ol>
+<p>要实现的功能比较简单，且我们目前只关注功能的实现，所以只修改dllmain.cpp即可，相关代码的功能以注释的形式放在代码块中。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;pch.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;windows.h&gt;</span> </span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;psapi.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">//**</span></span><br><span class="line"><span class="comment">// 导出函数，获取当前活动窗口的应用程序名称</span></span><br><span class="line"><span class="comment">// **/</span></span><br><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> __declspec(dllexport) <span class="function"><span class="type">const</span> <span class="type">char</span>* <span class="title">GetActiveWindowAppName</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 获取当前活动窗口的句柄</span></span><br><span class="line">    HWND hwnd = <span class="built_in">GetForegroundWindow</span>();</span><br><span class="line">    <span class="keyword">if</span> (hwnd == <span class="literal">NULL</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;No active window&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取活动窗口所属的进程ID</span></span><br><span class="line">    DWORD processID;</span><br><span class="line">    <span class="built_in">GetWindowThreadProcessId</span>(hwnd, &amp;processID);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 打开进程以查询信息和读取内存</span></span><br><span class="line">    HANDLE hProcess = <span class="built_in">OpenProcess</span>(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, processID);</span><br><span class="line">    <span class="keyword">if</span> (hProcess == <span class="literal">NULL</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;Unable to open process&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取进程的可执行文件名，因为获取到的是绝对路径，所以需要进行处理</span></span><br><span class="line">    <span class="type">char</span> processName[MAX_PATH];</span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">GetModuleFileNameExA</span>(hProcess, <span class="literal">NULL</span>, processName, <span class="built_in">sizeof</span>(processName) / <span class="built_in">sizeof</span>(<span class="type">char</span>))) &#123;</span><br><span class="line">        <span class="function">std::string <span class="title">fullPath</span><span class="params">(processName)</span></span>;</span><br><span class="line">        std::string appName = fullPath.<span class="built_in">substr</span>(fullPath.<span class="built_in">find_last_of</span>(<span class="string">&quot;\\&quot;</span>) + <span class="number">1</span>);</span><br><span class="line">        appName = appName.<span class="built_in">substr</span>(<span class="number">0</span>, appName.<span class="built_in">find_last_of</span>(<span class="string">&quot;.&quot;</span>));</span><br><span class="line"></span><br><span class="line">        <span class="built_in">CloseHandle</span>(hProcess);</span><br><span class="line">        <span class="keyword">return</span> _strdup(appName.<span class="built_in">c_str</span>());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">CloseHandle</span>(hProcess);</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;Unable to get process name&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//**</span></span><br><span class="line"><span class="comment">// dll的入口点</span></span><br><span class="line"><span class="comment">// **//</span></span><br><span class="line"><span class="function">BOOL APIENTRY <span class="title">DllMain</span><span class="params">(HMODULE hModule,</span></span></span><br><span class="line"><span class="params"><span class="function">    DWORD  ul_reason_for_call,</span></span></span><br><span class="line"><span class="params"><span class="function">    LPVOID lpReserved)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">switch</span> (ul_reason_for_call) &#123;</span><br><span class="line">    <span class="keyword">case</span> DLL_PROCESS_ATTACH:</span><br><span class="line">    <span class="keyword">case</span> DLL_THREAD_ATTACH:</span><br><span class="line">    <span class="keyword">case</span> DLL_THREAD_DETACH:</span><br><span class="line">    <span class="keyword">case</span> DLL_PROCESS_DETACH:</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> TRUE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>msvs生成解决方案即可，这个构建的很快，然后输出中会直接给出绝对路径，后面要用（当然你也可以挪来挪去，但我觉得有绝对路径能cv了也很方便）。</p>
+<p><img src="https://img.ma5hr00m.top/2025/20250121164030.png" alt="image.png"></p>
+<h3 id="编写js脚本调用dll检验结果"><a href="#编写js脚本调用dll检验结果" class="headerlink" title="编写js脚本调用dll检验结果"></a>编写js脚本调用dll检验结果</h3><p>这里就不用create-electron-app这种库拉取electron项目模板了，手动创建项目，安装依赖。</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pnpm install <span class="literal">--save-dev</span> electron ffi<span class="literal">-napi</span> ref<span class="literal">-napi</span></span><br></pre></td></tr></table></figure>
+
+<p>我的package.json如下，其中<code>&quot;start&quot;: &quot;electron .&quot;</code>暂时用不到，下一小节创建electron应用的时候使用，对接下来的js脚本验证可实现node调用自定义的dll无影响。</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;test&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;version&quot;</span><span class="punctuation">:</span> <span class="string">&quot;1.0.0&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;description&quot;</span><span class="punctuation">:</span> <span class="string">&quot;&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;main&quot;</span><span class="punctuation">:</span> <span class="string">&quot;main.js&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;scripts&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;test&quot;</span><span class="punctuation">:</span> <span class="string">&quot;echo \&quot;Error: no test specified\&quot; &amp;&amp; exit 1&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;start&quot;</span><span class="punctuation">:</span> <span class="string">&quot;electron .&quot;</span></span><br><span class="line">  <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;author&quot;</span><span class="punctuation">:</span> <span class="string">&quot;&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;license&quot;</span><span class="punctuation">:</span> <span class="string">&quot;ISC&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;devDependencies&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;electron&quot;</span><span class="punctuation">:</span> <span class="string">&quot;^34.0.0&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;ffi-napi&quot;</span><span class="punctuation">:</span> <span class="string">&quot;^4.0.3&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;ref-napi&quot;</span><span class="punctuation">:</span> <span class="string">&quot;^3.0.3&quot;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>然后编写满足文章开头所说需求的脚本，调用生成好的dll文件监测本地用户聚焦的软件，注意替换dll路径即可（我设置的轮询间隔为2s）</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> ffi = <span class="built_in">require</span>(<span class="string">&#x27;ffi-napi&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> userTracking = ffi.<span class="title class_">Library</span>(<span class="string">&#x27;C:\\your-path-to-dll\\UserTracking.dll&#x27;</span>, &#123;</span><br><span class="line">    <span class="string">&#x27;GetActiveWindowAppName&#x27;</span>: [<span class="string">&#x27;string&#x27;</span>, []]</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="title function_">printActiveAppName</span> = (<span class="params"></span>) =&gt; &#123;</span><br><span class="line">    <span class="keyword">const</span> appName = userTracking.<span class="title class_">GetActiveWindowAppName</span>();</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(appName);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="built_in">setInterval</span>(printActiveAppName, <span class="number">2000</span>);</span><br></pre></td></tr></table></figure>
+
+<p>然后node运行该文件，观察控制台，可以看到脚本正在运行，监测你正在用的软件</p>
+<p><img src="https://img.ma5hr00m.top/2025/20250121161514.png" alt="image.png"></p>
+<p>以上。</p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>kinoko</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="http://example.com/2025/01/21/2025/nodejs-ffinapi/">http://example.com/2025/01/21/2025/nodejs-ffinapi/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Do you believe in <strong>DESTINY</strong>?</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/Windows-Api/"># Windows-Api</a>
+                    
+                        <a href="/tags/ffi-napi/"># ffi-napi</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2025/06/17/2025/terminal-zsh-p10k/">Setting Up zsh with oh-my-zsh, Powerlevel10k, and Tabby Terminal</a>
+            
+            
+            <a class="next" rel="next" href="/2025/01/14/2025/know-gradle/">速速了解Gradle构建工具</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© kinoko 2022-2025. All rights reserved.</span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="kinoko">
+
+
+
+
+    <meta name="keywords" content="博客,blog,阿菇,阿菇kinoko,kinoko,usamikinoko">
+
+
+<title>Supabase&amp;Vercel部署Umami | 阿菇的博客</title>
+
+
+
+    <link rel="icon" href="/favicon.jpg">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Kinoko&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                <a class="menu-item" href="/archives">Posts</a>
+                
+                <a class="menu-item" href="/category">Categories</a>
+                
+                <a class="menu-item" href="/tag">Tags</a>
+                
+                <a class="menu-item" href="/about">About</a>
+                
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Kinoko&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">
+                    <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"/></svg>
+                    <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE --><path fill="currentColor" d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"/></svg>
+                </div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                <a class="menu-item" href="/archives">Posts</a>
+                
+                <a class="menu-item" href="/category">Categories</a>
+                
+                <a class="menu-item" href="/tag">Tags</a>
+                
+                <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if (toggleMenu.classList.contains("active")) {
+            toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        } else {
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">Supabase&amp;Vercel部署Umami</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">kinoko</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">December 17, 2023&nbsp;&nbsp;0:00:00</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Development/">Development</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <p>年末，云服务器快到期了，正好赶上腾讯云年底促销，118￥&#x2F;年 2核2G云服务器，就租了台。</p>
+<p>但是，我的umami网站数据统计服务运行在旧服务器的docker容器中，迁移有点麻烦，就想着干脆在第三方平台部署一个吧，免得以后更换云服务器还得迁移来迁移去的。这里写篇博客记录使用vercel+supabase部署umami服务的过程。</p>
+<h2 id="umami"><a href="#umami" class="headerlink" title="umami"></a>umami</h2><p>开始之前，先说说umami是什么，我们为什么需要它。</p>
+<p>umami是一个轻量级的网站访问统计工具，开源免费，可自托管，用途类似 <a target="_blank" rel="noopener" href="https://analytics.google.com/">Google Analytics</a>。</p>
+<p>相比老牌Google Analytics，umami的主要优势在于其对用户隐私的关注和资源占用的低占用。它不使用cookie，不跟踪用户，且所有收集的数据都会匿名化处理，符合GDPR政策。此外，umami的所有数据都存储在自己的数据库中，不用担心数据被第三方平台进行算法优化、用户建模等。</p>
+<p>umami的功能虽然没有Google Analytics那么丰富，但如果你的需求不多，只想了解网站的访问量（PV、UV）、流量来源等基本信息，以及记录一些简单的自定义事件，那么Umami会是一个不错的选择。</p>
+<p>而且，umami的文档编写的十分详细，并且详细讲解了在多数云平台中应该如何配置一个umami服务，这点非常棒。</p>
+<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><ul>
+<li>github帐号</li>
+<li>vercel帐号（支持github认证登录）</li>
+<li>supabase帐号（支持github认证登录）</li>
+</ul>
+<p>Vercel是一个面向现代前端项目的部署平台，它提供了快速、简单的部署流程，适用于静态网站、单页面应用和服务器端渲染应用。Vercel支持自动化部署、全球性能优化和无缝的集成，使开发人员能够专注于构建用户界面而不必担心基础架构。</p>
+<p>Supabase是一个开源的后端即服务（BaaS）平台，它基于PostgreSQL数据库构建，提供了身份验证、实时订阅、文件存储等功能。Supabase旨在为开发人员提供可扩展的后端解决方案，使他们能够快速构建应用程序而无需花费大量时间在后端开发上。</p>
+<h2 id="部署流程"><a href="#部署流程" class="headerlink" title="部署流程"></a>部署流程</h2><p>第一步，访问<a target="_blank" rel="noopener" href="https://github.com/umami-software/umami">umami官方仓库</a>，Fork一份代码到自己的仓库中。</p>
+<p>第二步，访问supabase，点击<code>New Project</code>创建一个</p>
+<p><img src="https://img.ma5hr00m.top/blog/20231219091327.png" alt="supabase create new project"></p>
+<p>成功创建项目，点击<code>SQL editor</code>按钮，页面跳转后点击<code>+ New query</code>按钮，在文本框中输入 <a target="_blank" rel="noopener" href="https://github.com/umami-software/umami/blob/master/db/postgresql/migrations/01_init/migration.sql">umami官方postgresql初始化脚本</a> 中的SQL语句，然后运行，在控制台输出<code>Success. No rows returned</code>即成功。</p>
+<p><img src="https://img.ma5hr00m.top/blog/20231219091713.png" alt="postgresql init success"></p>
+<p>然后，按照下图中的顺序找到刚创建的这个umami postgresql服务的URI参数（记得替换成YOUR_PASSWORD），并记录下来，一会儿要用。</p>
+<p><img src="https://img.ma5hr00m.top/blog/20231219092709.png" alt="supabase params"></p>
+<p>第三步。访问vercel，点击<code>Add New Project</code>，选中第一步中Fork的umami仓库，点击<code>import</code>，然后开始配置环境变量。</p>
+<p>只需要配置两个环境变量字段：<code>HASH_SALT</code>对应一个由英文组成的字符串，闭着眼对键盘乱敲就行；<code>DATABASE_URL</code>对应后端服务URL，就是第二步最后记录的参数。</p>
+<p><img src="https://img.ma5hr00m.top/blog/20231219092920.png" alt="vercel set params"></p>
+<p>配置完成后点击<code>Deploy</code>，稍等片刻，即可看到部署成功的欢迎页面，此时就能登录分配给你链接使用刚部署的umami服务了！记得更改默认密码。</p>
+<p>:::warning<br>在这一步，你很有可能会发现Vercel Build Project失败，并抛出<code>Error: P3005</code>报错。</p>
+<p>解决方法就在下面。</p>
+<p>:::</p>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题<Badge type="tip" text="umami v2 专享" /></h2><p>Build项目时会出错，查看日志，关键报错信息如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Error: P3005</span><br><span class="line"></span><br><span class="line">The database schema is not empty. Read more about how to baseline an existing production database: https://pris.ly/d/migrate-baseline</span><br></pre></td></tr></table></figure>
+
+<p>这个问题会在umami v2中碰到。我写这篇博客时umami的版本是<code>v2.9.0</code>，也遇到了这个问题。翻找官方仓库的issue，果然有收获：<a target="_blank" rel="noopener" href="https://github.com/umami-software/umami/issues/2005">#2005</a>。</p>
+<p>原理很简单，会出现这个报错的本质原因是umami v2使用了prisma作为数据库迁移工具，而prisma要求数据库模式是空的，否则会导致冲突。为了解决这个问题，可以参考一下方法：</p>
+<ol>
+<li>将你Fork的umami项目仓库clone到本地；</li>
+<li>在你的umami项目中，创建.env文件，并在其中设置<code>DATABASE_URL</code>变量，该环境变量的值就是supabase中刚创建数据库的URL；</li>
+<li>在项目终端中依次运行以下三条指令：</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">yarn install</span><br><span class="line">yarn build-db</span><br><span class="line">npx prisma migrate resolve --applied 01_init</span><br></pre></td></tr></table></figure>
+
+<p>解决问题的手法也很简单，就是先在本地使用prisma来同步umami的数据库模式和迁移，然后再在vercel上部署umami的服务。这样可以避免vercel在部署umami v2项目时出现报错的本质原因，即数据库模式不为空。</p>
+<p>注意哦，这里的操作应该在第二步之后、第三步之前。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://route360.dev/en/post/umami-supabase/">How to run Umami Analytics + Supabase + Vercel for free</a>, by Route360</li>
+</ul>
+<h2 id="后话"><a href="#后话" class="headerlink" title="后话"></a>后话</h2><p>跟着以上步骤走，可以零成本、轻松地部署自己的umami服务。如果你相对umami了解更多，包括怎么使用umami统计自己站点的数据，可以去看看官方文档，十分详细：<a target="_blank" rel="noopener" href="https://umami.is/docs">umami Docs</a>。</p>
+<p>以上。</p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>kinoko</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="http://example.com/2023/12/17/2023/supabase-vercel-umami/">http://example.com/2023/12/17/2023/supabase-vercel-umami/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Do you believe in <strong>DESTINY</strong>?</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/Umami/"># Umami</a>
+                    
+                        <a href="/tags/Self-hosting/"># Self-hosting</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2023/12/25/2023/year-end-review/">2023年终总结</a>
+            
+            
+            <a class="next" rel="next" href="/2023/12/11/2023/hangzhou-trip-02/">杭州小记·清河坊&伍公山&雷峰塔</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© kinoko 2022-2025. All rights reserved.</span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="kinoko">
+
+
+
+
+    <meta name="keywords" content="博客,blog,阿菇,阿菇kinoko,kinoko,usamikinoko">
+
+
+<title>2023年终总结 | 阿菇的博客</title>
+
+
+
+    <link rel="icon" href="/favicon.jpg">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Kinoko&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                <a class="menu-item" href="/archives">Posts</a>
+                
+                <a class="menu-item" href="/category">Categories</a>
+                
+                <a class="menu-item" href="/tag">Tags</a>
+                
+                <a class="menu-item" href="/about">About</a>
+                
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Kinoko&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">
+                    <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"/></svg>
+                    <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE --><path fill="currentColor" d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"/></svg>
+                </div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                <a class="menu-item" href="/archives">Posts</a>
+                
+                <a class="menu-item" href="/category">Categories</a>
+                
+                <a class="menu-item" href="/tag">Tags</a>
+                
+                <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if (toggleMenu.classList.contains("active")) {
+            toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        } else {
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">2023年终总结</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">kinoko</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">December 25, 2023&nbsp;&nbsp;0:00:00</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Life/">Life</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <p><img src="https://img.ma5hr00m.top/blog/20231230134727.png" alt="20231230134727"></p>
+<blockquote>
+<p>从平安夜就计划着要写，一直拖到31号才动笔，该治治拖延症了 :(</p>
+</blockquote>
+<p>总得来说，今年变化挺大的。</p>
+<h2 id="走出三点一线，不再自闭！"><a href="#走出三点一线，不再自闭！" class="headerlink" title="走出三点一线，不再自闭！"></a>走出三点一线，不再自闭！</h2><p>首先呢，稍微变得外向了。自己都能感受到自己在走出自闭的圈子（这对于一个社恐来说真的是能排到首位的事情）。</p>
+<p>阿菇以前说话结巴很严重，有时候想了很久话到嘴边说不出来，也有时候话不过脑子就动嘴，不知道自己说了什么，同时说话的时候基本丧失五感。<br>与别人交流起来比较困难。<br>不知道是出于什么原因，各种杂七杂八的因素都有点吧，可能是因为以前性格太闷了，说话都不多。</p>
+<p>2023年的我在努力克服这一点。<br>包括与室友聊天、课业组队、社团交际等，相比与高中时期，大大增加的社交给了阿菇充足的练嘴皮子的机会。<br>变化真的蛮大的，大到，可能去年的阿菇看到今年的我，都会愣一下？</p>
+<p>另一方面，出于多与人交流的想法，同时也觉得该改变现状了，阿菇偶尔会离开三点一线的生活，四处逛逛（杭州也比较适合）。<br>以前就是纯闷在寝室&#x2F;家，现在逐渐喜欢上这种到处跑的感觉。比较有新鲜感，能观察一些屏幕前注意不到的东西。</p>
+<blockquote>
+<p>但说实话，依然很难有那种 <em>“啊，我欣赏到了美景，很幸运能来到此地”</em> 的想法，与个人品性有关？或许阿菇天生是个宅宅。</p>
+</blockquote>
+<h2 id="看动漫的心或许不再纯粹……"><a href="#看动漫的心或许不再纯粹……" class="headerlink" title="看动漫的心或许不再纯粹……"></a>看动漫的心或许不再纯粹……</h2><p>首次摆脱中学压力，阿菇掌握自己时间的分配，可以肆意地了解自己感兴趣的知识，休息时间也能敞开了看自己喜欢的动漫。</p>
+<p>但阿菇发现，自己很难“沉入”进动漫当中了，更多的时候是在以一个观察者的视角在“看自己看动漫”。</p>
+<p>这说法或许很怪。</p>
+<p>以前就有在模模糊糊地意识到，阿菇在看动漫的时候，脑子似乎有自己的想法，就那种有片思绪会飘出来，然后在我看动漫的时候反复强调：“啊，这个镜头怎么怎么样，制作的时候阿巴阿巴”、“这个分镜是想引导观众怎样怎样”、“这个时候你应该想xxx，而不是xxx，大家会这样想而不是xxx”……</p>
+<p>就类似不自觉地进行点评，点评作品本身以及自己在看作品时的想法，以及脑补别人在看这个片段时的想法，而不是向以前一样产生带入感。</p>
+<p>倒也说不上是打分，但肯定会有一个很明显的对比的心态，会将刚看的作品和之前看到的xxx进行比对，再将自己观看时的状态与我认为的 <em>“别人观看时的状态做比对”</em>。</p>
+<p>举个例子，这两天云玩了《三伏》，走了遍剧情，全看完后第一反应是后半段什么狗屎剧情，一个反派大杀特杀，前半段的部分人设烂掉了；过会儿脑子会做个纠正，告诉自己总体剧情也能接受，不是作品烂，不过是be导致短时间的情绪失衡（一般只接受he作品），不能否认作品本身；然后细想又不对，还是剧情狗屎的原因，自己心里打个分，然后去找其他平替结局；然后看完粉丝改的he结局再掉过头看原作结局，又觉得存在一定合理性……之后就反复拉扯，会在心里一遍一遍过剧情、打分，有时候就会觉得看作品挺累的……</p>
+<blockquote>
+<p>这也能解释为什么阿菇喜欢看糖水动漫？</p>
+</blockquote>
+<p>找不回以前那种看动漫时会将自己带入进故事的感受了。</p>
+<h2 id="技术力-up-up"><a href="#技术力-up-up" class="headerlink" title="技术力 up up ~"></a>技术力 up up ~</h2><p>呃啊啊，技术能力得到提升。虽然觉得提升不多，但相比年初还是强了不少。</p>
+<p>主要集中在Web开发方面吧，现在撸个Web站点已经不是麻烦了，基本都取决于想不想做，懒惰成为了项目开发的最大阻力。</p>
+<p>眼界也提升不少，在技术社区挖宝也是一种快乐的体验，之前以为很高深的技术现在也变的触手可及。<br>唔，或者说本来就触手可及，以前只是害怕去了解，总是觉得自己掌握得还不够。</p>
+<p>但，总得有个开始，只要上手接触，就会发现实现功能并不是很难的事情。<br>学技术的难度总是小于接触技术的难度。</p>
+<p>深切地体会到“万事开头难”。</p>
+<p>除了 coding 方面，设计方面也有了显著提升。虽然没正经的上过什么课，但东一耙子、西一耙子练出来的艺术感与审美也是够用了。</p>
+<p>略有遗憾的就是，懒阿菇在今年没怎么练习过绘画，明年要捡起来！</p>
+<h2 id="近况。"><a href="#近况。" class="headerlink" title="近况。"></a>近况。</h2><p>抱恙，健康状况出了点小问题，年末基本是在休息与摆烂中度过的。</p>
+<p>把 VImage 变成了创新实践期末作业，通过添加ddl的方式来提升自己的开发进度，已经鸽了快4个月了。ddl不愧是第一生产力！</p>
+<p>年末美工该发力了，准备鼓捣鼓捣出些周边。</p>
+<p>除此之外，最近开始接触Vtuber了。观察观众们与Vtuber之间的互动，很有趣，也会感觉Vtuber打工的真地很卖力，大多数人或许干不了这一行。</p>
+<p>这学期预选了很多大三必修课，感觉会有一场恶战。不要屈服口牙！</p>
+<h2 id="2024年要干些什么呢？"><a href="#2024年要干些什么呢？" class="headerlink" title="2024年要干些什么呢？"></a>2024年要干些什么呢？</h2><ol>
+<li><p>大方向转到Web安全，偏移重心。<br>多打比赛多复现，在知识星球等平台上也多关注最新的漏洞。<br>明年的HGAME也要出题做做贡献。</p>
+</li>
+<li><p>开发能力继续提升，做出自己想要的网站、写出优美的页面依然是能令我非常开心的事情。现在手上有两个项目：</p>
+<ul>
+<li>VImage</li>
+<li>Manga Recoder</li>
+</ul>
+</li>
+<li><p>设计能力就算在上一条了。也要练习画画，看看能坚持多久。总体上来说，能另我开心的、我需要的都还是内容输出能力，搞开发和绘画都是表现形式罢了。</p>
+<ul>
+<li>HGAME2024周边</li>
+<li>Vidar娘光标美化包</li>
+</ul>
+</li>
+<li><p>多出去走走、增强沟通交流能力，尽可能改变过”宅“的现状。</p>
+</li>
+<li><p>坚持锻炼，总能给自己找到锻炼的理由，生活也要更加规律一些。</p>
+</li>
+</ol>
+<h2 id="明年再见！"><a href="#明年再见！" class="headerlink" title="明年再见！"></a>明年再见！</h2><p>以上。</p>
+<p>这一年总体来说挺不错的，阿菇很开心，虽说仍有不如意的地方，但还是要给自己鼓掌。希望2023年的阿菇摆脱心理上给自己的束缚，更加遵从自己的内心！</p>
+<p>撒由那啦，2023。</p>
+<p>:::info<br>今天晚上就看看B站跨年晚会吧，虽然没做期待。<br>:::</p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>kinoko</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="http://example.com/2023/12/25/2023/year-end-review/">http://example.com/2023/12/25/2023/year-end-review/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Do you believe in <strong>DESTINY</strong>?</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/Year-Review/"># Year Review</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2024/01/02/2024/end-review/">网络空间安全技术复习笔记</a>
+            
+            
+            <a class="next" rel="next" href="/2023/12/17/2023/supabase-vercel-umami/">Supabase&Vercel部署Umami</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© kinoko 2022-2025. All rights reserved.</span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

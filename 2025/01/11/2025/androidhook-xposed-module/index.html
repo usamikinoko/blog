@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="kinoko">
+
+
+
+
+    <meta name="keywords" content="博客,blog,阿菇,阿菇kinoko,kinoko,usamikinoko">
+
+
+<title>Android Hook与简单的xposed模块开发实例 | 阿菇的博客</title>
+
+
+
+    <link rel="icon" href="/favicon.jpg">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Kinoko&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                <a class="menu-item" href="/archives">Posts</a>
+                
+                <a class="menu-item" href="/category">Categories</a>
+                
+                <a class="menu-item" href="/tag">Tags</a>
+                
+                <a class="menu-item" href="/about">About</a>
+                
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Kinoko&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">
+                    <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"/></svg>
+                    <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE --><path fill="currentColor" d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"/></svg>
+                </div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                <a class="menu-item" href="/archives">Posts</a>
+                
+                <a class="menu-item" href="/category">Categories</a>
+                
+                <a class="menu-item" href="/tag">Tags</a>
+                
+                <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if (toggleMenu.classList.contains("active")) {
+            toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        } else {
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">Android Hook与简单的xposed模块开发实例</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">kinoko</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">January 11, 2025&nbsp;&nbsp;0:00:00</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Development/">Development</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <p>Hook是一种在特定事件或操作发生时插入自定义代码的编程技术。在前端开发中，例如Vue和Angular的生命周期钩子，体现了Hook的机制，允许开发者在组件的不同阶段执行代码，提升代码的模块化和可重用性。</p>
+<p>Android Hook与此类似，允许开发者在Android应用程序运行时修改或扩展现有功能。通过拦截方法调用、修改参数或返回值，Hook可用于调试、测试和逆向工程，例如监控应用程序行为、捕获API调用，或在不修改源代码的情况下添加新功能，以及替换so模块以实现获取验证码或广告拦截等功能。</p>
+<blockquote>
+<p>在快写完这篇博客的时候，我才发现我想要实现的功能不需要Android Hook即可实现…不过不耽误我对这方面做一些了解，所以接着写完了。</p>
+</blockquote>
+<h2 id="补充知识"><a href="#补充知识" class="headerlink" title="补充知识"></a>补充知识</h2><p>前几天刷机的时候基本算是闷头跟着教程走，中间还险些变砖。虽然过程中我边操作边了解，但也是比较粗糙，这里再补充点知识并做做记录。</p>
+<h3 id="Magisk工具"><a href="#Magisk工具" class="headerlink" title="Magisk工具"></a>Magisk工具</h3><p>现在的刷机教程一般都会引导读者在root后安装Magisk，乍看上去是个工具包，集合了很多功能，那这个“面具”具体是什么，有什么用呢？</p>
+<p>Magisk是一款流行的Android系统级root工具，由XDA开发者topjohnwu创建和维护。与传统的root方法不同，Magisk采用了一种“无系统”的方式，这意味着它不会直接修改系统分区中的文件，而是通过修改boot镜像来实现root权限。这种方法的好处在于它能够更好地兼容系统更新，避免root权限导致的系统不稳定或应用崩溃。Magisk的“无系统”特性也使得它能够更好地隐藏root权限，从而绕过一些应用的root检测机制，例如Google的SafetyNet。</p>
+<p>Magisk的核心功能是提供root权限，允许用户访问和修改系统文件，以及安装各种Magisk模块来扩展系统功能。这些模块可以实现各种各样的功能，例如自定义系统UI、增强系统性能、拦截广告、修改系统设置等等。Magisk还提供了一个Magisk Manager应用，方便用户管理root权限和Magisk模块。Magisk的持续更新和强大的社区支持，使其成为Android用户中非常受欢迎的root工具。  Magisk的出现，很大程度上简化了root流程，并提升了root后的系统稳定性和安全性。</p>
+<h3 id="Xposed框架"><a href="#Xposed框架" class="headerlink" title="Xposed框架"></a>Xposed框架</h3><p>Xposed框架是一个Android模块化框架，允许开发者通过模块修改系统和应用行为，无需修改APK文件。它由rovo89开发，最初用于调试和测试，通过替换系统核心文件实现功能，并允许开发者使用Java代码hook方法。Xposed功能强大，可修改系统UI、性能、广告等，但安装复杂，存在风险，需要root权限。</p>
+<p>Magisk和Xposed都是Android root工具，但Magisk采用“无系统”方式，更安全稳定，兼容性更好；Xposed功能更强大，但修改系统文件，风险更高。一些用户会结合使用两者，先用Magisk获得root权限，再安装Xposed，以兼顾安全性和功能性，但需要注意模块兼容性。</p>
+<p>与之相对的还有CydiaSubstrate框架，不过xposed是开源项目，所以培养了更加庞大的开发者社区，网上基于Xposed框架的模块插件非常多。</p>
+<h3 id="Xposed-Hook实现原理及缺陷"><a href="#Xposed-Hook实现原理及缺陷" class="headerlink" title="Xposed Hook实现原理及缺陷"></a>Xposed Hook实现原理及缺陷</h3><p>Xposed虽好，但也存在缺陷，比较致命的就是兼容性差。</p>
+<p>Xposed框架的运作依赖于Android系统的Zygote进程和<code>app_process</code>，但其机制并非简单的替换。准确地说，Xposed通过替换系统默认的<code>/system/bin/app_process</code>为一个修改过的版本来实现其功能，这个修改后的<code>app_process</code>包含了Xposed框架的核心代码，以及方法Hook机制。</p>
+<p>系统启动时，init.rc脚本启动Zygote进程，使用的是这个被Xposed替换后的<code>/system/bin/app_process</code>。因此，Zygote进程本身就加载了Xposed框架。所有应用进程都是Zygote的子进程，因此它们继承了Xposed框架的代码。</p>
+<p>开发者编写的Xposed模块定义了Hook规则，这些模块会被Xposed框架加载，并根据规则执行Hook操作。Xposed框架会管理这些模块，并确保它们能够正确地与Zygote进程和应用进程交互。Xposed的Hook操作并非在应用运行时动态进行，而是在Zygote进程启动的早期阶段就完成了，这使得Hook操作能够影响所有从Zygote fork出的应用进程。这与在应用运行时动态Hook方法相比，效率更高，也更稳定。</p>
+<p>听起来很不错，但问题也就出在这里。Android系统的更新迭代频繁，且不说Android本身的各种大小版本，各家手机厂商也会在原本的基础上进行魔改，这就导致Android系统版本繁多。每次系统更新都可能改变<code>app_process</code>的结构或行为。Xposed框架需要针对每次系统更新进行适配，才能保证其正常工作。如果Xposed框架没有及时更新以适应新的<code>app_process</code>，那么它就可能无法正常工作，甚至导致系统崩溃或bootloop（无限重启）。知名项目可以依赖庞大的贡献者群体及时更新，小项目跟不上版本就会慢慢废弃。</p>
+<h3 id="EdXposed框架"><a href="#EdXposed框架" class="headerlink" title="EdXposed框架"></a>EdXposed框架</h3><p><a target="_blank" rel="noopener" href="https://github.com/ElderDrivers/EdXposed">GitHub - ElderDrivers&#x2F;EdXposed: Elder driver Xposed Framework.</a></p>
+<p>EdXposed是Xposed框架的改进版，主要解决了Xposed在高版本Android系统上的兼容性问题。Xposed通过替换核心文件<code>app_process</code>工作，这种方式在新的Android系统中容易冲突，导致不稳定甚至崩溃。而EdXposed则基于Riru项目，通过注入代码到zygote进程，避免了直接修改系统文件，从而提升了兼容性和稳定性。  两者功能相似，都允许安装模块扩展系统功能，但EdXposed在兼容性和稳定性方面显著优于Xposed。</p>
+<h3 id="LSPosed框架"><a href="#LSPosed框架" class="headerlink" title="LSPosed框架"></a>LSPosed框架</h3><p>LSPosed是EdXposed的进一步发展，旨在提供更高的兼容性和用户体验。与EdXposed类似，LSPosed也基于Riru项目，通过注入代码到Zygote进程来实现功能扩展，避免了直接修改系统文件的问题，从而提升了稳定性。</p>
+<p>LSPosed在模块管理方面进行了优化，提供了更直观的用户界面，使得用户可以更方便地安装和管理模块。此外，LSPosed支持无root模式，降低了使用门槛，这个特点降低了用户的使用门槛，可以拉更多人入坑。</p>
+<blockquote>
+<p>LSPosed仍然需要针对不同Android版本进行适配。</p>
+</blockquote>
+<h3 id="Zygote进程"><a href="#Zygote进程" class="headerlink" title="Zygote进程"></a>Zygote进程</h3><p>上文中反复提到Zygote进程，这个进程是什么呢？</p>
+<p>Zygote进程是Android系统中至关重要的一个进程，它是所有Android应用程序的父进程。它在系统启动时被初始化，预加载所有应用可能用到的核心类和资源到内存中，从而在需要启动新应用时，通过fork自身快速创建新进程，继承Zygote进程的内存空间，实现高效的应用启动。这利用了Linux内核的写时复制技术，提升效率并节省内存。</p>
+<p>Zygote进程还会显式启动System Server进程，后者负责初始化和管理各种系统服务。  由于Android系统版本差异和厂商定制，<code>app_process</code>的结构和行为可能变化，这影响了需要修改<code>app_process</code>的框架（如Xposed）的稳定性。EdXposed通过Riru项目注入zygote进程，避免直接修改<code>app_process</code>，从而提升了兼容性和稳定性。</p>
+<h3 id="Riru"><a href="#Riru" class="headerlink" title="Riru"></a>Riru</h3><p>先贴仓库链接：<a target="_blank" rel="noopener" href="https://github.com/RikkaApps/Riru">GitHub - RikkaApps&#x2F;Riru: Inject into zygote process</a>，不过两年前就归档了。</p>
+<p>Riru是一个Magisk模块，它允许将代码注入zygote进程，而不会直接修改系统文件。这使得它在不同Android版本和厂商定制系统上具有更好的兼容性。</p>
+<p>Riru与Android的关系在于它利用Android系统的zygote进程机制运行代码，通过系统接口或漏洞注入代码，影响zygote进程及其子进程（所有应用）的行为。Riru和Xposed都可修改应用行为，但实现方式不同：Xposed替换<code>app_process</code>，而Riru注入zygote进程，后者更安全、兼容性更好。</p>
+<p>前面说到的EdXposed框架则依赖Riru实现功能，利用Riru提供的机制注入zygote进程，避免直接修改系统文件，从而提高稳定性和兼容性。EdXposed可视为基于Riru构建的Xposed框架替代方案，Riru提供底层机制，EdXposed在其上构建更易用的框架。</p>
+<p>ok，先介绍到这里，更进一步的实现原理可以看这篇文档，想必会收获颇丰：<a target="_blank" rel="noopener" href="https://github.com/AlienwareHe/riru-docs/blob/main/riru%E6%A8%A1%E5%9D%97%E8%A7%A3%E6%9E%90.md">riru-docs&#x2F;riru模块解析.md at main · AlienwareHe&#x2F;riru-docs · GitHub</a>。</p>
+<h2 id="安装LSPosed"><a href="#安装LSPosed" class="headerlink" title="安装LSPosed"></a>安装LSPosed</h2><p>LSPosed仓库release地址：<a target="_blank" rel="noopener" href="https://github.com/LSPosed/LSPosed/releases">Releases · LSPosed&#x2F;LSPosed</a>，安装LSPosed-Zygisk模块即可，下载zip推送到设备，然后在Magisk中作为模块安装。安装后重启。</p>
+<blockquote>
+<p>我前面已经配了基于Zygisk的Shamiko模块，如果切换为Riru会与Zygisk冲突，所以这里直接选择LSPosed-Zygisk模块。</p>
+</blockquote>
+<p>重启后，通知栏会弹出“LsPosed已加载”，点击即可进入管理界面（如果没显示，可以通过拨号键输入 <code>*#*#5776733#*#*</code> 进入LSPosed）。</p>
+<p>进入LSPosed App，<code>设置</code> – <code>创建快捷方式</code> – 关闭 <code>状态通知</code> – 显示<code>已激活</code>，代表已成功刷入LSPosed框架。</p>
+<p><img src="https://img.ma5hr00m.top/2025/20250112211441.png" alt="image.png"></p>
+<h2 id="编写Xposed模块"><a href="#编写Xposed模块" class="headerlink" title="编写Xposed模块"></a>编写Xposed模块</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://saucer-man.com/machine_learning/725.html">编写一个简单的xposed模块 - yanq的个人博客</a></li>
+<li><a target="_blank" rel="noopener" href="https://l0neman.github.io/2020/06/03/xposed-%E6%A1%86%E6%9E%B6%E7%9A%84%E4%BD%BF%E7%94%A8/">Xposed 框架的使用 - l0neman 的博客</a></li>
+<li><a target="_blank" rel="noopener" href="https://lbqaq.top/p/init-xposed/">从零开始编写Xposed模块</a></li>
+</ul>
+<p>刚开始找到的教程很老，各种奇奇怪怪问题一堆，后面边翻文档边修，也算是磕磕绊绊写出来第一个cposed模块，实现的功能很简单，就是监测应用的启动，检测到应用启动就打印一条日志。</p>
+<p>晚上的很多类似的教程，但有一点不好，就是不解释为什么要怎么写，我比较呆，写完之后会搜搜为什么要这么做，这里也一并附上，所以后面的内容会有点啰嗦。</p>
+<blockquote>
+<p>AndroidStudio版本为2024.2，设备版本为Oneplus Ace2（Android14），项目选择的是Kotlin DSL</p>
+</blockquote>
+<p>开发xposed模块，本质上和开发android模块是一样的，区别在于：</p>
+<ul>
+<li>让LSPosed知道我们安装的这个程序是个xposed模块；</li>
+<li>模块里要包含有xposed的API的jar包，以实现下一步的hook操作；</li>
+<li>这个模块里面要有对目标程序进行hook操作的方法；</li>
+<li>要让手机上的xposed框架知道，我们编写的xposed模块中，哪一个方法是实现hook操作的，也就是hook类的入口。</li>
+</ul>
+<h3 id="Android-Studio新建项目"><a href="#Android-Studio新建项目" class="headerlink" title="Android Studio新建项目"></a>Android Studio新建项目</h3><p>Android Studio新建空项目，操作流程见我的上一篇文章：<a target="_blank" rel="noopener" href="https://blog.kinoko.fun/2025/01/09/start-andorid-development/">浅试Android开发</a>，不同的是开发app可以选择empty activity，开发xposed模块推荐选择no activity（至少这个例子是这样的）。</p>
+<blockquote>
+<p>选择 “Empty Activity” 模板时，Android Studio 会为你创建一个包含基本活动（Activity）和布局文件的项目，而对下面这个xposed模块来说，这些都是不必要的，所以此处选择no activity即可，干净的项目结构也方便操作。</p>
+</blockquote>
+<h3 id="settings-gradle添加xposed框架依赖"><a href="#settings-gradle添加xposed框架依赖" class="headerlink" title="settings.gradle添加xposed框架依赖"></a>settings.gradle添加xposed框架依赖</h3><p>项目根目录下的settings.gradle中添加一行</p>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">dependencyResolutionManagement &#123;  </span><br><span class="line">    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)  </span><br><span class="line">    <span class="keyword">repositories</span> &#123;  </span><br><span class="line">        google()  </span><br><span class="line">        mavenCentral()  </span><br><span class="line">        maven &#123; url <span class="string">&#x27;https://api.xposed.info/&#x27;</span> &#125;  <span class="comment">// 添加这一行即可  </span></span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Xposed模块需要依赖Xposed框架的库，而这些库不在默认的Maven仓库，通过添加 Xposed 的Maven仓库，确保Gradle能够找到并下载所需的Xposed相关依赖。</p>
+<h3 id="模块级build-gradle添加Xposed-Framework-API"><a href="#模块级build-gradle添加Xposed-Framework-API" class="headerlink" title="模块级build.gradle添加Xposed Framework API"></a>模块级build.gradle添加Xposed Framework API</h3><p>将Xposed框架所需的API库添加到项目中，以便你的模块能够使用Xposed提供的功能，例如hook。在<code>app/build.gradle</code>文件的<code>dependencies</code>段中添加以下代码：</p>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">dependencies</span> &#123;</span><br><span class="line">    compileOnly(<span class="string">&quot;de.robv.android.xposed:api:82&quot;</span>)</span><br><span class="line">    compileOnly(<span class="string">&quot;de.robv.android.xposed:api:82:sources&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中<code>complieOnly</code>表示只在编译时使用这些库，最终生成的APK文件中不会包含这些库，从而减小APK大小；<code>de.robv.android.xposed:api:82</code>是Xposed API库，<code>82</code>代表版本号，你需要根据你使用的EdXposed版本选择合适的版本号，如果版本号不匹配，模块可能无法正常工作；<code>de.robv.android.xposed:api:82:sources</code>包含Xposed API库的源代码，方便调试和理解API的实现细节。</p>
+<blockquote>
+<p>这里可以不必理会版本号，直接cv即可。</p>
+</blockquote>
+<h3 id="arrays-xml添加模块作用域"><a href="#arrays-xml添加模块作用域" class="headerlink" title="arrays.xml添加模块作用域"></a>arrays.xml添加模块作用域</h3><p>路径为<code>app/src/main/res/values/</code>，在该目录下创建arrays.xml文件，内容如下：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">resources</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">string-array</span> <span class="attr">name</span>=<span class="string">&quot;xposedscope&quot;</span> &gt;</span>  </span><br><span class="line">        <span class="comment">&lt;!-- 这里填写模块的作用域应用的包名，可以填多个。 --&gt;</span>  </span><br><span class="line">        <span class="tag">&lt;<span class="name">item</span>&gt;</span>com.xposed.demo<span class="tag">&lt;/<span class="name">item</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;/<span class="name">string-array</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">resources</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>模块作用域的主要目的是告诉Xposed框架，哪些应用程序是该模块可以影响的目标。通过在<code>arrays.xml</code>中指定应用的包名，Xposed框架能够在这些应用启动时加载你的模块，从而实现对这些应用的hook操作。</p>
+<h3 id="AndroidManifest-xml中添加meta信息"><a href="#AndroidManifest-xml中添加meta信息" class="headerlink" title="AndroidManifest.xml中添加meta信息"></a>AndroidManifest.xml中添加meta信息</h3><p>目的是告诉LSPosed框架，这个应用程序是一个Xposed模块，并提供模块的描述信息和最低API版本要求。在<code>AndroidManifest.xml</code>文件的<code>&lt;application&gt;</code>标签内添加以下元数据：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 是否是xposed模块 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">meta-data</span> <span class="attr">android:name</span>=<span class="string">&quot;xposedmodule&quot;</span> <span class="attr">android:value</span>=<span class="string">&quot;true&quot;</span> /&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- 模块描述 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">meta-data</span> <span class="attr">android:name</span>=<span class="string">&quot;xposeddescription&quot;</span> <span class="attr">android:value</span>=<span class="string">&quot;这是一个lsxposed demo&quot;</span> /&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- 最低xposed版本号 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">meta-data</span> <span class="attr">android:name</span>=<span class="string">&quot;xposedminversion&quot;</span> <span class="attr">android:value</span>=<span class="string">&quot;82&quot;</span> /&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- 模块作用域 --&gt;</span>  </span><br><span class="line"><span class="tag">&lt;<span class="name">meta-data</span> <span class="attr">android:name</span>=<span class="string">&quot;xposedscope&quot;</span> <span class="attr">android:resource</span>=<span class="string">&quot;@array/xposedscope&quot;</span>/&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>xposedmodule=&quot;true&quot;</code>声明这是一个Xposed模块。</li>
+<li><code>xposeddescription</code>模块的描述，会在Xposed Installer中显示。</li>
+<li><code>xposedminversion</code>模块所需的最低Xposed API版本。 这个版本号应该与你设备上安装的EdXposed版本兼容，或者低于该版本。</li>
+<li>作用域在上一小标题解释过了。</li>
+</ul>
+<h3 id="编写Hook代码"><a href="#编写Hook代码" class="headerlink" title="编写Hook代码"></a>编写Hook代码</h3><p>在MainActivity同级目录创建一个名为<code>HookDemo.kt</code>的类，实现<code>IXposedHookLoadPackage</code>接口：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.xposed.demo.hookdemo;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> de.robv.android.xposed.IXposedHookLoadPackage;</span><br><span class="line"><span class="keyword">import</span> de.robv.android.xposed.XposedBridge;</span><br><span class="line"><span class="keyword">import</span> de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MainHook</span> <span class="title">implements</span> <span class="title">IXposedHookLoadPackage</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> void handleLoadPackage(LoadPackageParam lpparam) throws Throwable &#123;</span><br><span class="line">        XposedBridge.log(<span class="string">&quot;Loaded app: &quot;</span> + lpparam.packageName);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>默认读者有kotlin基础，薄弱的话可以看看官方文档：<a target="_blank" rel="noopener" href="https://book.kotlincn.net/text/basic-syntax.html">基本语法 · Kotlin 官方文档 中文版</a>，这里主要介绍引用的模块，首次接触会比较陌生。</p>
+<ul>
+<li><code>IXposedHookLoadPackage</code>：一个接口，允许开发者实现应用加载时的hook逻辑。通过实现这个接口，模块可以在特定应用被加载时执行自定义代码。</li>
+<li><code>XposedBridge</code>：Xposed框架的核心类，提供了多种方法来进行hook和日志记录等操作。</li>
+<li><code>XC_LoadPackage.LoadPackageParam</code>：一个类，包含了关于加载的应用程序的信息，例如包名、类加载器等。</li>
+</ul>
+<p>然后是MainHook类的介绍，其实有上文的包介绍就差不多清楚了：</p>
+<ul>
+<li><code>handleLoadPackage</code>是接口<code>IXposedHookLoadPackage</code>中定义的方法。当一个应用被加载时，Xposed框架会调用这个方法。</li>
+<li><code>LoadPackageParam lpparam</code>参数包含了被加载应用的相关信息。</li>
+<li><code>XposedBridge.log(...)</code>方法用于记录日志，这里记录了加载的应用的包名。通过查看Xposed的日志，开发者可以看到哪些应用被加载了。</li>
+</ul>
+<h3 id="指定Hook入口"><a href="#指定Hook入口" class="headerlink" title="指定Hook入口"></a>指定Hook入口</h3><p>告诉Xposed框架，你的hook代码的入口点在哪里，以便框架能够在合适的时机调用你的hook代码。在<code>app/src/main</code>目录下创建一个名为<code>assets</code>的文件夹，并在其中创建一个名为<code>xposed_init</code>的文件（<strong>没有扩展名</strong>）。 在这个文件中，写入你的hook类的全限定名：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">com.xposed.demo.hookdemo.MainHook</span><br></pre></td></tr></table></figure>
+
+<h3 id="安装并测试"><a href="#安装并测试" class="headerlink" title="安装并测试"></a>安装并测试</h3><p>以上内容全部搞定之后就可以build项目为apk安装包了，打包出来后可以先使用debug版本的安装包，可以使用adb install 绝对路径直接安装到设备上</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adb install C:\Users\&#123;YOUR_USERNAME&#125;\AndroidStudioProjects\HookDemo\app\build\outputs\apk\debug\app<span class="literal">-debug</span>.apk</span><br></pre></td></tr></table></figure>
+
+<p>安装好之后在LSPosed中启用该HookDemo模块，勾选应用的app，然后重启手机应用个更改，然后使用数据线连接设备和电脑后，在电脑命令行中监听带有特征值的日志信息（其实就是拼接的特殊字符串），我们的Hook代码中是<code>Loaded app</code>：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adb logcat | <span class="built_in">Select-String</span> <span class="string">&quot;Loaded app&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>开始监听后在移动设备上启动对应app，即可观察到日志信息。</p>
+<hr>
+<p>我本来是想做个移动端智能助手，读系统消息以及检测部分应用的使用情况，喂给预设好的AI再给出一些反馈什么的，结果写xposed模块的时候发现普通android app就可以实现读取系统通知栏里通知的功能，hook反而没必要了😭。</p>
+<p>不过也好，有个契机了解了点Android Hook的知识。如果智能助手的项目能接着往下推的话，Hook相关知识也不是完全用不上，比如当我点开某些应用时可以给出反馈，也不错~</p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>kinoko</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="http://example.com/2025/01/11/2025/androidhook-xposed-module/">http://example.com/2025/01/11/2025/androidhook-xposed-module/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Do you believe in <strong>DESTINY</strong>?</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/Android/"># Android</a>
+                    
+                        <a href="/tags/Xposed/"># Xposed</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2025/01/14/2025/windows-package-manager/">windwos包管理器：scoop/winget/choco</a>
+            
+            
+            <a class="next" rel="next" href="/2025/01/09/2025/start-andorid-development/">浅试Android开发</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© kinoko 2022-2025. All rights reserved.</span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

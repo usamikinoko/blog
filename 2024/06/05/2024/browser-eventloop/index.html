@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="kinoko">
+
+
+
+
+    <meta name="keywords" content="博客,blog,阿菇,阿菇kinoko,kinoko,usamikinoko">
+
+
+<title>浏览器中的 Event Loop | 阿菇的博客</title>
+
+
+
+    <link rel="icon" href="/favicon.jpg">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Kinoko&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                <a class="menu-item" href="/archives">Posts</a>
+                
+                <a class="menu-item" href="/category">Categories</a>
+                
+                <a class="menu-item" href="/tag">Tags</a>
+                
+                <a class="menu-item" href="/about">About</a>
+                
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Kinoko&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">
+                    <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"/></svg>
+                    <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE --><path fill="currentColor" d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"/></svg>
+                </div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                <a class="menu-item" href="/archives">Posts</a>
+                
+                <a class="menu-item" href="/category">Categories</a>
+                
+                <a class="menu-item" href="/tag">Tags</a>
+                
+                <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if (toggleMenu.classList.contains("active")) {
+            toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        } else {
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">浏览器中的 Event Loop</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">kinoko</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">June 5, 2024&nbsp;&nbsp;0:00:00</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Development/">Development</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <p>事件循环是 JavaScript 管理事件执行顺序的流程，具体实现与运行环境有关。本篇文章主要讲述浏览器环境中的事件循环，Node.js 中的事件循环就简单说说分哪几个阶段。</p>
+<h2 id="同步异步"><a href="#同步异步" class="headerlink" title="同步异步"></a>同步异步</h2><p>同步（Synchronous）执行指的是代码按顺序一行接一行地执行。每个操作必须等待前一个操作完成后才能开始。这种模式简单易懂，但它有一个缺点：如果一个操作需要很长时间来完成（例如，从服务器获取数据），它会阻塞后续代码的执行，导致整个程序暂停，直到该操作完成。这对于 Web 应用来说是无法忍受的，总不发出请求后一直等待所有数据全到手之后再渲染页面，这样搞用户的心情想必不会很美丽。</p>
+<p>异步（Asynchronous）执行允许代码在等待一个耗时任务（如数据请求）完成时继续执行其他任务。这是通过回调函数、Promises 或 async&#x2F;await 等机制实现的。异步编程使得 JavaScript 可以同时处理多个操作，提高了程序的效率和用户体验。</p>
+<h2 id="事件循环"><a href="#事件循环" class="headerlink" title="事件循环"></a>事件循环</h2><p><img src="https://img.ma5hr00m.top/blog/20240610160305.png" alt="20240610160305"></p>
+<p>事件循环（Event Loop）是 JavaScript 中处理异步操作的核心机制。它确保即使在单线程环境中，JavaScript 也能够执行非阻塞操作。以下是事件循环的详细流程说明，看完这个就基本清晰异步操作的实现过程了：</p>
+<ol>
+<li>**执行栈（Execution Stack）：**所有同步任务都在主线程上的执行栈中运行。执行栈是一个按顺序存储函数调用的结构。当一个函数执行完毕，它就会从栈中弹出。</li>
+<li>**Web API：**当遇到异步任务（如 <code>setTimeout</code> 或网络请求）时，浏览器提供的 Web API 会接管这些任务，并在后台运行。</li>
+<li>**任务队列（Task Queue）：**异步任务完成后，回调函数会被放入任务队列。如果有多个回调，它们会按照它们被添加到队列的顺序排队。</li>
+<li>**事件循环（Event Loop—）：**事件循环持续检查执行栈是否为空。如果执行栈为空，事件循环会从任务队列中取出第一个回调函数，并将其推入执行栈中执行。</li>
+<li>**微任务队列（Microtask Queue）：**微任务（如 <code>Promise</code> 的回调）会被添加到微任务队列。微任务队列的特点是在当前执行栈清空后，事件循环会在执行下一个宏任务（如 <code>setTimeout</code> 的回调）之前，先执行所有微任务。</li>
+<li><strong>渲染 (Rendering)</strong>: 在某些情况下，如页面渲染或用户交互，浏览器会在适当的时候执行渲染任务。</li>
+</ol>
+<p>这个过程不断重复，形成了一个循环，确保 JavaScript 可以连续处理任务，而不会阻塞主线程。这就是事件循环的工作原理，它使得即使是单线程的 JavaScript 也能够支持复杂的异步操作和高效的用户交互。</p>
+<h2 id="宏任务微任务"><a href="#宏任务微任务" class="headerlink" title="宏任务微任务"></a>宏任务微任务</h2><p>介绍事件循环时有提到宏任务和微任务，解宏任务（Macro Task）和微任务（Micro Task）对于掌握事件循环至关重要。这两种任务决定了代码的执行顺序和时机。</p>
+<h3 id="本质区别"><a href="#本质区别" class="headerlink" title="本质区别"></a>本质区别</h3><p><strong>宏任务</strong>是由宿主环境（如浏览器或 Node.js）发起的任务。它们通常包括：</p>
+<ul>
+<li><strong><code>setTimeout</code></strong></li>
+<li><strong><code>setInterval</code></strong></li>
+<li><strong><code>I/O</code></strong></li>
+<li>UI渲染</li>
+<li><strong><code>postMessage</code></strong></li>
+<li><strong><code>MessageChannel</code></strong></li>
+</ul>
+<p><strong>而微任务</strong>则是由 JavaScript 引擎发起的任务，它们通常用于处理一些不需要长时间运行或等待的操作，如：</p>
+<ul>
+<li><strong><code>Promise.then</code></strong></li>
+<li><strong><code>MutationObserver</code></strong></li>
+<li><strong><code>process.nextTick</code></strong> （Node.js）</li>
+</ul>
+<p>宏任务和微任务的执行时机不同。在每次事件循环中，一个宏任务会被执行，然后所有的微任务会被执行。这意味着微任务总是在当前宏任务结束后立即执行，而不是等待下一个宏任务。</p>
+<p>这种区分允许 JavaScript 引擎优化异步操作的处理。通过微任务，JavaScript 可以快速响应并处理短暂的异步操作，而宏任务则用于可能需要更多时间来完成的操作。这种机制确保了即使在单线程环境中，JavaScript 也能够有效地处理复杂的异步场景。</p>
+<h3 id="产生原因"><a href="#产生原因" class="headerlink" title="产生原因"></a>产生原因</h3><p>从前文事件循环的实现流程可以看出，宏任务和微任务的概念与其密切相关。事件循环是 JavaScript 早期就存在的机制，但微任务的概念是随着 ES6 规范的引入才明确的，特别是在引入<code>Promise</code>之后。<code>Promise</code>是在 ES6 中正式成为标准的，它允许 JavaScrip t引擎自身发起异步任务，而不仅仅依赖于宿主环境。</p>
+<p>这俩概念的提出是为了解决 JavaScript 在处理异步操作时的效率问题。在早期的 JavaScript 中，所有的异步操作都被视为宏任务，这导致了效率低下和响应性差的问题。通过引入微任务，JavaScript 能够更快地处理那些不需要等待的异步操作，从而提高了程序的整体性能。</p>
+<h3 id="示范代码"><a href="#示范代码" class="headerlink" title="示范代码"></a>示范代码</h3><p>前文说得已经比较清楚了，这里再给个代码示范：</p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;宏任务开始&#x27;</span>);  </span><br><span class="line"></span><br><span class="line"><span class="built_in">setTimeout</span>(<span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;宏任务&#x27;</span>);</span><br><span class="line">&#125;, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line"><span class="title class_">Promise</span>.<span class="title function_">resolve</span>().<span class="title function_">then</span>(<span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;微任务 1&#x27;</span>);</span><br><span class="line">&#125;).<span class="title function_">then</span>(<span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;微任务 2&#x27;</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;宏任务结束&#x27;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>以上代码的输出如下，初学者可以思考下输出为什么是这个顺序：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">宏任务开始</span><br><span class="line">宏任务结束</span><br><span class="line">微任务 1</span><br><span class="line">微任务 2</span><br><span class="line">宏任务</span><br></pre></td></tr></table></figure>
+
+<p>以下是这段代码运行时发生的事件顺序：</p>
+<ol>
+<li>因为<code>console.log</code>是同步操作，所以首先会在控制台打印出<code>&#39;宏任务开始&#39;</code>；</li>
+<li><code>setTimeout</code>是一个宏任务。尽管它设置了<code>0</code>毫秒的延迟，但它不会立即执行。它会被添加到宏任务队列中，在当前执行上下文清空并且所有微任务都被处理后执行；</li>
+<li><code>Promise.resolve()</code>创建了一个已解决的promise，这是一个微任务。<code>.then</code>方法被链式调用来处理微任务。这些将被添加到微任务队列中，并且会在当前调用栈为空时立即执行，但在下一个宏任务之前；</li>
+<li>接下来，因为是下一行同步代码，所以会在控制台打印出<code>&#39;宏任务结束&#39;</code>；</li>
+<li>在当前宏任务（即整个脚本）执行完毕后，JavaScript引擎会检查是否有微任务在队列中。它找到了promise的<code>.then</code>方法中的回调，并按顺序执行它们。这导致控制台依次打印出<code>&#39;微任务 1&#39;</code>和<code>&#39;微任务 2&#39;</code>；</li>
+<li>所有微任务完成后，引擎会检查宏任务队列。现在执行<code>setTimeout</code>的回调，控制台打印出<code>&#39;宏任务&#39;</code>。</li>
+</ol>
+<h2 id="定时器不准确"><a href="#定时器不准确" class="headerlink" title="定时器不准确"></a>定时器不准确</h2><p>学到东西就要拿来解决问题，定时器不准确就算是一个经典问题。在 JavaScript 中，定时器的不准确性主要是由于事件循环的工作方式造成的。<code>setTimeout</code> 和 <code>setInterval</code> 这样的定时器函数并不保证回调函数会在指定的时间精确执行。<strong>定时器只是在指定的延迟后将回调函数放入事件队列</strong>，但实际上它何时被执行取决于主线程上当前正在执行的任务。</p>
+<p>当你设置一个定时器时，例如 <code>setTimeout(callback, 2000)</code>，你告诉 JavaScript 引擎在大约 2 秒后将 <code>callback</code> 放入事件队列。但是，如果主线程在执行长时间运行的同步任务，如你的 <code>syncFunc</code> 函数，它会阻塞线程，直到该任务完成。在这段时间内，即使定时器的时间已经过去，回调函数也不会执行，因为事件循环必须等待主线程变为空闲才能从事件队列中取出回调函数并执行它。</p>
+<p>下面是一个简化的事件循环流程，以帮助理解：</p>
+<ol>
+<li><strong>执行同步代码</strong>：主线程首先执行所有同步代码。</li>
+<li><strong>设置定时器</strong>：遇到 <code>setTimeout</code>，将其回调函数和计时请求交给定时器线程。</li>
+<li><strong>计时结束</strong>：定时器线程计时结束后，通知事件触发线程。</li>
+<li><strong>排队等待</strong>：事件触发线程将定时器回调放入事件队列。</li>
+<li><strong>检查主线程</strong>：如果主线程空闲，事件循环将从事件队列中取出回调函数执行；如果主线程忙，回调函数必须等待。</li>
+</ol>
+<p>为了避免定时器不准确，开发者应该尽量避免在主线程上执行长时间的同步任务。如果必须执行这样的任务，可以考虑使用 Web Workers 或者将任务分解为更小的部分，使用 <code>requestAnimationFrame</code> 或 <code>requestIdleCallback</code> 来安排非紧急任务的执行。</p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 示例代码</span></span><br><span class="line"><span class="keyword">const</span> <span class="title function_">syncFunc</span> = (<span class="params">startTime</span>) =&gt; &#123;</span><br><span class="line">  <span class="keyword">const</span> time = <span class="keyword">new</span> <span class="title class_">Date</span>().<span class="title function_">getTime</span>();</span><br><span class="line">  <span class="keyword">while</span> (<span class="keyword">new</span> <span class="title class_">Date</span>().<span class="title function_">getTime</span>() - time &lt; <span class="number">5000</span>) &#123; <span class="comment">/* 长时间同步阻塞 */</span> &#125;</span><br><span class="line">  <span class="keyword">const</span> offset = <span class="keyword">new</span> <span class="title class_">Date</span>().<span class="title function_">getTime</span>() - startTime;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`同步函数执行完毕，时间偏差：<span class="subst">$&#123;offset&#125;</span>毫秒`</span>);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="title function_">asyncFunc</span> = (<span class="params">startTime</span>) =&gt; &#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> offset = <span class="keyword">new</span> <span class="title class_">Date</span>().<span class="title function_">getTime</span>() - startTime;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`异步函数执行完毕，时间偏差：<span class="subst">$&#123;offset&#125;</span>毫秒`</span>);</span><br><span class="line">  &#125;, <span class="number">2000</span>);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> startTime = <span class="keyword">new</span> <span class="title class_">Date</span>().<span class="title function_">getTime</span>();</span><br><span class="line"><span class="title function_">asyncFunc</span>(startTime);</span><br><span class="line"><span class="title function_">syncFunc</span>(startTime);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>在上述代码中，<code>syncFunc</code> 会阻塞主线程5秒钟，即使 <code>asyncFunc</code> 的定时器在2秒后到期，它的回调也必须等待 <code>syncFunc</code> 完成。这就是为什么定时器的执行时间可能不准确。为了提高定时器的准确性，应当尽量减少同步代码的执行时间，或者使用其他机制来处理长时间运行的任务。</p>
+<h2 id="requestAnimationFrame-requestIdleCallback"><a href="#requestAnimationFrame-requestIdleCallback" class="headerlink" title="requestAnimationFrame &amp; requestIdleCallback"></a>requestAnimationFrame &amp; requestIdleCallback</h2><p><code>requestAnimationFrame()</code> 和 <code>requestIdleCallback()</code> 是两个与浏览器事件循环和渲染过程紧密相关的 Web API。它们在不同的时间点被调用，以优化性能和响应性。<code>requestAnimationFrame()</code> 适合需要与屏幕刷新率同步的任务，如动画，而 <code>requestIdleCallback()</code> 适合可以推迟执行的任务，如统计和数据处理。</p>
+<h3 id="requestAnimationFrame"><a href="#requestAnimationFrame" class="headerlink" title="requestAnimationFrame()"></a><strong>requestAnimationFrame()</strong></h3><p><code>requestAnimationFrame()</code> 主要用于动画和页面重绘之前的更新操作，它告诉浏览器你希望执行动画，并请求浏览器在下次重绘之前调用指定的函数来更新动画。函数通常在每次屏幕刷新之前执行，大约是每秒 60 次，但这会根据浏览器和设备的性能而变化。使用 <code>requestAnimationFrame()</code> 可以保证动画的流畅性，因为它是在浏览器准备好绘制新帧时执行。</p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 使用 requestAnimationFrame 请求动画帧</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">updateAnimation</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="comment">// 更新动画的代码</span></span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">  <span class="title function_">requestAnimationFrame</span>(updateAnimation);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 开始动画</span></span><br><span class="line"><span class="title function_">requestAnimationFrame</span>(updateAnimation);</span><br></pre></td></tr></table></figure>
+
+<p>我之后准备出一些关于前端动效实现的文章，到时候细说这个 API，现在先给一个尽可能简单的示范。</p>
+<h3 id="requestIdleCallback"><a href="#requestIdleCallback" class="headerlink" title="requestIdleCallback()"></a><strong>requestIdleCallback()</strong></h3><p><code>requestIdleCallback()</code> 用于在主线程空闲时执行低优先级的任务，当事件循环空闲，并且没有其他脚本或渲染任务需要执行时，浏览器会调用通过 <code>requestIdleCallback()</code> 注册的回调函数。这个 API 的目的是在不影响性能和响应性的情况下，利用空闲时间执行后台和低优先级的工作，回调函数会接收一个 <code>IdleDeadline</code> 对象，提供了一个 <code>timeRemaining()</code> 方法，该方法可以告诉你当前帧中剩余多少时间可以用于执行代码。</p>
+<p>举一个相对贴近实际的例子，即如何在一个假想的大型电商网站中使用 <strong><code>requestIdleCallback()</code></strong> 来优化图片懒加载功能：</p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 假设有一个函数用于懒加载图片</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">lazyLoadImages</span>(<span class="params">images</span>) &#123;</span><br><span class="line">  images.<span class="title function_">forEach</span>(<span class="function"><span class="params">image</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="title function_">isInViewport</span>(image)) &#123;</span><br><span class="line">      <span class="title function_">loadImage</span>(image);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用 requestIdleCallback 来调度懒加载任务</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">scheduleLazyLoad</span>(<span class="params">images</span>) &#123;</span><br><span class="line">  <span class="comment">// 如果浏览器支持 requestIdleCallback，则使用它</span></span><br><span class="line">  <span class="keyword">if</span> (<span class="string">&#x27;requestIdleCallback&#x27;</span> <span class="keyword">in</span> <span class="variable language_">window</span>) &#123;</span><br><span class="line">    <span class="title function_">requestIdleCallback</span>(<span class="function"><span class="params">deadline</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">while</span> (deadline.<span class="title function_">timeRemaining</span>() &gt; <span class="number">0</span> &amp;&amp; images.<span class="property">length</span> &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="title function_">lazyLoadImages</span>(images.<span class="title function_">splice</span>(<span class="number">0</span>, <span class="number">2</span>)); <span class="comment">// 每次处理两个图片</span></span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 如果还有图片未处理，继续调度</span></span><br><span class="line">      <span class="keyword">if</span> (images.<span class="property">length</span> &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="title function_">scheduleLazyLoad</span>(images);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">// 如果浏览器不支持 requestIdleCallback，则回退到 setTimeout</span></span><br><span class="line">    <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> <span class="title function_">lazyLoadImages</span>(images), <span class="number">0</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 假设页面上有很多图片需要懒加载</span></span><br><span class="line"><span class="keyword">const</span> allImages = <span class="variable language_">document</span>.<span class="title function_">querySelectorAll</span>(<span class="string">&#x27;.lazy-load-image&#x27;</span>);</span><br><span class="line"><span class="title function_">scheduleLazyLoad</span>(<span class="title class_">Array</span>.<span class="title function_">from</span>(allImages));</span><br></pre></td></tr></table></figure>
+
+<p>在这个示例中，<code>scheduleLazyLoad</code> 函数使用 <code>requestIdleCallback</code> 来安排图片的懒加载。它会检查浏览器是否支持 <code>requestIdleCallback</code>，如果支持，就使用它来在浏览器空闲时加载图片。每次回调函数被调用时，它会处理一小批图片，确保不会占用太多的主线程时间，从而不影响用户的交互体验。</p>
+<p>如果浏览器不支持 <code>requestIdleCallback</code>，则使用 <code>setTimeout</code> 作为回退方案。这样可以确保在所有浏览器中都能实现懒加载功能，同时在支持的浏览器中提供更好的性能。</p>
+<h2 id="Node-js-中的事件循环"><a href="#Node-js-中的事件循环" class="headerlink" title="Node.js 中的事件循环"></a>Node.js 中的事件循环</h2><p>虽然用的都是 V8 引擎（暂且这么说），但因为使用场景和任务的不同，Node.js 的事件循环与浏览器中 JavaScript 原生的事件循环存在差异。</p>
+<p>从整体上来看，最显著的差异就是 Node.js 的事件循环分阶段，每个阶段都有一个 FIFO 队列，只有当队列的事件执行完或达到该阶段的上限时，才会进入下一个阶段。Node.js 会在每次事件循环之间检查是否在等待任何 I&#x2F;O 或定时器，如果没有，则程序关闭退出，一次完整的 Node.js 事件循环包括以下几个阶段：</p>
+<ul>
+<li><strong>timers 阶段</strong>: 执行 <code>setTimeout()</code> 和 <code>setInterval()</code> 定时器的回调函数。</li>
+<li><strong>pending callbacks 阶段</strong>: 执行延迟到下一个循环迭代的 I&#x2F;O 回调。</li>
+<li><strong>idle, prepare 阶段</strong>: 仅系统内部使用。</li>
+<li><strong>poll 阶段</strong>: 检索新的 I&#x2F;O 事件; 执行与 I&#x2F;O 相关的回调，几乎所有的异步操作都在这个阶段处理。</li>
+<li><strong>check 阶段</strong>: <code>setImmediate()</code> 的回调在这里执行。</li>
+<li><strong>close callbacks 阶段</strong>: 执行一些关闭的回调函数，如 <code>socket.on(&#39;close&#39;, ...)</code>。</li>
+</ul>
+<p>其中的 poll 阶段需要注意，如果 poll 队列执行完没有<code>setImmediate</code>但是有定时器到期，就会绕回去执行 timers 阶段。</p>
+<p><img src="https://img.ma5hr00m.top/blog/20240610160523.png" alt="20240610160523"></p>
+<h2 id="阅读文章"><a href="#阅读文章" class="headerlink" title="阅读文章"></a>阅读文章</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://www.explainthis.io/zh-hant/swe/what-is-event-loop">請說明瀏覽器中的事件循環 (Event Loop)｜ExplainThis</a></li>
+<li><a target="_blank" rel="noopener" href="https://dennisgo.cn/Articles/JavaScript/AsyncAndEventLoop.html">异步和EventLoop · 前端进阶</a></li>
+</ul>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>kinoko</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="http://example.com/2024/06/05/2024/browser-eventloop/">http://example.com/2024/06/05/2024/browser-eventloop/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Do you believe in <strong>DESTINY</strong>?</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/JavaScript/"># JavaScript</a>
+                    
+                        <a href="/tags/Browser/"># Browser</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2024/06/10/2024/glcm/">图像纹理特征提取|灰度共生矩阵</a>
+            
+            
+            <a class="next" rel="next" href="/2024/06/03/2024/async-await/">流畅地使用 async/await</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© kinoko 2022-2025. All rights reserved.</span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

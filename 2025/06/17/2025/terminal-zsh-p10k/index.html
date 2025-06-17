@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="kinoko">
+
+
+
+
+    <meta name="keywords" content="博客,blog,阿菇,阿菇kinoko,kinoko,usamikinoko">
+
+
+<title>Setting Up zsh with oh-my-zsh, Powerlevel10k, and Tabby Terminal | 阿菇的博客</title>
+
+
+
+    <link rel="icon" href="/favicon.jpg">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Kinoko&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                <a class="menu-item" href="/archives">Posts</a>
+                
+                <a class="menu-item" href="/category">Categories</a>
+                
+                <a class="menu-item" href="/tag">Tags</a>
+                
+                <a class="menu-item" href="/about">About</a>
+                
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Kinoko&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">
+                    <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"/></svg>
+                    <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE --><path fill="currentColor" d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"/></svg>
+                </div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                <a class="menu-item" href="/archives">Posts</a>
+                
+                <a class="menu-item" href="/category">Categories</a>
+                
+                <a class="menu-item" href="/tag">Tags</a>
+                
+                <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if (toggleMenu.classList.contains("active")) {
+            toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        } else {
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">Setting Up zsh with oh-my-zsh, Powerlevel10k, and Tabby Terminal</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">kinoko</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">June 17, 2025&nbsp;&nbsp;0:00:00</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Tips/">Tips</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <p>Configure the <strong>zsh</strong> shell along with <strong>oh-my-zsh</strong>, the <strong>powerlevel10k</strong> theme, and the <strong>Tabby</strong> terminal emulator.</p>
+<h2 id="Effect-Preview"><a href="#Effect-Preview" class="headerlink" title="Effect Preview"></a>Effect Preview</h2><p>Before we begin, let us take a look at the final result. This will help you decide whether to continue reading this article!</p>
+<p>In Tabby on Arch Linux with KDE.</p>
+<p><img src="https://agu-img.oss-cn-hangzhou.aliyuncs.com/image2506/image-20250617115102399.png" alt="image-20250617115102399"></p>
+<p>In Termius connected to Rocky Linux.</p>
+<p><img src="https://agu-img.oss-cn-hangzhou.aliyuncs.com/image2506/image-20250617115554812.png" alt="image-20250617115554812"></p>
+<p>If you are satisfied with the above effect, you can learn how to configure it by reading this tutorial.</p>
+<h2 id="Configuration-Tutorial"><a href="#Configuration-Tutorial" class="headerlink" title="Configuration Tutorial"></a>Configuration Tutorial</h2><h3 id="Install-ZSH"><a href="#Install-ZSH" class="headerlink" title="Install ZSH"></a>Install ZSH</h3><p>Firstly, install <strong>zsh</strong> on your Arch Linux from the Pacman repositories.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> pacman -Syu zsh</span><br></pre></td></tr></table></figure>
+
+<p>In other tutorials, you may come across instructions suggestions that you should run the following command to set zsh as your default shell:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chsh -s /usr/bin/zsh</span><br></pre></td></tr></table></figure>
+
+<p>However, if you choose to use zsh with oh-my-zsh, this command is not necessary. During the installation of oh-my-zsh, zsh will automatically be set as the default shell on your operating system.</p>
+<h3 id="Install-oh-my-zsh"><a href="#Install-oh-my-zsh" class="headerlink" title="Install oh-my-zsh"></a>Install oh-my-zsh</h3><p>Secondly, use the <strong>curl</strong> tool to download the <strong>oh-my-zsh</strong> installation script and execute it with the following command:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sh -c <span class="string">&quot;<span class="subst">$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)</span>&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>If you are located in China, you can run the following command instead. This will ensure that you can access the installation script more reliably:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sh -c <span class="string">&quot;<span class="subst">$(curl -fsSL https://gitee.com/lxyoucan/tools/raw/master/common/ohmyzshinstall.sh)</span>&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>Once everything is set up, your shell will automatically switch to zsh.</p>
+<h3 id="Configure-Powerlevel10k-theme"><a href="#Configure-Powerlevel10k-theme" class="headerlink" title="Configure Powerlevel10k theme"></a>Configure Powerlevel10k theme</h3><p>Powerlevel10k is a zsh theme that emphasizes performance, flexibility, and out-of-the-box usability, while also offering extensive customization options. With the customizable capabilities of p10k(short of Powerlevel10k), you can achieve similar effects to other themes, but even greater power and versatility.</p>
+<p>You may have noticed that there are many icons used in the terminal.</p>
+<p>The icons used in p10k are essentially glyphs that are part of specific fonts designed to support these visual elements. These icons are not standard ASCII characters; instead, they are special characters that require a compatible font to display correctly.</p>
+<p>Many fonts do not include these glyphs, which is why you might see empty boxes or question marks instead of the intended icons. To ensure proper display of p10k icons, it’s important to use a font that supports these glyphs, such as Nerd Fonts or other patched fonts specifically designed for terminal use.</p>
+<p>So we install the Nerd Fonts before configuring p10k, and I recommend using <code>ttf-jetbrains-mono-nerd</code>:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> pacman -S ttf-jetbrains-mono-nerd</span><br></pre></td></tr></table></figure>
+
+<p>Then installs the p10k theme into the appropriate directory for use with oh-my-zsh:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> --depth=1 https://github.com/romkatv/powerlevel10k.git <span class="variable">$&#123;ZSH_CUSTOM:-<span class="variable">$HOME</span>/.oh-my-zsh/custom&#125;</span>/themes/powerlevel10k</span><br></pre></td></tr></table></figure>
+
+<p>Edit your <code>~/.zshrc</code> and change the <code>ZSH_THEME</code>:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ZSH_THEME=<span class="string">&quot;powerlevel10k/powerlevel10k&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>Then reload your shell via the following command:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">source</span> ~/.zshrc</span><br></pre></td></tr></table></figure>
+
+<p>Then you can customize your zsh p10k according to your preferences. If you want to reconfigure your p10k theme, just execute the following command:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">p10k configure</span><br></pre></td></tr></table></figure>
+
+<h2 id="Terminal-Emulator"><a href="#Terminal-Emulator" class="headerlink" title="Terminal Emulator"></a>Terminal Emulator</h2><p><strong>Warp</strong> and <strong>Tabby</strong> are terminal emulators, while <strong>zsh</strong> (Z Shell) is a command-line shell.</p>
+<p>I enjoy using <strong>Tabby</strong>, which is an excellent terminal that combines high performance, an elegant appearance, and all the necessary features. <strong>I am also using Tabby on my Arch Linux now.</strong></p>
+<p>Tabby Official Website: <a target="_blank" rel="noopener" href="https://tabby.sh/">https://tabby.sh/</a></p>
+<p><strong>Warp</strong> is a recently emerging and impressive intelligent terminal that comes with built-in AI capabilities. You can use <code>Ctrl + I</code> to access the AI-powered command line, which can help automate certain tasks in the terminal.</p>
+<p>Based on my personal experience, Warp AI is quite impressive and can assist me in completing many tasks, saving me a significant amount of time that I would otherwise spend on documentation and trial-and-error. However, for free users, Warp’s AI question-and-answer feature has a usage limit, and there are some display issues when using Warp on Arch Linux.</p>
+<p>Warp Official Website: <a target="_blank" rel="noopener" href="https://www.warp.dev/">https://www.warp.dev/</a></p>
+<p>Providing my Tabby appearance configuration here for your reference. The font used is the <code>JetBrainsMonoNL Nerd Font Mono</code> mentioned earlier:</p>
+<p><img src="https://agu-img.oss-cn-hangzhou.aliyuncs.com/image2506/image-20250617125135317.png" alt="image-20250617125135317"></p>
+<p>END.</p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>kinoko</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="http://example.com/2025/06/17/2025/terminal-zsh-p10k/">http://example.com/2025/06/17/2025/terminal-zsh-p10k/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Do you believe in <strong>DESTINY</strong>?</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/zsh/"># zsh</a>
+                    
+                        <a href="/tags/Terminal/"># Terminal</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+            
+            <a class="next" rel="next" href="/2025/01/21/2025/nodejs-ffinapi/">2025版Nodejs基于ffi-napi实现调用windows API</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© kinoko 2022-2025. All rights reserved.</span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

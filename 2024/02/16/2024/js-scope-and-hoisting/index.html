@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="kinoko">
+
+
+
+
+    <meta name="keywords" content="博客,blog,阿菇,阿菇kinoko,kinoko,usamikinoko">
+
+
+<title>JavaScript作用域与提升 | 阿菇的博客</title>
+
+
+
+    <link rel="icon" href="/favicon.jpg">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Kinoko&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                <a class="menu-item" href="/archives">Posts</a>
+                
+                <a class="menu-item" href="/category">Categories</a>
+                
+                <a class="menu-item" href="/tag">Tags</a>
+                
+                <a class="menu-item" href="/about">About</a>
+                
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Kinoko&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">
+                    <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"/></svg>
+                    <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE --><path fill="currentColor" d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"/></svg>
+                </div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                <a class="menu-item" href="/archives">Posts</a>
+                
+                <a class="menu-item" href="/category">Categories</a>
+                
+                <a class="menu-item" href="/tag">Tags</a>
+                
+                <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if (toggleMenu.classList.contains("active")) {
+            toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        } else {
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">JavaScript作用域与提升</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">kinoko</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">February 16, 2024&nbsp;&nbsp;0:00:00</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Development/">Development</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <p>补档，本来想把【闭包】也一并放在本文中，但发现会有些臃肿，于是本文就只写作用域与提升。</p>
+<p>本文编写的 JavaScript 代码示范均使用 node v18.19.1，遵循 ES6 标准。</p>
+<h2 id="Scope-作用域"><a href="#Scope-作用域" class="headerlink" title="Scope 作用域"></a>Scope 作用域</h2><p>什么是作用域呢？我的理解是：“变量的作用域就是该变量可访问的范围，函数对象同理”，作用域的作用是避免不同层级中的变量发生冲突。</p>
+<p>JS 中主要分为两种作用域：全局作用域（global scope）和局部作用域（local scope）。</p>
+<p>在 JS 中，局部作用域类似于“私人房间”，其中的变量只能在特定的区域内访问。当我们在局部作用域中声明变量时，它只能在该代码块、函数或条件语句中访问。局部作用域中的变量会受到外部代码干扰，例如：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">myFunction</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">var</span> localVariable = <span class="string">&quot;我在局部作用域中&quot;</span>;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(localVariable);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">myFunction</span>();</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(localVariable);</span><br></pre></td></tr></table></figure>
+
+<p>在这段代码中，<code>localVariable</code>在局部作用域中声明，这意味着它只能在<code>myFunction</code>代码块内访问，尝试在作用域之外使用该变量会抛出<code>ReferenceError: localVariable is not defined</code>的报错。</p>
+<p>而全局作用域中中声明的变量可以在代码的任何地方访问。它可以类比为一个“公共广场”，所有人都可以看到和访问其中的内容。在全局作用域中声明的变量通常是在任何函数或代码块之外定义的。例如：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> globalVariable = <span class="string">&quot;我在全局作用域中&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">myFunction</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(globalVariable);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">myFunction</span>();</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(globalVariable);</span><br></pre></td></tr></table></figure>
+
+<p>在这个例子中，<code>globalVariable</code>在全局作用域中声明，<code>myFunction</code>中也可以直接访问它。因为<code>myFunction</code>函数中并没有对<code>globalVariable</code>显示地做出声明，也没有把其当作一个参数，同时满足这两个条件，我们就可以把<code>globalVariable</code>叫做自由变量（free variable）。</p>
+<p>还是在这个例子中，<code>myFunction</code>中使用了<code>globalVariable</code>，但当前作用域中并没有声明该变量，此时它就会向上一级作用域（这里是全局作用域）寻找该变量，如果在上一级没有找到，就向再上一级寻找，直到找到所需变量，或者抛出<code>is not defined</code>报错。这种</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">xxx-scope -&gt; ... -&gt; global scope</span><br></pre></td></tr></table></figure>
+
+<p>的查询方式，会形成一条作用域链（scope chain）。</p>
+<blockquote>
+<p>和 prototype chain 有些相似之处～</p>
+</blockquote>
+<h3 id="Block-Scope-块级作用域"><a href="#Block-Scope-块级作用域" class="headerlink" title="Block Scope 块级作用域"></a>Block Scope 块级作用域</h3><p>ES6 之前，JS 中只有全局&#x2F;局部作用域，这会导致一些潜在的问题，如循环变量泄露：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; <span class="number">3</span>; i++) &#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(i); <span class="comment">// Outputs: 3, 3, 3</span></span><br><span class="line">  &#125;, <span class="number">100</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在上面的代码中，使用<code>var</code>在<code>for</code>循环中声明的变量<code>i</code>被提升到函数作用域，其值在循环的所有迭代中共享。这经常导致意外行为，特别是在处理像<code>setTimeout</code>这样的异步操作时。这对开发者来说很不方便，也不利于编写完善的代码。</p>
+<p>为了解决此类问题，ES6 中新增了<code>let&amp;const</code>关键字以及块级作用域（block scope）。</p>
+<p>有了新的语法之后，我们就可以对上面的例子做出改进：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">let</span> j = <span class="number">0</span>; j &lt; <span class="number">3</span>; j++) &#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(j); <span class="comment">// Outputs: 0, 1, 2</span></span><br><span class="line">  &#125;, <span class="number">100</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们使用<code>let</code>，变量<code>j</code>的作用域就被限制在<code>for</code>循环的块内，确保每次迭代都为<code>j</code>创建一个新的词法环境。这可以防止与变量提升和异步操作等问题。</p>
+<p>因此，在实际开发过程中，我们一般推荐只使用<code>let&amp;const</code>，不使用<code>var</code>，这可以最大程度避免我们代码出现 bug。</p>
+<h3 id="Static-Lexical-Scope-静态作用域"><a href="#Static-Lexical-Scope-静态作用域" class="headerlink" title="Static&#x2F;Lexical Scope 静态作用域"></a>Static&#x2F;Lexical Scope 静态作用域</h3><p>运行以下代码，会得到什么结果呢？</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> x = <span class="string">&#x27;global&#x27;</span>;</span><br><span class="line"><span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(x);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">function</span> <span class="title function_">bar</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">var</span> x = <span class="string">&#x27;local&#x27;</span>;</span><br><span class="line">    <span class="title function_">foo</span>();</span><br><span class="line">&#125;</span><br><span class="line"><span class="title function_">bar</span>();</span><br></pre></td></tr></table></figure>
+
+<p>答案是<code>global</code>，这倒不难理解，按照前面说的，<code>foo()</code>函数被调用，发现函数作用域中没有<code>x</code>变量，就沿着作用域链向上寻找，在全局作用域中找到后就输出<code>global</code>。但在有些语言中会得到不同的输出结果。</p>
+<p>以 Perl 语言为例，实现同样功能的代码，会得到不同的输出：</p>
+<blockquote>
+<p>你可以使用该 <a target="_blank" rel="noopener" href="https://www.jyshare.com/compile/">站点</a> 在线运行以上代码并观察输出结果。</p>
+</blockquote>
+<figure class="highlight perl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">our</span> <span class="variable">$x</span> = <span class="string">&#x27;global&#x27;</span>;</span><br><span class="line"><span class="function"><span class="keyword">sub</span> <span class="title">foo</span> </span>&#123;</span><br><span class="line">    <span class="keyword">print</span> <span class="string">&quot;<span class="variable">$x</span>\n&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">sub</span> <span class="title">bar</span> </span>&#123;</span><br><span class="line">    <span class="keyword">local</span> <span class="variable">$x</span> = <span class="string">&#x27;local&#x27;</span>;</span><br><span class="line">    foo();</span><br><span class="line">&#125;</span><br><span class="line">bar(); <span class="comment"># output: local</span></span><br></pre></td></tr></table></figure>
+
+<p>原因是这两种语言对作用域的定义不同。从本质上来讲，作用域就是一套规则，这套规则用来管理引擎如何在当前作用域以及嵌套的子作用域中根据标识符名称查找变量。</p>
+<p>常见作用域有静态作用域（static scope）和动态作用域（dynamic scope），前者在词法分析阶段就已经决定，后者则是在代码执行过程中进行动态的划分，比如函数的作用域是在函数被调用时才决定。</p>
+<p>JS 采用的是静态作用域规则，我们在编写代码就已经决定了其作用域层级。静态作用域也叫做词法作用域（Lexical Scope），这个名称更加直白。</p>
+<blockquote>
+<p>如果你对什么是“词法分析”抱有疑问，可以参考我之前的文章：<a target="_blank" rel="noopener" href="https://ma5hr00m.top/archives/2024/02/how-js-run.html">JavaScript 执行原理</a>。</p>
+</blockquote>
+<h2 id="Hoisting-提升"><a href="#Hoisting-提升" class="headerlink" title="Hoisting 提升"></a>Hoisting 提升</h2><p>讲完作用域，我们可以来说说提升（hoisting）了。</p>
+<p>hoisting 是指将变量、函数或类的声明移动到它们所在的作用域的顶部，这允许开发者在代码中使用变量或函数时无需关心它们的声明位置。这里“移动”并不准确，但暂且按照这样理解也无妨。</p>
+<p>这是一个最简单的例子，我们在声明<code>ping()</code>之前调用了它，但这不会导致报错：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">ping</span>();</span><br><span class="line"><span class="keyword">function</span> <span class="title function_">ping</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;pong&#x27;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>不抛出报错的原因就是 JS 引擎在运行时将<code>ping()</code>的声明“移动”到了函数调用之前，也就是提升了这个函数声明。</p>
+<p>为什么需要 hoisting 呢？在 Twitter 某位用户的询问中，Brendan Eich 回答了这个问题：</p>
+<blockquote>
+<p>Function declaration hoisting is for mutual recursion &amp; generally to avoid painful bottom-up ML-like order.</p>
+</blockquote>
+<p>在我们编写 JS 时，有时会遇到需要编写两个函数相互调用的情况，如果没有提升，处理这种情况就会变得繁琐。Brendan 不希望在 JS 中看到类似 ML 的自下而上的编程顺序。</p>
+<h3 id="提升规则"><a href="#提升规则" class="headerlink" title="提升规则"></a>提升规则</h3><blockquote>
+<p>如果你只想知道 Hoisting 规则，而对其原理不感兴趣，只需看完本小节。</p>
+</blockquote>
+<p>这是变量提升的简单演示，运行代码会输出<code>undefined</code>而非<code>ReferenceError: a is not defined</code>：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(a) <span class="comment">// output: undefined</span></span><br><span class="line"><span class="keyword">var</span> a = <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+
+<p>JS 引擎会提升变量声明操作，而不会提升变量赋值操作。以上代码等效于：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(a) <span class="comment">// output: undefined</span></span><br><span class="line">a = <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+
+<p>再来看这段代码，运行代码输出<code>2</code>而非<code>1</code>：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">test</span>(<span class="params">v</span>)&#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(v);</span><br><span class="line">    <span class="keyword">var</span> v = <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="title function_">test</span>(<span class="number">2</span>); <span class="comment">// output: 2</span></span><br></pre></td></tr></table></figure>
+
+<p>函数作用域中的变量也会提升，但因为我们调用<code>test()</code>时传入了参数<code>v</code>，所以在函数内代码运行之前会有一个隐性的函数声明+赋值操作，<code>var v = 1;</code>的声明操作也会提升，但因为<code>v=2</code>的赋值操作更先执行，所以会输出<code>2</code>。以上代码等效于：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">test</span>(<span class="params">v</span>)&#123;</span><br><span class="line">    <span class="keyword">var</span> v;</span><br><span class="line">    <span class="keyword">var</span> v;</span><br><span class="line">    v = <span class="number">2</span>;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(v);</span><br><span class="line">    v = <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="title function_">test</span>(<span class="number">2</span>); <span class="comment">// output: 2</span></span><br></pre></td></tr></table></figure>
+
+<p>最后来看这段代码，运行代码输出<code>[Function: a]</code>而非<code>undefined</code>：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(a); <span class="comment">// output: [Function: a]</span></span><br><span class="line"><span class="keyword">var</span> a;</span><br><span class="line"><span class="keyword">function</span> <span class="title function_">a</span>(<span class="params"></span>)&#123;&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>调换2、3行的声明顺序会得到相同结果。道理很简单，函数声明提升优先级 &gt; 变量声明提升，无需过多解释。</p>
+<p>对以上三个示例做总结，可以得到以下 JS 中关于提升的三条规则：</p>
+<ul>
+<li>变量、函数声明操作都会提升；</li>
+<li>赋值操作不提升；</li>
+<li>函数声明操作优先级 &gt; 变量声明优先级。</li>
+</ul>
+<h3 id="Execution-Context-执行上下文"><a href="#Execution-Context-执行上下文" class="headerlink" title="Execution Context 执行上下文"></a>Execution Context 执行上下文</h3><p>在介绍 hoisting 实现原理之前，有必要先了解 JS 的执行上下文。</p>
+<p>ES6 的执行上下文是指运行 JS 代码时的代码环境和相关信息。执行上下文包括三个部分：</p>
+<ul>
+<li>词法环境（lexical environment）</li>
+<li>变量环境（variable environment）</li>
+<li>this 绑定（this binding）</li>
+</ul>
+<p>词法环境是一个存储标识符（变量，函数，类等）和它们的值的结构。词法环境有两个组成部分：环境记录（environment record）和外部环境引用（outer environment reference）。环境记录是一个存储当前作用域内的标识符和它们的值的对象；外部环境引用则是一个指向包含作用域的词法环境的指针。</p>
+<p>变量环境是一个与词法环境类似的结构，但是它只存储<code>var</code>声明的变量。在 ES6 之前，变量环境和词法环境是相同的，但是在 ES6 中引入了<code>let&amp;const</code>关键字，变量环境和词法环境也有可能不同。</p>
+<p><code>this</code>绑定是一个确定当前执行上下文中的<code>this</code>值的过程。<code>this</code>值取决于函数的调用方式，例如普通函数调用，方法调用，构造函数调用，箭头函数调用等。</p>
+<blockquote>
+<p><code>this</code>比较麻烦，本文中不细说。</p>
+</blockquote>
+<p>词法环境和变量环境本质上都是一种词法作用域，都是用来存储和查找标识符（变量，函数等）的值的结构。它们的区别在于，词法环境可以随着代码的执行而改变，而变量环境则保持不变。</p>
+<p><img src="https://img.ma5hr00m.top/blog/20240226195039.png" alt="20240226195039"></p>
+<p>我们可以把词法环境理解为一个栈，每当进入一个新的作用域，就会创建一个新的词法环境，并将其压入栈顶。这个新的词法环境包含了当前作用域内的标识符和它们的值，以及一个指向外部词法环境的引用。当退出当前作用域时，就会将栈顶的词法环境弹出，恢复到上一个词法环境。这样，词法环境就能实现词法作用域的规则，即内部作用域可以访问外部作用域的标识符，但反之不行。</p>
+<p>变量环境则是一个特殊的词法环境，它只包含了用<code>var</code>声明的变量和函数声明。变量环境在执行上下文创建时就确定了，不会随着代码的执行而改变。这意味着，用<code>var</code>声明的变量和函数声明会被提升到它们所在的执行上下文的顶部，而不受块级作用域的限制。这也是为什么在 ES6 之前，JS 只有函数作用域，而没有块级作用域的原因。</p>
+<p>ES6 引入了<code>let</code>和<code>const</code>关键字，它们创建的标识符只存在于词法环境中，而不在变量环境中。这样，就可以实现块级作用域，以及暂时性死区（TDZ）的特性。</p>
+<p>下面是一个例子，说明了词法环境和变量环境的区别：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 全局代码</span></span><br><span class="line"><span class="keyword">var</span> a = <span class="number">1</span>; <span class="comment">// 在全局执行上下文的变量环境和词法环境中</span></span><br><span class="line"><span class="keyword">let</span> b = <span class="number">2</span>; <span class="comment">// 只在全局执行上下文的词法环境中</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="comment">// 进入foo函数的执行上下文</span></span><br><span class="line">  <span class="keyword">var</span> c = <span class="number">3</span>; <span class="comment">// 在foo函数的执行上下文的变量环境和词法环境中</span></span><br><span class="line">  <span class="keyword">let</span> d = <span class="number">4</span>; <span class="comment">// 只在foo函数的执行上下文的词法环境中</span></span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(a, b, c, d); <span class="comment">// 1, 2, 3, 4</span></span><br><span class="line">  <span class="keyword">if</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">    <span class="comment">// 进入块级作用域</span></span><br><span class="line">    <span class="keyword">var</span> e = <span class="number">5</span>; <span class="comment">// 在foo函数的执行上下文的变量环境和词法环境中</span></span><br><span class="line">    <span class="keyword">let</span> f = <span class="number">6</span>; <span class="comment">// 只在块级作用域的词法环境中</span></span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(a, b, c, d, e, f); <span class="comment">// 1, 2, 3, 4, 5, 6</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// 退出块级作用域</span></span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(a, b, c, d, e); <span class="comment">// 1, 2, 3, 4, 5</span></span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(f); <span class="comment">// ReferenceError: f is not defined</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 退出foo函数的执行上下文</span></span><br><span class="line"><span class="title function_">foo</span>();</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(a, b); <span class="comment">// 1, 2</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(c, d, e, f); <span class="comment">// ReferenceError: c is not defined</span></span><br></pre></td></tr></table></figure>
+
+<p>到这里应该就能理解词法环境和变量环境是什么了，如果还是感觉疑惑，不清楚这俩环境到底是什么，可以看看 <a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/23948198/variable-environment-vs-lexical-environment">Variable Environment vs lexical environment</a> 这篇问答，里面解释得更详细一些。</p>
+<h3 id="工作原理"><a href="#工作原理" class="headerlink" title="工作原理"></a>工作原理</h3><p>经过前面这么多铺垫，我感觉 Hoisting 的实现原理已经比较明晰。其实解释执行上下文的时候就已经算是在解释 Hositing 工作原理了。</p>
+<p>我们可以把 JS 执行划分为以下几个步骤，但重点放在提升操作上：</p>
+<ol>
+<li>创建全局执行上下文，并将其压入执行栈。</li>
+<li>对全局代码进行扫描，将<code>var</code>声明的变量添加到全局执行上下文的变量环境中，并赋值为<code>undefined</code>。将函数声明添加到全局执行上下文的词法环境中，并赋值为函数对象。对于<code>let</code>和<code>const</code>声明的变量，不会被提升，而是在全局执行上下文的词法环境中创建一个未初始化的绑定，直到它们被赋值为止。这就是暂时性死区（TDZ）的概念，即在变量被赋值之前，不能被访问或使用。</li>
+<li>开始执行全局代码，按照顺序逐行执行。如果遇到函数调用，就创建一个函数执行上下文，并将其压入执行栈。</li>
+<li>对函数代码进行扫描，将<code>var</code>声明的变量添加到函数执行上下文的变量环境中，并赋值为<code>undefined</code>。将函数声明添加到函数执行上下文的词法环境中，并赋值为函数对象。对于<code>let</code>和<code>const</code>声明的变量，同样不会被提升，而是在函数执行上下文的词法环境中创建一个未初始化的绑定，直到它们被赋值为止。</li>
+<li>开始执行函数代码，按照顺序逐行执行。如果遇到函数调用，就重复步骤3和4。如果遇到<code>return</code>语句，就返回函数的结果，并将函数执行上下文从执行栈中弹出。</li>
+<li>当全局代码执行完毕，就将全局执行上下文从执行栈中弹出，程序结束。</li>
+</ol>
+<p>流程如此，具体到代码中，把自己想象成 JS 引擎，按照上面的执行流程分析即可。如果感兴趣，可以试着分析以下代码，对应的输出也已经给在每行代码后面了：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(a); <span class="comment">// undefined</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(b); <span class="comment">// ReferenceError: Cannot access &#x27;b&#x27; before initialization</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title function_">c</span>()); <span class="comment">// 3</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title function_">d</span>()); <span class="comment">// TypeError: d is not a function</span></span><br><span class="line"><span class="keyword">var</span> a = <span class="number">1</span>;</span><br><span class="line"><span class="keyword">let</span> b = <span class="number">2</span>;</span><br><span class="line"><span class="keyword">function</span> <span class="title function_">c</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="number">3</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> d = <span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="number">4</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h2 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h2><p>文中有些概念并不明晰，但直接解释又会影响连贯性，于是摘出来放在这里。</p>
+<h3 id="ML-like-Order"><a href="#ML-like-Order" class="headerlink" title="ML-like Order"></a>ML-like Order</h3><p>ML 是一种通用的函数式编程语言，具有可扩展的类型系统。它支持多态类型推断，这几乎消除了指定变量类型的负担，并极大地促进了代码的重用。ML 虽然没有得到广泛的使用，但它对其他语言产生了很大的影响，比如 Haskell、Rust、Scala 等。</p>
+<p>下面是一个用 Standard ML 编写的阶乘函数的例子：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">fun factorial n =</span><br><span class="line">    if n = 0 then 1 else n * factorial (n-1)</span><br></pre></td></tr></table></figure>
+
+<p>这个函数必须在调用它的地方之前定义，否则会报错。</p>
+<p>ML-like Order 是指 ML 语言中的函数定义顺序，它是自下而上的，也就是说，一个函数必须在它被调用之前定义。这样的顺序有时会导致一些不便，比如前面讲到的函数相互递归的情景，ML 就需要使用特殊的 fun 和 and 关键字，这种函数则会被称为互递归函数。比如判断一个自然数是奇数还是偶数：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">fun isOdd n = if n = 0 then false else isEven (n-1)</span><br><span class="line">and isEven n = if n = 0 then true else isOdd (n-1)</span><br></pre></td></tr></table></figure>
+
+<p>为了避免这种情况，一些其他的语言（比如 JS）采用了函数声明提升（FDs hoisting）的机制，允许在任何地方定义函数，而不用考虑顺序。</p>
+<h2 id="参阅文章"><a href="#参阅文章" class="headerlink" title="参阅文章"></a>参阅文章</h2><ul>
+<li>[解读ECMAScript<a target="_blank" rel="noopener" href="https://www.cnblogs.com/leoo2sk/archive/2010/12/19/ecmascript-scope.html">1]——执行环境、作用域及闭包</a>，by Eric Zhang</li>
+<li><a target="_blank" rel="noopener" href="https://juejin.cn/post/7030765196574457892#heading-8">详解JavaScript作用域和作用域链</a>，by Rockky</li>
+<li><a target="_blank" rel="noopener" href="https://blog.huli.tw/2018/12/08/javascript-closure/">所有的函式都是閉包：談 JS 中的作用域與 Closure</a>，by Huli</li>
+<li><a target="_blank" rel="noopener" href="https://blog.huli.tw/2018/11/10/javascript-hoisting-and-tdz/">我知道你懂 hoisting，可是你了解到多深</a>，by Huli</li>
+<li><a target="_blank" rel="noopener" href="https://262.ecma-international.org/6.0/">ECMAScript® 2015 Language Specification</a></li>
+</ul>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>kinoko</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="http://example.com/2024/02/16/2024/js-scope-and-hoisting/">http://example.com/2024/02/16/2024/js-scope-and-hoisting/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Do you believe in <strong>DESTINY</strong>?</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/JavaScript/"># JavaScript</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2024/02/19/2024/overview-of-nginx-process-model/">Nginx进程模型概述</a>
+            
+            
+            <a class="next" rel="next" href="/2024/02/14/2024/js-prototype-chain/">JavaScript原型链详解</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© kinoko 2022-2025. All rights reserved.</span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

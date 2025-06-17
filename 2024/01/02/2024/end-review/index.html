@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="kinoko">
+
+
+
+
+    <meta name="keywords" content="博客,blog,阿菇,阿菇kinoko,kinoko,usamikinoko">
+
+
+<title>网络空间安全技术复习笔记 | 阿菇的博客</title>
+
+
+
+    <link rel="icon" href="/favicon.jpg">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Kinoko&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                <a class="menu-item" href="/archives">Posts</a>
+                
+                <a class="menu-item" href="/category">Categories</a>
+                
+                <a class="menu-item" href="/tag">Tags</a>
+                
+                <a class="menu-item" href="/about">About</a>
+                
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Kinoko&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">
+                    <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"/></svg>
+                    <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE --><path fill="currentColor" d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"/></svg>
+                </div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                <a class="menu-item" href="/archives">Posts</a>
+                
+                <a class="menu-item" href="/category">Categories</a>
+                
+                <a class="menu-item" href="/tag">Tags</a>
+                
+                <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if (toggleMenu.classList.contains("active")) {
+            toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        } else {
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">网络空间安全技术复习笔记</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">kinoko</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">January 2, 2024&nbsp;&nbsp;0:00:00</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Development/">Development</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h2 id="网络安全概论"><a href="#网络安全概论" class="headerlink" title="网络安全概论"></a>网络安全概论</h2><p>&#x3D;&#x3D;网络安全的基本目标&#x3D;&#x3D;：</p>
+<ul>
+<li>保密性：防止信息泄漏给非授权的个人或实体，只为授权用户使用的特性（传输加密、访问控制存储）。</li>
+<li>完整性：只数据未经授权不能进行改变的特性，即确保信息在存储或传输过程中保持不被篡改，删除和伪造的特性（预防、消息认证技术）。</li>
+<li>可用性：：信息被授权实体访问并按需使用的特性（备份和灾难恢复、应急响应、系统容侵）。</li>
+<li>不可抵赖性：在信息交换过程中，所有参与者都不能否认和抵赖曾经完成的操作和承诺的特性（数字签名技术、可信第三方认证技术）。</li>
+<li>可控性：对信息的传播过程及内容具有控制能力的特性（信息监控、审计、过滤）。</li>
+</ul>
+<p>&#x3D;&#x3D;CIA 安全模型&#x3D;&#x3D;：保密性、完整性、可用性，CIA 三元组</p>
+<p>&#x3D;&#x3D;P2DR 模型的组成&#x3D;&#x3D;：</p>
+<ul>
+<li>策略：为实现信息系统的安全目标，对所有与信息系统安全相关的活动所制定的规则（核心）。</li>
+<li>防护：信息系统的安全保护措施，由安全技术实现。</li>
+<li>检测：了解和评估信息系统的安装状态，发现信息系统异常行为的机制。</li>
+<li>响应：发现信息系统异常行为后采取的行动。</li>
+</ul>
+<h2 id="局域网攻击与防御技术"><a href="#局域网攻击与防御技术" class="headerlink" title="局域网攻击与防御技术"></a>局域网攻击与防御技术</h2><p>&#x3D;&#x3D;网络攻击的分类&#x3D;&#x3D;：主动攻击和被动攻击</p>
+<p>&#x3D;&#x3D;主动攻击和被动攻击的定义&#x3D;&#x3D;：</p>
+<ul>
+<li>主动攻击：会改变网络中的信息、状态和信息流模式的攻击行为。主动攻击可以破坏信息的保密性、完整性和可用性（嗅探攻击、拒绝服务攻击、欺骗攻击）。</li>
+<li>被动攻击：不会对经过网络传输的信息、网络状态和网络信息流模式产生影响的攻击行为。被动攻击一般只破坏信息的保密性（截获攻击、非法介入和登录）。</li>
+</ul>
+<p>&#x3D;&#x3D;窃听攻击的原理&#x3D;&#x3D;：</p>
+<ul>
+<li>集线器窃听：集线器是一个物理层设备，当数据包到达集线器时，它会将数据包广播到所有连接的端口上，攻击者可以通过监听集线器上的数据包来获取网络通信的敏感信息。</li>
+<li>MAC 表溢出攻击原理：交换机使用 MAC 地址表来记录网络设备的 MAC 地址和相应的端口信息。攻击者可以发送大量伪造的 MAC 地址信息来使交换机的 MAC 表溢出，导致交换机进入混杂模式，将所有数据包广播到所有端口上，从而进行窃听攻击。</li>
+<li>交换机端口镜像攻击原理：攻击者可以配置交换机的端口镜像功能，将目标端口上的数据镜像到攻击者控制的端口上，从而窃取网络通信的敏感信息。</li>
+</ul>
+<p>&#x3D;&#x3D;窃听攻击的防御机制&#x3D;&#x3D;：</p>
+<ul>
+<li>集线器：防止黑客终端接入集线器的措施。</li>
+<li>交换机：需要有防止黑客终端接入交互机的措施，交换机需要具有防御 MAC 表溢出攻击的机制。</li>
+<li>无线通信：嗅探攻击无法避免，需要对传输的信息进行加密，使得黑客终端即使嗅探到信息，也因为无法对信息解密而无法破坏信息的保密性。</li>
+</ul>
+<p>&#x3D;&#x3D;截获攻击原理&#x3D;&#x3D;：</p>
+<ul>
+<li>MAC 地址欺骗攻击的原理：MAC 地址欺骗攻击是指攻击者通过发送伪造的 MAC 地址信息，欺骗交换机或其他网络设备，使其将网络流量发送到攻击者控制的设备上。攻击者可以通过截获网络流量获取敏感信息。</li>
+<li>DHCP 欺骗攻击的原理：终端访问网络前，需要配置网络信息，如 IP 地址、子网掩码、默认网管地址本地域名服务器地址等，可以手动配置，或通过 DHCP 自动从 DHCP 服务器获取。DHCP 欺骗攻击是指攻击者伪装成 DHCP 服务器，向网络中的设备发送虚假的 DHCP 响应，欺骗设备获取错误的 IP 地址、网关和 DNS 服务器等配置信息。攻击者可以通过截获网络流量获取敏感信息或中断网络连接。</li>
+<li>ARP 欺骗攻击的原理：ARP 欺骗攻击是指攻击者发送伪造的 ARP 请求或响应，欺骗网络中的设备将目标 IP 地址与错误的 MAC 地址进行关联。攻击者可以通过截获网络流量获取敏感信息或中断网络连接。</li>
+<li>生成树欺骗攻击的原理：生成树欺骗攻击是指攻击者发送伪造的生成树协议消息，欺骗交换机重新计算生成树，导致网络中断或数据流量被重定向到攻击者控制的设备上。攻击者可以通过截获网络流量获取敏感信息或中断网络连接。</li>
+</ul>
+<blockquote>
+<p>😜 题目分析</p>
+<p><em>ARP欺骗攻击</em> 是静态配置访问控制列表无法防御的。</p>
+<p>静态配置访问控制列表（ACL）是一种在网络设备上配置的规则集，用于控制网络流量和限制对网络资源的访问。它可以基于源IP地址、目标IP地址、端口号等参数进行过滤和控制。</p>
+<p>ARP（地址解析协议）欺骗攻击是一种利用局域网中的ARP协议漏洞的攻击方式。攻击者发送虚假的ARP响应消息，将网络中的IP地址与错误的MAC地址进行映射。这样，当其他设备发送数据包时，数据包将被发送到错误的目标设备，从而导致网络流量被重定向到攻击者控制的设备上。</p>
+<p>静态配置访问控制列表无法有效防御ARP欺骗攻击，因为ACL是基于IP地址进行过滤和控制，而ARP欺骗攻击涉及到欺骗和篡改IP地址与MAC地址之间的映射关系，绕过了ACL的过滤规则。</p>
+</blockquote>
+<blockquote>
+<p>😜 题目分析<br>访问控制列表是基于终端MAC地址的接入控制技术。<em>终端MAC地址</em> 是一个唯一标识网络设备的地址，通过控制访问控制列表中允许或禁止特定MAC地址的访问，可以实现对网络资源的访问控制。</p>
+</blockquote>
+<p>&#x3D;&#x3D;截获攻击防御&#x3D;&#x3D;：</p>
+<ul>
+<li>MAC地址：阻止黑客终端接入以太网，阻止黑客终端发送的以伪造的 MAC 地址为源 MAC 地址的 MAC 帧进入以太网。</li>
+<li>DHCP欺骗攻击：不允许伪造的 DHCP 服务器接入局域网，如以太网交换机端口只允许接收经过验证的 DHCP 服务器发送的 DHCP 提供和确认消息。</li>
+<li>ARP 欺骗攻击：以太网交换机可以提供鉴别 ARP 请求和响应报文中 IP 地址与 MAC 地址绑定项真伪的功能，以太网交换机只继续转发包含正确的 IP 地址与 MAC 地址绑定项的 ARP 请求和响应报文。</li>
+<li>生成树欺骗攻击：不允许黑客终端参与网络生成树建立过程，即只在用于实现两个认证交换机之间互联的交换机端口启动生成树协议。</li>
+</ul>
+<blockquote>
+<p>😜 题目分析</p>
+<p>DHCP欺骗攻击的技术机理：</p>
+<ul>
+<li>终端随机选择为其配置网络信息的DHCP服务器</li>
+<li>伪造的网络配置信息会造成终端严重的安全后果</li>
+<li>网络中可以存在多台DHCP服务器</li>
+</ul>
+</blockquote>
+<p>&#x3D;&#x3D;欺骗攻击原理&#x3D;&#x3D;：</p>
+<ul>
+<li>源 IP 地址欺骗攻击原理：源 IP 地址欺骗是指某个终端发送 IP 分组时，不是以该终端真实的 IP 地址作为源 IP 地址，而是用其它终端的 IP 地址，或者伪造一个本不存在的 IP 地址作为 IP 分组的源 IP 地址的行为。</li>
+<li>钓鱼网站实施原理：钓鱼网站是指攻击者创建的伪装成合法网站的虚假网站，旨在欺骗用户提供个人敏感信息，如用户名、密码、信用卡信息等。攻击者通常通过伪造电子邮件、社交媒体链接或广告等方式引导用户访问钓鱼网站。</li>
+</ul>
+<p>&#x3D;&#x3D;欺骗攻击防御&#x3D;&#x3D;：</p>
+<ul>
+<li>源 IP 地址欺骗：网络接收到某个 IP 分组时，首先判别该 IP 分组的源 IP 地址是否与发送该 IP 分组的终端的 IP 地址一致，如果不一致，终止该 IP 分组的转发过程。</li>
+<li>钓鱼网站：主机具有防御黑客入侵的能力，黑客无法修改主机信息；以太网交换机具有防止伪造的 DHCP 服务器介入的能力，只允许经过认证的 DHCP 服务器接入以太网；终端具有鉴别 Web 服务器的能力，证实 Web 服务器身份后，才对 Web 服务器进行访问。</li>
+</ul>
+<blockquote>
+<p>😜 题目分析</p>
+<p>Smurf攻击的技术机理：</p>
+<ul>
+<li>将ICMP ECHO请求报文广播给某个网络中的所有终端</li>
+<li>所有接收到ECHO请求报文的终端向报文的源终端回送ECHO响应报文</li>
+<li>将攻击目标的IP地址作为ICMP ECHO请求报文的源IP地址</li>
+</ul>
+</blockquote>
+<h2 id="Web-攻击"><a href="#Web-攻击" class="headerlink" title="Web 攻击"></a>Web 攻击</h2><h2 id="防火墙"><a href="#防火墙" class="headerlink" title="防火墙"></a>防火墙</h2><p>&#x3D;&#x3D;防火墙&#x3D;&#x3D;：防火墙是由软件和硬件组成的系统，它处于安全的网络和不安全的网络之间，属于边界防护设备，由系统管理员设置访问控制规则，对进出网络边界的数据流进行过滤。</p>
+<p>&#x3D;&#x3D;防火墙分类（逻辑）&#x3D;&#x3D;：</p>
+<ul>
+<li>主机防火墙：针对于单个主机进行防护。</li>
+<li>网络防火墙：往往处于网络入口或边缘，针对于网络入口进行防护，服务于防火墙背后的本地局域网。</li>
+</ul>
+<p>&#x3D;&#x3D;防火墙分类（物理）&#x3D;&#x3D;：</p>
+<ul>
+<li>硬件防火墙：在硬件级别实现部分防火墙功能，另一部分功能基于软件实现，性能高，成本高。</li>
+<li>软件防火墙：应用软件处理逻辑运行于通用硬件平台之上的防火墙，性能低，成本低。</li>
+</ul>
+<p>&#x3D;&#x3D;防火墙部署位置&#x3D;&#x3D;：</p>
+<p>基于 OSI 模型，防火墙工作于 OSI 模型的层次越高，能提供的安全保护等级就越高。防火墙通常建立在 TCP&#x2F;IP 模型基础上， OSI 模型与<br>TCP&#x2F;IP 模型之间并不存在一一对应的关系。</p>
+<p><img src="https://img.ma5hr00m.top/blog/20240126132811.png" alt="20240126132811"></p>
+<ul>
+<li>包过滤防火墙（应用层）</li>
+<li>电路级网关防火墙（会话层 | ）</li>
+<li>应用级网关防火墙（网络层 | IP协议）</li>
+</ul>
+<p>&#x3D;&#x3D;动态包过滤防火墙的工作原理&#x3D;&#x3D;：</p>
+<ul>
+<li><p>与普通包过滤防火墙相似，大部分工作于网络层。有些安全性高的动态包过滤防火墙，则工作于传输层。</p>
+</li>
+<li><p>动态包过滤防火墙的不同点：对外出数据包进行身份记录，便于下次让具有相同连接的数据包通过。</p>
+</li>
+<li><p>动态包过滤防火墙需要对已建连接和规则表进行动态维护，因此是动态的和有状态的。</p>
+</li>
+<li><p>典型的动态包过滤防火墙能够感觉到新建连接与已建连接之间的差别。</p>
+</li>
+<li><p>实现动态包过滤器有两种主要的方式：</p>
+<ol>
+<li>实时地改变普通包过滤器的规则集。</li>
+<li>采用类似电路级网关的方式转发数据包。</li>
+</ol>
+</li>
+</ul>
+<p>&#x3D;&#x3D;动态包过滤防火墙的优&#x2F;缺点&#x3D;&#x3D;：</p>
+<ul>
+<li>优点：<ul>
+<li>采用 SMP 技术时，对网络性能的影响非常小。</li>
+<li>动态包过滤防火墙的安全性优于静态包过滤防火墙。</li>
+<li>“ 状态感知”能力使其性能得到了显著提高。</li>
+<li>如果不考虑操作系统成本，成本会很低。</li>
+</ul>
+</li>
+<li>缺点：<ul>
+<li>仅工作于网络层，仅检查 IP 头和 TCP 头。</li>
+<li>没过滤数据包的净荷部分，仍具有较低的安全性。</li>
+<li>容易遭受 IP 欺骗攻击。</li>
+<li>难于创建规则，管理员创建时必须要考虑规则的先后次序。</li>
+<li>如果在建立连接时没有遵循三步握手协议，会引入风险。</li>
+</ul>
+</li>
+</ul>
+<p>&#x3D;&#x3D;动态包过滤防火墙的防范作用&#x3D;&#x3D;：</p>
+<ul>
+<li>具有状态感知能力。</li>
+<li>典型动态包过滤防火墙工作在网络层。</li>
+<li>先进的动态包过滤防火墙位于传输层。</li>
+<li>检查的数据包头信息：源地址、目的地址、应用或协议、源端口号、目的端口号</li>
+<li>防火墙的作用就在于对经过的报文匹配 “ 规则 “ ，然后执行对应的 “ 动作 “, 所以，当报文经过这些关卡的时候，则必须匹配这个关卡上的规则。</li>
+</ul>
+<p>&#x3D;&#x3D;应用级防火墙（WAF）的原理&#x3D;&#x3D;：</p>
+<p>依赖 WAF 的三种检测机制：</p>
+<ul>
+<li>协议验证：WAF 通过检测经过的 HTTP 请求和响应消息中各个字段的值可以发现不规范的 HTTP 请求和响应消息，这些不规范的 HTTP 请求和响应消息中往往包含攻击信息。</li>
+<li>攻击特征：WAF 对每一个 HTTP 请求消息，根据攻击特征库中的每一个攻击行为，逐个检测相关字段，如果该 HTTP 请求消息的相关字段值中包含了某个攻击行为的特征信息，表明该 HTTP 请求消息是实施该攻击行为的 HTTP 请求消息。</li>
+<li>应用规范：可以根据长期统计分析得出的规律来制定应用规范，当 Web 服务器访问方式与应用规范之间出现较大偏差时，表明 Web 服务器正在遭受攻击。</li>
+</ul>
+<blockquote>
+<p>😜 题目分析</p>
+<p>有状态分组过滤器和无状态分组过滤器之间的主要区别：每一个分组独立地根据与过滤规则的匹配结果确定对其施加的操作。</p>
+</blockquote>
+<blockquote>
+<p>😜 题目分析</p>
+<p>有状态分组过滤器 <em>不能</em> 控制两个 <em>特定用户</em> 之间的数据交换过程。</p>
+</blockquote>
+<h2 id="恶意代码"><a href="#恶意代码" class="headerlink" title="恶意代码"></a>恶意代码</h2><p>&#x3D;&#x3D;恶意代码类型&#x3D;&#x3D;：病毒、木马、蠕虫、Rootkit、勒索病毒、逻辑炸弹、僵尸网络、间谍软件、广告软件、移动恶意代码。</p>
+<p>&#x3D;&#x3D;恶意代码特点&#x3D;&#x3D;：非授权性和破坏性。</p>
+<p>&#x3D;&#x3D;恶意代码危害&#x3D;&#x3D;：</p>
+<ul>
+<li>攻击系统，造成信息系统瘫痪或操作异常。</li>
+<li>危害数据文件的安全存储和使用。</li>
+<li>泄露文件，配置或隐私信息。</li>
+<li>肆意占用资源，影响系统或网络的性能。</li>
+</ul>
+<p>&#x3D;&#x3D;恶意代码生命周期&#x3D;&#x3D;：编制代码、传播、感染、触发、运行。</p>
+<h3 id="木马病毒"><a href="#木马病毒" class="headerlink" title="木马病毒"></a>木马病毒</h3><p>&#x3D;&#x3D;木马病毒的特点&#x3D;&#x3D;：</p>
+<ul>
+<li>主要特征是伪装成正常文件，类似于间谍特工，窃取数据。</li>
+<li>木马的作用范围是所有使用有木马的人在使用电脑时的资料。</li>
+<li>通常有两个可执行程序：一个是控制端（控制者），另一个是被控制端（被控制者）。</li>
+<li>注重对主机的控制，和运行的隐蔽性。</li>
+<li>悄悄的窃取计算机数据，不会主动告诉你中木马了，需要自己去排查。</li>
+<li>不会自我繁殖，也并不“刻意”地去感染其他文件，它会修改注册表、驻留内存、在系统中安装后门程序、开机加载附带的木马</li>
+</ul>
+<p>&#x3D;&#x3D;危害&#x3D;&#x3D;：窃取个人信息、远程控制、破坏系统、启动其他恶意软件。</p>
+<p>&#x3D;&#x3D;典型木马名称&#x3D;&#x3D;：冰河、back orifice、Subseven、网络公牛、网络神偷、广外女生、网络精灵。</p>
+<h3 id="勒索病毒"><a href="#勒索病毒" class="headerlink" title="勒索病毒"></a>勒索病毒</h3><p>&#x3D;&#x3D;勒索病毒的特点&#x3D;&#x3D;：勒索病毒是一种恶意软件，其特点是加密用户的文件或系统，然后勒索受害者支付赎金以解密文件或恢复系统。勒索病毒通常通过网络传播，可以通过恶意链接、垃圾邮件附件等方式感染计算机。</p>
+<p>&#x3D;&#x3D;危害&#x3D;&#x3D;：文件加密、系统锁定、数据丢失、经济损失。</p>
+<p>&#x3D;&#x3D;典型勒索病毒&#x3D;&#x3D;：WannaCry、WannaRen、Reveton、CryptoLocker、VirLock、Locky、Petya。</p>
+<h3 id="蠕虫病毒"><a href="#蠕虫病毒" class="headerlink" title="蠕虫病毒"></a>蠕虫病毒</h3><p>&#x3D;&#x3D;蠕虫病毒的特点&#x3D;&#x3D;：</p>
+<ul>
+<li>蠕虫病毒是一种能够利用系统漏洞通过网络进行自我传播（会传染）的恶意程序，它不需要附着在其他程序上，而是独立存在的。</li>
+<li>明目张胆的破坏计算机数据，并弹个窗告诉你，你电脑种病毒了。</li>
+<li>病毒的主要特征是感染正常文件。</li>
+<li>传染目标是互联网内的所有主机，不同程度不同范围的影响主机的使用，破坏主机系统功能或者数据或者网络功能（消耗内存或网络带宽）。</li>
+<li>具有自我复制能力（传播性），很强的感染性，一定的潜伏性（隐蔽性），特定的触发性和很大的破坏性。</li>
+<li>病毒可以随着 U 盘、邮件、网站、共享文件等网络传输方式或者媒介传染到其他机器。</li>
+</ul>
+<p>&#x3D;&#x3D;危害&#x3D;&#x3D;：网络拥堵、系统瘫痪、数据破坏、后门植入。</p>
+<p>&#x3D;&#x3D;典型蠕虫&#x3D;&#x3D;：尼姆达、震荡波、熊猫烧香。</p>
+<h2 id="网络安全协议"><a href="#网络安全协议" class="headerlink" title="网络安全协议"></a>网络安全协议</h2><p>&#x3D;&#x3D;IKE&#x3D;&#x3D;：IKE用于动态建立安全关联（SA，Security Association）IKE协议分两个阶段：</p>
+<ul>
+<li>第一阶段：建立IKE安全关联，即在通信双方之间协商密钥</li>
+<li>第二阶段：利用这个既定的安全关联建立IPSec安全关联</li>
+</ul>
+<blockquote>
+<p>😜 题目分析</p>
+<p>在TLS中，密码协商过程是由TLS握手协议完成的，而不是由”改变密码规范协议”完成的。TLS握手协议是TLS的一部分，它涉及身份鉴别、安全参数协商和密钥交换等过程。</p>
+</blockquote>
+<blockquote>
+<p>😜 题目分析</p>
+<p>IKE是Internet Key Exchange的缩写，是一种用于建立和管理IPsec（Internet Protocol Security）虚拟专用网络（VPN）连接的协议。IPsec是一组协议，用于提供网络层安全性，包括数据加密、身份验证和完整性保护。IKE协议用于在通信对等体之间进行安全的密钥交换，以建立和维护IPsec VPN连接。</p>
+<p>IKE协议的主要功能包括：</p>
+<ol>
+<li>身份验证：通过相互验证通信对等体的身份，确保通信双方是可信的。</li>
+<li>密钥协商：协商加密和完整性算法的密钥，用于保护IPsec通信的数据。</li>
+<li>安全参数协商：协商IPsec连接的安全参数，例如加密算法、完整性算法和认证方法。</li>
+<li>密钥生命周期管理：管理密钥的创建、更新和撤销，以确保安全的通信。</li>
+</ol>
+</blockquote>
+<blockquote>
+<p>😜 题目分析</p>
+<p>实际上，IKE（Internet Key Exchange）协议用于在通信对等体之间进行安全的密钥交换，以建立和维护IPSec VPN连接。但是，并非所有的IPSec连接都必须由IKE动态建立。IPSec支持两种模式：主模式和快速模式。</p>
+<p>在主模式下，IKE协议用于建立安全关联，并协商用于保护通信的密钥和参数。这种模式适用于需要更严格的身份验证和密钥协商的场景。</p>
+<p>在快速模式下，已经存在预共享密钥或事先配置的密钥，不需要进行完整的IKE协商过程。快速模式主要用于简化密钥协商过程，提高连接建立的效率。</p>
+</blockquote>
+<blockquote>
+<p>😜 题目分析</p>
+<p>HTTPS并不是通过记录协议的内容类型字段来区分不同的应用层协议。HTTPS是在HTTP（Hypertext Transfer Protocol）上加入了TLS（Transport Layer Security）或SSL（Secure Sockets Layer）协议层，以提供安全的通信。</p>
+</blockquote>
+<h2 id="互联网安全技术"><a href="#互联网安全技术" class="headerlink" title="互联网安全技术"></a>互联网安全技术</h2><p>&#x3D;&#x3D;拒绝服务攻击原理&#x3D;&#x3D;：使用某种方法耗尽网络设备、链路或服务器资源，使其不能正常提供服务的一种攻击方式。</p>
+<p>&#x3D;&#x3D;拒绝服务攻击防御&#x3D;&#x3D;：</p>
+<ul>
+<li>尽可能地减少肉鸡，这就要求连接在互联网上的主机系统能够具备防御病毒和黑客入侵的能力；</li>
+<li>使主机系统拒绝响应 ICMP ECHO 请求报文；</li>
+<li>网络具有统计目的 IP 地址相同的 ICMO ECHO 响应报文，或 ICMP 差错报告报文数量的能力，如果网络中单位时间内经过的目的 IP 地址相同的 ICMP ECHO 响应报文，或 ICMP 差错报告报文的数量超过设定的阈值，网络能够丢弃部分 ICMP ECHO 响应报文，或 ICMP差错报告报文。</li>
+</ul>
+<blockquote>
+<p>😜 题目分析</p>
+<p>解决路由项欺骗攻击的机制：路由项源端鉴别和完整性检测机制。</p>
+</blockquote>
+<blockquote>
+<p>😜 题目分析</p>
+<p>路由项源端鉴别和完整性检测的前提：相邻路由器配置相同的共享密钥。</p>
+</blockquote>
+<h3 id="NAT"><a href="#NAT" class="headerlink" title="NAT"></a>NAT</h3><p>NAT（Network Address Translation）网络地址转换技术是将一个IP地址转换为另一个IP地址的功能。</p>
+<p>&#x3D;&#x3D;NAT原理&#x3D;&#x3D;：</p>
+<ol>
+<li>私有网络：在私有网络中，设备使用私有IP地址（例如，192.168.0.1）进行通信。这些私有IP地址在公共网络中是不可路由的，因此无法直接与公共网络通信。</li>
+<li>NAT路由器：私有网络中的设备通过一个称为NAT路由器的设备与公共网络相连。NAT路由器同时具有私有网络接口和公共网络接口。</li>
+<li>地址转换：当私有网络中的设备发送数据包到公共网络时，NAT路由器会将源IP地址从私有IP地址转换为公共IP地址，并将此映射信息保存在转换表中。数据包的源端口也可能会被修改。</li>
+<li>转发和响应：NAT路由器将转换后的数据包发送到公共网络，并在接收响应时，根据转换表将目标IP地址和端口进行逆转换，将数据包转发给正确的设备。</li>
+<li>状态跟踪：为了确保响应数据包正确地返回给发送方，NAT路由器会在转换表中维护状态信息，跟踪每个会话的状态。</li>
+</ol>
+<h3 id="VRRP"><a href="#VRRP" class="headerlink" title="VRRP"></a>VRRP</h3><p>VRRP（Virtual Router Redundancy Protocol，虚拟路由器冗余协议）是一种网络协议，用于提供冗余的默认网关服务。它允许多个路由器共同提供相同的虚拟IP地址，以实现冗余和故障转移。</p>
+<p>&#x3D;&#x3D;VRRP原理&#x3D;&#x3D;：</p>
+<ol>
+<li>虚拟路由器：在VRRP中，多个路由器被配置为属于同一个虚拟路由器组。其中一个路由器被选为虚拟路由器的主路由器，其他路由器则作为备份路由器。</li>
+<li>虚拟IP地址：虚拟路由器组共享一个虚拟IP地址，该地址是作为默认网关提供给局域网中的设备的。设备将所有外部通信发送到虚拟IP地址。</li>
+<li>VRRP消息：主路由器和备份路由器之间通过VRRP消息进行通信。主路由器定期发送VRRP通告消息，包含虚拟路由器的状态和优先级信息。备份路由器接收到通告消息后，可以检测主路由器是否正常运行。</li>
+<li>选举主路由器：VRRP使用优先级来确定主路由器。主路由器的优先级较高，如果主路由器失效，备份路由器中优先级最高的路由器将接替成为新的主路由器。</li>
+<li>故障转移：当主路由器失效或不可达时，备份路由器中优先级最高的路由器将接管虚拟IP地址，成为新的主路由器。这样，网络中的设备仍然可以通过虚拟IP地址进行通信，而不会中断。</li>
+</ol>
+<p>&#x3D;&#x3D;模式&#x3D;&#x3D;：</p>
+<ul>
+<li>抢占模式：如果Backup设备的优先级比当前Master设备的优先级高，则主动将自己切换成Master。</li>
+<li>非抢占模式：只要Master设备没有出现故障，Backup设备即使随后被配置了更高的优先级也不会成为Master设备。</li>
+</ul>
+<p>&#x3D;&#x3D;状态机&#x3D;&#x3D;：</p>
+<ul>
+<li><p>初始状态（Initialize）：在这个状态下VRRP是不可用的，在这个状态下的设备是不会处理VRRP报文的，通常是刚配置VRRP时和检测到故障是会是这个状态。收到接口 Up 的消息后，如果设备的优先级为 255，则直接成为 Master 设备；如果设备的优先级小于 255，则会先切换至 Backup 状态。</p>
+</li>
+<li><p>活动状态（Master）</p>
+<ul>
+<li>定期发送VRRP报文。</li>
+<li>以虚拟MAC地址响应对虚拟IP地址的ARP请求。</li>
+<li>转发目的MAC地址为虚拟MAC地址的IP报文。</li>
+<li>如果它是这个虚拟IP地址的拥有者，则接收目的IP地址为这个虚拟IP地址的IP报文。否则，丢弃这个IP报文。</li>
+<li>如果收到比自己优先级大的报文则转为Backup状态。</li>
+<li>如果收到优先级和自己相同的报文，并且发送端的IP地址比自己的IP地址大，则转为Backup状态。</li>
+<li>当接收到接口的Shutdown事件时，转为Initialize。</li>
+</ul>
+</li>
+<li><p>备份状态（Backup）</p>
+<ul>
+<li>接收Master发送的VRRP报文，判断Master的状态是否正常。</li>
+<li>对虚拟IP地址的ARP请求，不做响应。</li>
+<li>丢弃目的MAC地址为虚拟MAC地址的IP报文。</li>
+<li>丢弃目的IP地址为虚拟IP地址的IP报文。</li>
+<li>Backup状态下如果收到比自己优先级小的报文时，丢弃报文，立即切换为Master（仅在抢占模式下生效）。</li>
+<li>如果收到优先级和自己相同或者比自己高的报文，则重置定时器，不进一步比较IP地址。</li>
+<li>当接收到接口的Shutdown事件时，转为Initialize。如果MASTER_DOWN_INTERVAL定时器超时，则切换为Master。</li>
+</ul>
+</li>
+</ul>
+<p>其中，只有处于Master状态的设备才可以转发那些发送到虚拟IP地址的报文。</p>
+<h2 id="虚拟专用网络技术"><a href="#虚拟专用网络技术" class="headerlink" title="虚拟专用网络技术"></a>虚拟专用网络技术</h2><p>&#x3D;&#x3D;企业网&#x3D;&#x3D;：</p>
+<ul>
+<li>企业拥有企业网全部资源（包括SDH）-&gt;专用网络</li>
+<li>公共通信服务提供商（如电信）提供SDH点对点物理链路</li>
+<li>企业网封闭，外人较难嗅探&#x2F;截获</li>
+<li>成本高，SDH点对点物理链路贵</li>
+<li>难度大，不同提供商难协商（上海、纽约）</li>
+<li>不容易扩展，LAN变动需要调整SDH</li>
+<li>灵活性差，SDH带宽难调</li>
+</ul>
+<h3 id="VPN"><a href="#VPN" class="headerlink" title="VPN"></a>VPN</h3><p>&#x3D;&#x3D;定义&#x3D;&#x3D;：指通过一个共用网络（通常是因特网）建立一个临时的、安全的链接，是一条穿过共用网络的安全稳定的隧道，是对企业内部网的拓展。</p>
+<p>&#x3D;&#x3D;功能&#x3D;&#x3D;：虚拟专用网咯能够利用因特网或其他公共互联网罗的基础设施为用户创建隧道，并提供与专用网络一样的安全和功能保障。VPN至少应该能提供三个方面功能：加密数据、信息认证和身份认证、访问控制。</p>
+<p>&#x3D;&#x3D;特点&#x3D;&#x3D;：费用低、安全保障、服务质量保证、可扩充性和灵活性、可管理性。</p>
+<p>&#x3D;&#x3D;关键技术&#x3D;&#x3D;：隧道技术、加&#x2F;解密技术、密钥管理技术、身份认证技术、访问控制。</p>
+<p>&#x3D;&#x3D;隧道协议&#x3D;&#x3D;：指通过一个公用网络（通常是Internet）建立的一条穿过公用网络的安全的、逻辑上的隧道。在隧道中，数据包被重新封装发送。</p>
+<blockquote>
+<p>LAN是Local Area Network（局域网）的缩写。局域网是指在一个相对较小的地理范围内，如家庭、办公室、学校或建筑物内部等，通过通信设备（如路由器、交换机）连接起来的计算机网络。局域网通常用于共享资源和实现内部通信，例如共享文件和打印机，以及在局域网内部传输数据和信息。局域网通常具有高速、低延迟和高安全性的特点，可以提供快速、可靠的数据传输和通信服务。</p>
+</blockquote>
+<blockquote>
+<p>PPTP（Point-to-Point Tunneling Protocol，点对点隧道协议）：PPTP是一种用于在公共网络上创建安全连接的协议。它通过在Internet上创建一个隧道，将远程计算机或网络与私有网络连接起来。PPTP使用点对点连接，支持数据加密和身份验证，可以在多种操作系统上使用。</p>
+</blockquote>
+<blockquote>
+<p>L2TP（Layer 2 Tunneling Protocol，第二层隧道协议）：L2TP是一种用于建立VPN连接的协议。它结合了PPTP和Cisco的L2F（Layer 2 Forwarding）协议的优点。L2TP通过在现有的Internet协议（如IP）上创建一个虚拟隧道，使远程用户能够安全地访问私有网络。L2TP本身不提供加密和身份验证功能，通常与IPsec（Internet Protocol Security）协议结合使用以提供更高的安全性。</p>
+</blockquote>
+<blockquote>
+<p>L2F（Layer 2 Forwarding，第二层转发）：L2F是一种由思科系统开发的协议，用于在公共网络上建立虚拟专用网络连接。L2F允许远程用户通过Internet连接到私有网络，类似于PPTP和L2TP。然而，L2F通常与其他协议（如IPsec）结合使用，以提供更高的安全性。</p>
+</blockquote>
+<blockquote>
+<p>IPSec是一组用于保护IP通信的协议和算法。它提供了对IP数据包的加密、身份验证和完整性保护。IPSec可以用于建立安全的虚拟专用网络（VPN）连接，以保护远程用户与私有网络之间的通信。它可以在网络层对数据进行加密和解密，确保数据在传输过程中的安全性。IPSec广泛用于保护互联网通信，特别是在远程访问、分支机构连接和站点到站点连接中。</p>
+</blockquote>
+<blockquote>
+<p>GRE是一种通用的封装协议，用于在IP网络上封装其他协议的数据包。它允许将不同类型的网络协议数据包封装在IP数据包中进行传输。GRE可以用于创建虚拟专用网络（VPN），在不同的网络之间传输数据。它通常与其他协议（如IPSec）结合使用，以提供安全性和隧道功能。GRE封装的数据包在传输过程中不加密，因此如果需要数据的机密性，可以与IPSec一起使用以提供加密功能。</p>
+</blockquote>
+<blockquote>
+<p>😜 题目分析</p>
+<p>虚拟专用网络有别于专用网络的地方：<em>使用公共网络提供的数据传输通路</em>。</p>
+<p>虚拟专用网络（Virtual Private Network，VPN）与专用网络（Private Network）的区别在于它们使用的数据传输通路。</p>
+<p>专用网络是一种在物理上独立的网络，通常由私有线路或专用通信设备连接起来。这种网络是完全独立的，不与公共网络连接，因此具有较高的安全性和可靠性。专用网络通常由组织自己建立和管理，用于内部通信和数据传输。</p>
+<p>相比之下，虚拟专用网络是在公共网络基础上创建的一种加密隧道。它利用公共网络（如互联网）提供的数据传输通路，通过加密技术和隧道协议来保护数据的安全性和隐私性。虚拟专用网络可以在公共网络上模拟出一个专用网络的效果，使得远程用户可以通过公共网络访问内部网络资源，同时确保数据传输的机密性和完整性。</p>
+</blockquote>
+<h3 id="第三层隧道和IPSec结构与原理"><a href="#第三层隧道和IPSec结构与原理" class="headerlink" title="第三层隧道和IPSec结构与原理"></a>第三层隧道和IPSec结构与原理</h3><ul>
+<li><p>隧道用于实现企业局域网之间以私有IP地址为源和目的IP地址的IP分组的传输过程。</p>
+</li>
+<li><p>经过隧道传输的以私有IP地址为源和目的IP地址的IP分组最终需要封装成以隧道两端的全球IP地址为源和目的IP地址的IP分组格式。</p>
+</li>
+<li><p>通过安全关联，一是可以完成隧道两端之间的双向身份鉴别过程，二是可以实现经过安全关联传输的以隧道两端的全球IP地址为源和目的IP地址的IP分组的保密性和完整性。</p>
+</li>
+</ul>
+<p>&#x3D;&#x3D;缺陷&#x3D;&#x3D;：</p>
+<ol>
+<li>VPN对远程终端的访问权限没有限制；</li>
+<li>家庭局域网中的终端无法访问其他内部网络；</li>
+<li>远程终端要安装专用客户端；</li>
+<li>内部网络对于远程终端都不是透明的；</li>
+<li>无法实现基于用户授权。</li>
+</ol>
+<h3 id="第二层隧道和IPSec结构与原理"><a href="#第二层隧道和IPSec结构与原理" class="headerlink" title="第二层隧道和IPSec结构与原理"></a>第二层隧道和IPSec结构与原理</h3><ul>
+<li>隧道用于实现PPP帧传输过程。</li>
+<li>经过隧道传输的PPP帧最终需要封装成以隧道两端的全球IP地址为源和目的IP地址的IP分组格式。</li>
+<li>通过安全关联，一是可以完成隧道两端之间的双向身份鉴别过程，二是可以实现经过安全关联传输的以隧道两端的全球IP地址为源和目的IP地址的IP分组的保密性和完整性。</li>
+</ul>
+<blockquote>
+<p>PPP是点对点协议（Point-to-Point Protocol）的缩写，是一种用于在计算机网络中建立和维护数据链路连接的协议。它是一种数据链路层协议，广泛应用于互联网接入、远程访问和虚拟专用网络（VPN）等场景。主要功能是在两个网络节点之间建立可靠的、双向的通信连接。它提供了数据链路层的封装、封装检验、错误检测和链路管理等功能，确保数据的可靠传输和链路的稳定性。</p>
+</blockquote>
+<blockquote>
+<p>😜 题目分析</p>
+<p>‍基于第二层隧道实现远程终端和内部网络之间的互联时，接入控制设备为远程终端分配 <em>私有IP地址</em>，并创建一项将该私有IP地址与远程终端和接入控制设备之间第二层隧道绑定在一起的动态路由项。</p>
+</blockquote>
+<h3 id="SSL-VPN"><a href="#SSL-VPN" class="headerlink" title="SSL VPN"></a>SSL VPN</h3><ul>
+<li><p>SSL VPN也是一种实现远程终端访问内部网络资源的技术，SSL VPN的核心设备是SSL VPN网关，SSL VPN网关一端连接互联网，另一端连接内部网络。</p>
+</li>
+<li><p>远程终端分配全球IP地址，通过互联网访问SSL VPN网关。</p>
+</li>
+<li><p>远程终端通过基于SSL协议的HTTPS访问SSL VPN网关。</p>
+</li>
+<li><p>远程终端通过HTTPS访问SSL VPN网关。以此实现远程终端与SSL VPN网关之间的双向身份鉴别，保证远程终端与SSL VPN网关之间传输的数据的保密性和完整性。</p>
+</li>
+</ul>
+<p><img src="https://img.ma5hr00m.top/blog/20240126132829.png" alt="20240126132829"></p>
+<p>与第二层隧道+IPSec相比，&#x3D;&#x3D;SSL VPN特点&#x3D;&#x3D;：</p>
+<ol>
+<li>不需要为远程终端分配内部网络使用的私有IP地址；</li>
+<li>远程终端直接可以通过浏览器访问内部网络资源；</li>
+<li>可以基于用户设置访问内部网资源的权限。</li>
+</ol>
+<blockquote>
+<p>😜 题目分析</p>
+<p>SSL VPN网关通过连接内部网络的接口建立与内部网络各个服务器之间的传输通路，通过相应的 <em>应用层协议</em> 完成访问内部网络中各个服务器的过程。</p>
+<p>具体来说，SSL VPN网关使用SSL（Secure Sockets Layer）或其继任者TLS（Transport Layer Security）协议来建立加密的虚拟专用网络连接。SSL&#x2F;TLS协议位于传输层和应用层之间，它提供了安全的通信通道，确保数据在传输过程中的机密性和完整性。</p>
+<p>当用户通过SSL VPN客户端连接到SSL VPN网关时，SSL VPN网关会验证用户的身份并建立安全的通信通道。一旦建立了安全通道，用户可以通过SSL VPN网关访问内部网络中的各个服务器。</p>
+<p>在访问内部网络中的服务器时，SSL VPN网关会使用相应的应用层协议，如HTTP（超文本传输协议）、FTP（文件传输协议）、RDP（远程桌面协议）等，来完成与服务器之间的通信。这些应用层协议负责在客户端和服务器之间传输数据，并提供相应的服务。</p>
+</blockquote>
+<h2 id="入侵检测技术"><a href="#入侵检测技术" class="headerlink" title="入侵检测技术"></a>入侵检测技术</h2><p>&#x3D;&#x3D;入侵检测&#x3D;&#x3D;：指通过对计算机网络或计算机系统中的若干关键点手机信息并对其进行分析，从中发现网络或系统中是否有违反安全策略的行为和被攻击的迹象。</p>
+<p>&#x3D;&#x3D;IDS定义&#x3D;&#x3D;：进行入侵检测的软件与硬件的组合。</p>
+<p>&#x3D;&#x3D;入侵检测通用框架&#x3D;&#x3D;：</p>
+<p><img src="https://img.ma5hr00m.top/blog/20240126132836.png" alt="20240126132836"></p>
+<p>&#x3D;&#x3D;IDS类型&#x3D;&#x3D;：</p>
+<ul>
+<li><p>异常检测：异常检测技术又称为基于行为的入侵检测技术，用来识别主机和网络中的异常行为。该技术假设攻击与正常合法的活动有明显的差异。</p>
+</li>
+<li><p>误用检测：误用检测技术又称为基于知识的入侵检测技术。该技术假设所有入侵行为和手段（及其变形）都能表达为一种模式或特征。</p>
+</li>
+</ul>
+<h3 id="IDS应用"><a href="#IDS应用" class="headerlink" title="IDS应用"></a>IDS应用</h3><p>&#x3D;&#x3D;NIDS&#x3D;&#x3D;：</p>
+<p>一种部署在网络中的入侵检测系统，用于监视和分析网络流量以检测潜在的入侵行为。NIDS位于网络的关键位置，例如网络边界、内部网关或关键网络段，它通过监控网络流量来检测恶意活动或异常行为。NIDS可以分析传入和传出的数据包，识别已知的攻击模式或异常行为，并生成警报通知管理员。NIDS可以检测诸如端口扫描、拒绝服务攻击、恶意软件传播等网络攻击行为。</p>
+<p>成本低、攻击者转移证据困难，实时检测和响应，能够检测为成功的攻击企图，操作系统独立。</p>
+<p>防入侵欺骗能力差，交互式网络环境中难以配置，受硬件条件限制，不能处理加密后的数据。</p>
+<p>&#x3D;&#x3D;HIDS&#x3D;&#x3D;：</p>
+<p>一种部署在主机上的入侵检测系统，用于监视和分析主机的活动以检测潜在的入侵行为。HIDS运行在特定的主机上，监视主机的操作系统、应用程序和文件系统等关键组件的活动。它可以检测主机上的异常行为、恶意软件感染、未经授权的访问等入侵行为。HIDS可以通过监视日志文件、系统调用、注册表、文件完整性等方式来检测潜在的安全事件，并生成警报通知管理员。</p>
+<p>检测准确度较高、可以检测到没有明显行为特征的入侵、能够对不同操作系统进行有针对性的检测、成本较低、不会因网络流量影响性能、适合加密和交换环境。</p>
+<p>实时性较差、无法检测数据包的全部、检测效果取决于日志系统、占用主机资源、隐蔽性较差、如果入侵者能够修改校验和，这种IDS将<br>无法起到预期的作用</p>
+<p>&#x3D;&#x3D;DIDS&#x3D;&#x3D;：</p>
+<p>分布式的入侵检测系统，由多个IDS组成，分布在不同的网络节点上，共同工作以检测和响应入侵行为。DIDS可以跨越多个网络边界和子网，实时共享和分析信息，以便更全面地检测和响应入侵。DIDS的分布式部署可以提供更高的可扩展性和容错性，同时减轻单个IDS的负担，增强整体的入侵检测能力。</p>
+<p>&#x3D;&#x3D;可部署的位置&#x3D;&#x3D;：外网入口（防火墙之前）、内网主干（最常用）、DNZ区（DMZ区总口，最有必要的）、关键子网。</p>
+<h2 id="密码算法"><a href="#密码算法" class="headerlink" title="密码算法"></a>密码算法</h2><p>&#x3D;&#x3D;密码算法分类&#x3D;&#x3D;：</p>
+<ul>
+<li>对称密码体制：<ul>
+<li>序列密码算法（流密码）：RC4</li>
+<li>分组加密算法（Block Cipher）：DES、SM4、SM1、SM7</li>
+</ul>
+</li>
+<li>非对称密码体制<ul>
+<li>基于因子分解难题：RSA、SM2、SM9</li>
+<li>基于离散对数难题：ECC</li>
+</ul>
+</li>
+<li>消息摘要算法：MD5、SHA1、SHA256、SM3</li>
+<li>密钥交换算法：Diffle-Hellman</li>
+</ul>
+<blockquote>
+<p>😜 题目分析</p>
+<p>对称密钥体制和非对称密钥体制结合：用对称密钥加密算法加密数据，用非对称密钥加密算法加密对称密钥。</p>
+</blockquote>
+<h3 id="典型代表算法"><a href="#典型代表算法" class="headerlink" title="典型代表算法"></a>典型代表算法</h3><p>&#x3D;&#x3D;RC4&#x3D;&#x3D;（对称密码算法）：</p>
+<ul>
+<li>RC4算法使用一个变换后的密钥流（Keystream）与明文进行异或运算，得到密文。</li>
+<li>密钥流的生成基于一个内部状态向量（State Vector）和密钥。</li>
+<li>初始化阶段：根据密钥的字节值生成一个256字节的S盒（S-box），并初始化内部状态向量。</li>
+<li>密钥调度阶段：使用密钥和S盒进行初始排列，生成初始的内部状态向量。</li>
+<li>密钥流生成阶段：根据内部状态向量和密钥，生成密钥流。</li>
+<li>可变密钥长度：RC4算法支持变长密钥，密钥长度可以是1到256字节。</li>
+<li>自适应性：RC4算法可以根据实际的密钥长度自动调整内部状态向量和S盒的生成。</li>
+</ul>
+<p>&#x3D;&#x3D;DES&#x3D;&#x3D;（对称密码算法）：</p>
+<ul>
+<li>DES算法使用一个56位的有效密钥（密钥实际上长度为64位）对64位的明文进行加密，生成64位的密文。</li>
+<li>加密过程中，明文被分为64位的数据块，并经过一系列的置换、替换、移位和异或运算。</li>
+<li>DES算法主要包括初始置换（Initial Permutation）、16轮的Feistel结构和最终置换（Final Permutation）。</li>
+<li>可逆性：DES算法是可逆的，使用相同的密钥进行解密可以得到原始的明文。</li>
+<li>固定密钥长度：DES算法的密钥长度固定为56位，这限制了其密钥空间的大小，使得DES算法容易受到暴力破解攻击。</li>
+<li>替代算法的使用：由于DES算法的密钥长度较短，为了提高安全性，通常使用3重DES（Triple DES）来增加密钥长度。</li>
+</ul>
+<p>&#x3D;&#x3D;SM4&#x3D;&#x3D;（对称密码算法）：</p>
+<ul>
+<li>SM4算法是一种分组密码算法，将明文和密钥分为固定长度的数据块（128位），并通过一系列的加密轮函数来进行加密和解密操作。</li>
+<li>加密过程中，明文被分为多个数据块，每个数据块经过一系列的轮函数处理，包括置换、替换、异或和线性变换等操作。密钥也经过一系列的扩展和置换操作生成轮密钥。</li>
+<li>SM4算法的核心操作是非线性的S盒替换和线性变换，通过多轮的迭代运算来混淆和扩散数据。</li>
+<li>可逆性：SM4算法是可逆的，使用相同的密钥进行解密可以得到原始的明文。</li>
+</ul>
+<p><img src="https://img.ma5hr00m.top/blog/20240126132848.png" alt="20240126132848"></p>
+<p>&#x3D;&#x3D;RSA&#x3D;&#x3D;（非对称密码算法）：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://juejin.cn/post/7113937876919943205">RSA 算法图解+数学证明</a>， 稀土掘金</li>
+</ul>
+<p>&#x3D;&#x3D;ECC&#x3D;&#x3D;（非对称密码算法）：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/42629724">ECC椭圆曲线密码学的原理、公式推导、例子、Python实现和应用</a>， 知乎</li>
+</ul>
+<p>&#x3D;&#x3D;MD5&#x3D;&#x3D;：</p>
+<p>实现原理：</p>
+<ul>
+<li>输入：MD5算法接受任意长度的输入消息。</li>
+<li>填充：如果输入消息的长度不是64的倍数，MD5会通过填充来使其长度满足要求。</li>
+<li>划分：将填充后的消息划分为若干个512位（64字节）的分组。</li>
+<li>初始化：MD5算法使用4个32位的寄存器（A、B、C、D）作为中间变量，并初始化为固定的初始值。</li>
+<li>循环运算：对每个分组进行一系列的循环运算，包括位操作、逻辑函数和模运算等。</li>
+<li>输出：最后，将四个寄存器的内容按照一定的顺序连接起来，形成128位（16字节）的哈希值。</li>
+</ul>
+<p>特点：</p>
+<ul>
+<li>固定长度：MD5生成的哈希值固定为128位（16字节），无论输入消息的长度是多少。</li>
+<li>不可逆性：MD5是一种单向哈希函数，即无法从哈希值反推出原始输入消息。</li>
+<li>抗碰撞性：MD5算法在理论上存在碰撞（两个不同的输入消息产生相同的哈希值）的可能性，但实际上很难找到碰撞。</li>
+</ul>
+<p>&#x3D;&#x3D;SM3&#x3D;&#x3D;：</p>
+<ul>
+<li>对长度为ll&lt;264）比特的消息m， SM3杂凑算法经过填充和迭代压缩，生成杂凑值，杂凑值长度为256比特。</li>
+<li>填充后的消息m′ 的比特长度为512的倍数。</li>
+</ul>
+<p>&#x3D;&#x3D;Diffie-Hellman  密钥交换&#x3D;&#x3D;：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/s2603898260/p/14624226.html">DH算法图解+数学证明</a>，博客园</li>
+</ul>
+<h2 id="认证技术"><a href="#认证技术" class="headerlink" title="认证技术"></a>认证技术</h2><h2 id="无线局域网安全技术"><a href="#无线局域网安全技术" class="headerlink" title="无线局域网安全技术"></a>无线局域网安全技术</h2><p>&#x3D;&#x3D;WEP协议原理&#x3D;&#x3D;（有线等效保密协议）：</p>
+<ul>
+<li>WEP使用RC4算法对数据进行加密和解密。加密过程中使用一个共享的密钥（通常为固定长度的40位或104位密钥）和一个初始化向量（IV）。</li>
+<li>加密过程中，WEP将明文数据和初始化向量进行组合，并使用密钥和RC4算法生成密钥流。密钥流与明文数据进行异或操作，得到加密后的数据。</li>
+<li>接收方使用相同的密钥和初始化向量，进行解密操作，将密文数据解密为明文数据。</li>
+</ul>
+<p><img src="https://img.ma5hr00m.top/blog/20240126132900.png" alt="20240126132900"></p>
+<p><img src="https://img.ma5hr00m.top/blog/20240126132905.png" alt="20240126132905"></p>
+<p>优缺点：</p>
+<ul>
+<li>简单性：WEP协议的实现相对简单，适用于早期的无线局域网设备。</li>
+<li>兼容性：WEP协议被广泛支持，可以在许多无线设备上使用。</li>
+<li>一次性密钥字典：IV（明文传输）是24位，有限穷举空间为2^24，固定字典时间为1220s</li>
+<li>静态密钥管理缺陷：所有终端共享相同密钥，静态配置。</li>
+<li>完整性检测缺陷：CRC算法的缺陷。</li>
+<li>单向鉴别。</li>
+</ul>
+<p>&#x3D;&#x3D;TKIP原理&#x3D;&#x3D;（临时密钥完整性协议，兼容 WEP）</p>
+<p>&#x3D;&#x3D;CCMP原理&#x3D;&#x3D;</p>
+<h2 id="做做题"><a href="#做做题" class="headerlink" title="做做题"></a>做做题</h2><h3 id="MOOC"><a href="#MOOC" class="headerlink" title="MOOC"></a>MOOC</h3><ul>
+<li><input checked="" disabled="" type="checkbox"> 第一章 网络安全概论</li>
+<li><input checked="" disabled="" type="checkbox"> 第二章 局域网网络攻击与防御技术 1</li>
+<li><input checked="" disabled="" type="checkbox"> 第二章 局域网网络攻击与防御技术 2</li>
+<li><input checked="" disabled="" type="checkbox"> 第二章 局域网网络攻击与防御技术 3</li>
+<li><input checked="" disabled="" type="checkbox"> 第三章 安全技术基础 1</li>
+<li><input checked="" disabled="" type="checkbox"> 第三章 安全技术基础 2</li>
+<li><input checked="" disabled="" type="checkbox"> 第四章 网络安全协议</li>
+<li><input checked="" disabled="" type="checkbox"> 第五章 无线局域网安全技术</li>
+<li><input checked="" disabled="" type="checkbox"> 第六章 Web攻击与防御技术 SQL</li>
+<li><input checked="" disabled="" type="checkbox"> 第六章 Web攻击与防御技术 Else</li>
+<li><input checked="" disabled="" type="checkbox"> 第七章 恶意代码技术</li>
+<li><input checked="" disabled="" type="checkbox"> 第八章 防火墙技术</li>
+<li><input checked="" disabled="" type="checkbox"> 第九章 互联网安全技术 1</li>
+<li><input checked="" disabled="" type="checkbox"> 第九章 互联网安全技术 2</li>
+<li><input checked="" disabled="" type="checkbox"> 第九章 互联网安全技术 课后1</li>
+<li><input checked="" disabled="" type="checkbox"> 第九章 互联网安全技术 课后2</li>
+<li><input checked="" disabled="" type="checkbox"> 第十章 虚拟专用网络VPN 技术</li>
+<li><input checked="" disabled="" type="checkbox"> 第十章 虚拟专用网络VPN 技术 课后</li>
+<li><input checked="" disabled="" type="checkbox"> 第十一章 入侵检测技术</li>
+</ul>
+<h2 id="学习清单"><a href="#学习清单" class="headerlink" title="学习清单"></a>学习清单</h2><ul>
+<li><input checked="" disabled="" type="checkbox"> 网络协议</li>
+<li><input checked="" disabled="" type="checkbox"> 网络协议分层</li>
+<li><input disabled="" type="checkbox"> PPP 协议</li>
+<li><input disabled="" type="checkbox"> 以太网协议</li>
+<li><input disabled="" type="checkbox"> 硬件设备</li>
+<li><input checked="" disabled="" type="checkbox"> ARP</li>
+<li><input checked="" disabled="" type="checkbox"> IP 分片</li>
+<li><input checked="" disabled="" type="checkbox"> IP 校验和</li>
+<li><input checked="" disabled="" type="checkbox"> IP 5类地址类型</li>
+<li><input checked="" disabled="" type="checkbox"> 根据掩码与 IP 地址求子网地址范围</li>
+<li><input checked="" disabled="" type="checkbox"> 有关子网的计算</li>
+<li><input checked="" disabled="" type="checkbox"> 子网划分（定长划分、变长划分）</li>
+<li><input checked="" disabled="" type="checkbox"> IP 选路（直接、间接交付）</li>
+<li><input checked="" disabled="" type="checkbox"> 路由表的设计</li>
+<li><input disabled="" type="checkbox"> 路由聚合</li>
+<li><input checked="" disabled="" type="checkbox"> RIP协议（协议原理、路由表更新方法）</li>
+<li><input checked="" disabled="" type="checkbox"> OSPF 协议（协议原理、最短路径优先算法、分层路由与5类链路通告）</li>
+<li><input disabled="" type="checkbox"> 出错控制</li>
+<li><input checked="" disabled="" type="checkbox"> 流量控制</li>
+<li><input checked="" disabled="" type="checkbox"> 拥塞控制</li>
+<li><input checked="" disabled="" type="checkbox"> 连接管理</li>
+</ul>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>kinoko</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="http://example.com/2024/01/02/2024/end-review/">http://example.com/2024/01/02/2024/end-review/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Do you believe in <strong>DESTINY</strong>?</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/Review/"># Review</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2024/02/10/2024/how-js-run/">JavaScript执行原理</a>
+            
+            
+            <a class="next" rel="next" href="/2023/12/25/2023/year-end-review/">2023年终总结</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© kinoko 2022-2025. All rights reserved.</span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

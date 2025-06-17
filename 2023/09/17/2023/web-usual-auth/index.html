@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="kinoko">
+
+
+
+
+    <meta name="keywords" content="博客,blog,阿菇,阿菇kinoko,kinoko,usamikinoko">
+
+
+<title>常见Web鉴权方案 | 阿菇的博客</title>
+
+
+
+    <link rel="icon" href="/favicon.jpg">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Kinoko&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                <a class="menu-item" href="/archives">Posts</a>
+                
+                <a class="menu-item" href="/category">Categories</a>
+                
+                <a class="menu-item" href="/tag">Tags</a>
+                
+                <a class="menu-item" href="/about">About</a>
+                
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Kinoko&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">
+                    <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"/></svg>
+                    <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE --><path fill="currentColor" d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"/></svg>
+                </div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                <a class="menu-item" href="/archives">Posts</a>
+                
+                <a class="menu-item" href="/category">Categories</a>
+                
+                <a class="menu-item" href="/tag">Tags</a>
+                
+                <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if (toggleMenu.classList.contains("active")) {
+            toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        } else {
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">常见Web鉴权方案</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">kinoko</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">September 17, 2023&nbsp;&nbsp;0:00:00</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Development/">Development</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h2 id="鉴权-持久化登陆"><a href="#鉴权-持久化登陆" class="headerlink" title="鉴权 &amp; 持久化登陆"></a>鉴权 &amp; 持久化登陆</h2><h3 id="鉴权"><a href="#鉴权" class="headerlink" title="鉴权"></a>鉴权</h3><p><strong>鉴权</strong>（<em>Authentication</em>）是指确认用户身份的过程。<br>在计算机系统中，鉴权是一种安全机制，用于验证用户是否具有访问系统资源的权限。通过鉴权机制，系统可以验证用户提供的凭据（如用户名和密码、数字证书等），并决定是否授予用户所请求的访问权限。</p>
+<p>传统的鉴权是通过密码来实现的。这种方式的前提是，每个获得密码的用户都已经被授权。在建立用户时，就为此用户分配一个密码，用户的密码可以由管理员指定，也可以由用户自行申请。</p>
+<h3 id="持久化登陆"><a href="#持久化登陆" class="headerlink" title="持久化登陆"></a>持久化登陆</h3><p><strong>持久化登录</strong>（<em>Persistent Login</em>）是一种使用户在多次会话之间保持登录状态的机制。<br>一般情况下，每个 HTTP 请求都是独立的，服务器不会保存关于客户端的信息，因此服务器无法识两个连续请求是否来自相同用户。这被称为 <strong>HTTP 协议的无状态性</strong>。</p>
+<p>无状态性对于 Web 的可伸缩性和简单性至关重要。服务器不需要维护大量的客户端状态信息，这允许服务器更轻松地处理大量并发请求</p>
+<p>为了解决无状态性带来的问题，持久化登录机制应运而生。通常情况下，用户在登录后，系统会为其分配一个会话标识，并将该标识存储在客户端。这样，在用户下次访问网站时，系统可以通过检查客户端中的会话标识来自动识别用户，若验证成功，则将其视为已登录状态，而无需用户再次输入用户名和密码。</p>
+<h2 id="HTTP-Basic-Authentication"><a href="#HTTP-Basic-Authentication" class="headerlink" title="HTTP Basic Authentication"></a>HTTP Basic Authentication</h2><p>HTTP 提供一个用于权限控制和认证的通用框架，<code>HTTP Basic Authentication</code> 是最常用的由 HTTP 协议定义的认证方式。</p>
+<p>常见的 <em>Basic HTTP 认证</em> 实现流程如下：</p>
+<ol>
+<li>当客户端请求一个需要认证的资源时，服务器会返回一个 401 状态码，并在响应头中添加一个 WWW-Authenticate 字段，指明认证的方式（<em>Basic</em>）和安全域（<em>realm</em>）。</li>
+<li>客户端收到 401 响应后，会弹出一个对话框，让用户输入用户名和密码。用户输入对应内容，然后客户端会将用户名和密码用冒号连接，使用 Base64 编码，再加上 Basic 前缀，作为 Authorization 字段的值，发送给服务器。</li>
+<li>服务器收到 Authorization 字段后，会解码得到用户名和密码，然后进行验证。如果验证通过，服务器会返回请求的资源。如果验证失败，服务器会再次返回 401 响应。</li>
+</ol>
+<p>除此之外，还有 Bearer、Digest 等 HTTP 认证方案。如果你感兴趣，请移步此网址进行查看：<a target="_blank" rel="noopener" href="http://www.iana.org/assignments/http-authschemes/http-authschemes.xhtml">Hypertext Transfer Protocol (HTTP) Authentication Scheme Registry</a>。</p>
+<p>如果你想给自己的网站添加鉴权功能，同时又不想编写一套前后端鉴权系统，可以尝试 <code>HTTP Basic Authentication</code>，它足以提供基本的鉴权功能，并且足够简单，简单到你只需要在 Nginx 中进行几句配置。</p>
+<p>使用 Nginx 为你的网站添加 HTTP 身份认证，可以参考这篇文章：[Nginx Http基本身份认证](<code>HTTP Basic Authentication</code> 足以提供一个基本的鉴权功能，简单易用，)。</p>
+<p>于此同时，<code>HTTP Basic Authentication</code> 的缺点也很明显：用户名和密码都是明文传输，容易被窃听或者重放，一般需要配合 HTTPS 来保证传输的安全性；不支持注销操作，只能关闭浏览器清除认证信息；只能为网站提供保护，很难实现私有路由；只能使用浏览器自带的提示框，不能自定义登陆页面……</p>
+<h2 id="session-cookie"><a href="#session-cookie" class="headerlink" title="session-cookie"></a>session-cookie</h2><p>可以使用 session-cookie 实现前后端的鉴权认证。</p>
+<h3 id="cookie"><a href="#cookie" class="headerlink" title="cookie"></a>cookie</h3><p><code>Cookie</code>（<em>HTTP Cookie</em>）是一些 <strong>字符串数据</strong>，存储在客户端。</p>
+<p>服务器可以通过 HTTP 响应头将一个或多个 cookie 发送给客户端，客户端的浏览器会将这些 cookie 存储在本地。每次客户端向服务器发送请求时，浏览器会自动将与请求相关的 cookie 附加到请求头中发送给服务器。</p>
+<h3 id="session"><a href="#session" class="headerlink" title="session"></a>session</h3><p><code>Session</code>（<em>会话</em>）是服务器为了保存用户状态而创建的一个特殊的 <strong>对象</strong>。</p>
+<p>当浏览器第一次访问服务器时，服务器创建一个 session 对象 (该对象有一个唯一的 id ,一般称之为 <code>SessionId</code>)，服务器会将 SessionId 以 cookie 的方式发送给浏览器。当浏览器再次访问服务器时，会将 SessionId发送过来，服务器依据 SessionId 就可以找到对应的 session 对象，并对用户身份进行验证。</p>
+<h3 id="实现流程"><a href="#实现流程" class="headerlink" title="实现流程"></a>实现流程</h3><ol>
+<li>用户首次访问网站，服务器会创建一个 Session，并生成一个与之对应的 sid，创建的 Session 一般保存在服务器 <em>内存</em> 、<em>数据库</em> 或者 <em>redis</em> 中，通常是 redis；</li>
+<li>服务器将 sid 填入 Cookie 中，然后将 Cookie 发送给客户端，客户端在接受到 Cookie 后将其保存在本地，通常存在 localStorage 或者 localCookie 中；</li>
+<li>客户端在后续的请求中会携带这个 Cookie，服务器通过 Cookie 中的 sid 找到对应的 Session，从而识别用户状态，判断请求是否合法；</li>
+<li>当用户退出登录或者 Session 过期后，服务器会销毁对应的 Session。</li>
+</ol>
+<p>你也可以参考下面这张图，更方便理解：</p>
+<p><img src="http://img.ma5hr00m.top//img/20230926223807.png" alt="session实现流程"></p>
+<h3 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h3><p>session 和 cookie 经常同时使用，它们之间存在着很多区别，这里不做详细介绍，可阅读这篇文章：<a target="_blank" rel="noopener" href="https://wangxiaoxi.cn/posts/http-cookie/">Cookie和Session的区别</a>。</p>
+<p>当然，session-cookie 鉴权方案也存在一些不足：后端服务需要大量空间来存储用户身份信息；依赖 cookie 实现，无法在禁用 cookie 的浏览器中使用，同时容易出现 CSRF 漏洞；对移动端的支持不完善……</p>
+<h2 id="JWT"><a href="#JWT" class="headerlink" title="JWT"></a>JWT</h2><p><code>JSON Web Token</code>（<em>JWT</em>）是为在网络应用环境间传递声明而执行的一种基于 JSON 的开放标准，一般被用来在服务端和客户端之间传递，以验证用户身份信息。</p>
+<p><code>JWT</code> 是一个字符串，它由三部分组成：头部、载荷与签名，不同部分之间用 <code>.</code> 分隔。如果你对 JWT 的结构感兴趣，可以看看：<a target="_blank" rel="noopener" href="https://jwt.io/">jwt.io</a>，这个网站提供了对 JWT 的详细介绍以及在线编码、解码 jwt 的功能。</p>
+<p>使用 jwt 实现鉴权的一般流程如下：</p>
+<ol>
+<li><em>用户登认证</em><br>用户向服务器提交身份凭证，例如用户名和密码。</li>
+<li><em>验证身份生成 jwt</em><br>服务器验证用户提交的身份凭证的有效性，如果身份凭证有效，服务器会生成一个jwt，然后携带 jwt 返回给客户端。</li>
+<li><em>客户端存储 jwt</em><br>客户端接受到 jwt 后，将其保存在本地，之后的每次相关请求都会携带。</li>
+<li><em>服务器验证 jwt</em><br>服务器从请求头中获取 token，然后解析出用户信息和声明信息，并根据这些信息来验证用户是否有权访问特定资源。</li>
+</ol>
+<p>相比传统的 session-cookie 鉴权方案，JWT 鉴权有相当多的优势：</p>
+<ul>
+<li>JWT 本身是无状态的，这意味着服务器不需要保存用户状态信息，节省了存储空间；</li>
+<li>JWT 本身携带了部分用户信息，一定程度上可减轻查询数据库的需求；</li>
+<li>JWT 不依赖于 Cookie，可以在禁用 cookie 的环境中运行，同时一定程度防止 CSRF 攻击；</li>
+<li>JWT 体积小，传输速度快，</li>
+<li>……</li>
+</ul>
+<h2 id="OAuth"><a href="#OAuth" class="headerlink" title="OAuth"></a>OAuth</h2><p>OAuth 是一个开放标准，允许用户授权第三方网站访问他们存储在另外的服务提供者上的信息，而不需要将用户名和密码提供给第三方网站或分享他们数据的所有内容。<br>这是一种很常见的鉴权方案，比如 GitHub 认证登陆。</p>
+<p>如果想学习 OAuth2.0，参考这篇文章：<a target="_blank" rel="noopener" href="https://www.ruanyifeng.com/blog/2014/05/oauth_2_0.html">理解 OAuth 2.0</a></p>
+<h2 id="SSO"><a href="#SSO" class="headerlink" title="SSO"></a>SSO</h2><p>单点登录（SSO）是一种身份验证服务，用户只需要登录一次，就可以访问所有相互信任的应用系统。一般运作流程如下：</p>
+<ol>
+<li><em>用户首次访问系统</em><br>当用户首次访问一个需要登录的应用时，该应用会发现用户未登录，然后将用户重定向到 SSO 认证中心，并将自己的地址作为参数。</li>
+<li><em>用户在 SSO 认证中心进行登录</em><br>用户在 SSO 认证中心输入用户名和密码进行登录。如果登录成功，服务器会生成一个 ticket，并将该 ticket 追加到原始请求的 URL 参数中。</li>
+<li><em>SSO系统进行认证</em><br>SSO 系统进行认证后，将登录状态写入 SSO 的 session，并在浏览器中写入 SSO 域下的 Cookie。</li>
+<li><em>生成 Service Ticket</em><br>SSO 系统登录完成后会生成一个 ST（<em>Service Ticket</em>），然后跳转到原始请求的应用系统，同时将 ST 作为参数传递给该应用系统。</li>
+<li><em>应用系统验证 ST</em><br>应用系统拿到 ST 后，从后台向 SSO 发送请求，验证 ST 是否有效。如果验证通过，应用系统将登录状态写入 session 并设置 app 域下的 Cookie。</li>
+<li><em>访问受保护资源</em><br>此时用户可以访问原先请求的受保护资源。</li>
+</ol>
+<p>这就是单点登录（SSO）的工作原理和实现流程。值得注意的是，实现单点登录的关键在于如何让Session ID（或Token）在多个域中共享¹。</p>
+<p>探究 CAS 实现单点登陆的原理，参考这篇文章：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/wangsongbai/p/10299655.html">一篇文章彻底弄懂CAS实现SSO单点登录原理</a></p>
+<h2 id="PassKey"><a href="#PassKey" class="headerlink" title="PassKey"></a>PassKey</h2><p>一种新型的鉴权方式，摒弃了传统的账户密码的鉴权形式，实现无密码鉴权。</p>
+<p>原理参考这篇文章：<a target="_blank" rel="noopener" href="https://www.liaoxuefeng.com/article/1563183619768355">搞懂通行密钥</a></p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>kinoko</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="http://example.com/2023/09/17/2023/web-usual-auth/">http://example.com/2023/09/17/2023/web-usual-auth/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Do you believe in <strong>DESTINY</strong>?</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/Web/"># Web</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2023/09/17/2023/unocss-theme/">基于UnoCSS实现响应式设计&颜色主题</a>
+            
+            
+            <a class="next" rel="next" href="/2023/09/07/2023/how-java-run/">Java 运行原理</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© kinoko 2022-2025. All rights reserved.</span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

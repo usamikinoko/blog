@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="kinoko">
+
+
+
+
+    <meta name="keywords" content="博客,blog,阿菇,阿菇kinoko,kinoko,usamikinoko">
+
+
+<title>浅试Android开发 | 阿菇的博客</title>
+
+
+
+    <link rel="icon" href="/favicon.jpg">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Kinoko&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                <a class="menu-item" href="/archives">Posts</a>
+                
+                <a class="menu-item" href="/category">Categories</a>
+                
+                <a class="menu-item" href="/tag">Tags</a>
+                
+                <a class="menu-item" href="/about">About</a>
+                
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Kinoko&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">
+                    <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"/></svg>
+                    <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE --><path fill="currentColor" d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"/></svg>
+                </div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                <a class="menu-item" href="/archives">Posts</a>
+                
+                <a class="menu-item" href="/category">Categories</a>
+                
+                <a class="menu-item" href="/tag">Tags</a>
+                
+                <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if (toggleMenu.classList.contains("active")) {
+            toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        } else {
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">浅试Android开发</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">kinoko</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">January 9, 2025&nbsp;&nbsp;0:00:00</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Development/">Development</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <p>Android是由Google主导开发的一个基于Linux内核的开源操作系统，专为移动设备设计，如智能手机、平板电脑和智能穿戴设备。它提供了一个用户友好的界面，支持多种应用程序，用户可以通过Google Play商店下载和安装应用。Android的架构包括应用层、应用框架、库和Linux内核，允许开发者使用Java、Kotlin等编程语言创建应用。由于其开源特性，Android吸引了大量开发者和设备制造商，形成了一个庞大的生态系统，支持多种硬件平台和设备类型，使其成为全球最流行的移动操作系统之一。</p>
+<p>本篇是打打基础，因为想尝试编写Android Hook，所以先补充基本的Android开发知识。</p>
+<p>环境为windows10.</p>
+<h2 id="基础环境配置"><a href="#基础环境配置" class="headerlink" title="基础环境配置"></a>基础环境配置</h2><h3 id="安装Android-Studio"><a href="#安装Android-Studio" class="headerlink" title="安装Android Studio"></a>安装Android Studio</h3><p>先安装Jetbrains Toolbox，然后使用Toolbox安装Android Studio，非常省心，安装完成后点点点全部同意即可，新版本没有很复杂的配置选项。在Toolbox登录Jetbrains账户，会直接同步登录到对应的IDE，也不需要额外再登遍账户了。</p>
+<h3 id="安装JDK"><a href="#安装JDK" class="headerlink" title="安装JDK"></a>安装JDK</h3><p>windows的包管理工具已经相对成熟了，很好用。所以摒弃之前手动配置java环境的方法，直接使用scoop解决这一切，包括java的安装和java版本管理。</p>
+<p><img src="https://img.ma5hr00m.top/2025/20250109183121.png" alt="image.png"></p>
+<p>直接看下面几个指令即可，用过其他包管理工具的话直接就明白了。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">添加Buceket</span></span><br><span class="line">scoop add bucket java</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">搜索openjdk</span></span><br><span class="line">scoop search openjdk</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">安装jdk8</span></span><br><span class="line">scoop install openjdk8-redhat</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">安装jdk17</span></span><br><span class="line">scoop install openjdk17</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">切换环境为jdk8</span></span><br><span class="line">scoop reset openjdk8-redhat</span><br></pre></td></tr></table></figure>
+
+<h2 id="使用Android-Studio创建Demo"><a href="#使用Android-Studio创建Demo" class="headerlink" title="使用Android Studio创建Demo"></a>使用Android Studio创建Demo</h2><h3 id="创建项目"><a href="#创建项目" class="headerlink" title="创建项目"></a>创建项目</h3><p>New Project，选择空白项目，然后点点点Next+Finish即可。中间有个配置页，默认使用Kotlin语言，编写简单demo的话可以什么都不改，我Project Name更改为了Demo。</p>
+<p><img src="https://img.ma5hr00m.top/2025/20250109183604.png" alt="image.png"></p>
+<p>Finish之后弹出工作区页面完成空白项目创建。</p>
+<h3 id="创建虚拟机并运行demo"><a href="#创建虚拟机并运行demo" class="headerlink" title="创建虚拟机并运行demo"></a>创建虚拟机并运行demo</h3><p>在介绍项目结构之前，先创建一个开发测试用的Android虚拟机，创建位置为菜单栏-Tools-Device Manager，点击后右侧开启设备管理页面，选择Medium Phone API 35创建虚拟机，稍等片刻即可。</p>
+<p><img src="https://img.ma5hr00m.top/2025/20250109185028.png" alt="image.png"></p>
+<p>Android Studio的虚拟机自定义程度比较高，也可以选择使用WIFI无线连接设备，这里还不急，一会儿打包应用到手机上的时候再搞，开发阶段可以先用用虚拟机。</p>
+<p>事不宜迟，点击菜单栏-Run-Run ‘app’，可以直接将当前项目发布到手机上查看效果。</p>
+<p><img src="https://img.ma5hr00m.top/2025/20250109185522.png" alt="image.png"></p>
+<p>本地构建打包为apk再发布到自己手机上的流程与这个差别较大，后面再说。</p>
+<h3 id="empty-activity项目结构介绍"><a href="#empty-activity项目结构介绍" class="headerlink" title="empty activity项目结构介绍"></a>empty activity项目结构介绍</h3><ul>
+<li><code>.gradle</code>文件夹包含Gradle构建工具的相关文件，Gradle是Android项目的构建系统，负责依赖管理和构建过程。</li>
+<li><code>main</code>：这是主要的代码和资源目录。它包含：<ul>
+<li><code>java</code>：存放Java或Kotlin源代码的目录，通常会有一个与应用包名相对应的子目录。在空项目中，默认会有一个<code>MainActivity</code>类，这是应用的入口点。</li>
+<li><code>res</code>：存放应用资源的目录，包括图像、布局文件、字符串等。常见的子目录有：<ul>
+<li><code>drawable</code>：存放图像资源。</li>
+<li><code>mipmap</code>：存放应用图标的不同分辨率版本。</li>
+<li><code>values</code>：存放字符串、颜色、样式等资源的XML文件。</li>
+<li><code>xml</code>：可以存放其他XML配置文件。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>test</code>：用于存放本地单元测试代码，这些测试通常在JVM上运行。</li>
+<li><code>AndroidManifest.xml</code>是Android应用的核心配置文件，类似于一个注册表，定义了应用的基本信息和组件。这个文件包含了应用的包名、版本信息、权限声明、应用组件（如活动、服务、广播接收器和内容提供者）的注册，以及其他重要的配置信息。</li>
+</ul>
+<p>此处提到了一个重要概念，即<strong>活动（Activity</strong>）。</p>
+<p>在<code>AndroidManifest.xml</code>中，每个活动都需要在此注册，以便系统能够识别和管理它们。注册活动时，开发者可以指定活动的名称、启动模式、主题、图标等属性。此外，开发者还可以声明应用所需的权限，例如访问网络、读取联系人等。</p>
+<p>在Android开发中，活动是用户界面的一个重要组成部分，代表了应用中的一个单一屏幕。每个活动都可以包含用户界面元素，如按钮、文本框和图像等，用户与这些元素进行交互。活动的生命周期由系统管理，开发者可以通过重写生命周期方法（如<code>onCreate</code>、<code>onStart</code>、<code>onResume</code>、<code>onPause</code>、<code>onStop</code>和<code>onDestroy</code>）来处理活动的创建、显示、隐藏和销毁等状态。</p>
+<p>活动之间可以通过意图（Intent）进行交互，意图是一种消息机制，用于启动新的活动或与其他应用组件进行通信。通过这种方式，Android应用可以实现多屏幕的用户体验，允许用户在不同的活动之间导航。</p>
+<h2 id="继续试探"><a href="#继续试探" class="headerlink" title="继续试探"></a>继续试探</h2><h3 id="编写app样式"><a href="#编写app样式" class="headerlink" title="编写app样式"></a>编写app样式</h3><p>Android Studio初始化的空项目中应该是没有控制页面样式的文件，简单搜了搜是<code>main/res/layout/activity_main.xml</code>，手动创建，点进去后发现Android Studio提供了拖拽式可视化的编写前端页面的工具，感觉非常强大。</p>
+<p><img src="https://img.ma5hr00m.top/2025/20250109192429.png" alt="image.png"></p>
+<p>欸这个时候就要问了，不想用这种拖拽式的工具，想用代码写样式怎么办？点击<code>ctrl+b</code>即可直接切换到code页面。在编辑区的右上角有三个按钮，分别代表code、spilit和design模式，按自己需求切换即可。</p>
+<p><code>layout/activity_main.xml</code>文件是Android应用中用于定义用户界面的布局文件。它描述了在特定活动中显示的视图和布局结构。通过XML格式，开发者可以直观地定义界面的各个元素及其属性。我感觉很类似传统前端开发中的HTML。</p>
+<p>这里留个示范，在布局容器里添加了文本试图和按钮，并通过<code>layout_gravity</code>属性实现居中布局：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;utf-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">LinearLayout</span> <span class="attr">xmlns:android</span>=<span class="string">&quot;http://schemas.android.com/apk/res/android&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:layout_width</span>=<span class="string">&quot;match_parent&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:layout_height</span>=<span class="string">&quot;match_parent&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:orientation</span>=<span class="string">&quot;vertical&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:padding</span>=<span class="string">&quot;16dp&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">TextView</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:id</span>=<span class="string">&quot;@+id/textView&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_width</span>=<span class="string">&quot;wrap_content&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_height</span>=<span class="string">&quot;wrap_content&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:text</span>=<span class="string">&quot;Hello, World!&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:textSize</span>=<span class="string">&quot;24sp&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_gravity</span>=<span class="string">&quot;center&quot;</span>/&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">Button</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:id</span>=<span class="string">&quot;@+id/button&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_width</span>=<span class="string">&quot;wrap_content&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_height</span>=<span class="string">&quot;wrap_content&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:text</span>=<span class="string">&quot;Click Me&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:layout_gravity</span>=<span class="string">&quot;center&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">LinearLayout</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="MainActivity主活动"><a href="#MainActivity主活动" class="headerlink" title="MainActivity主活动"></a>MainActivity主活动</h3><p><code>MainActivity</code>通常是Android应用的主活动，作为应用的入口点。它在应用启动时首先被创建，负责初始化应用的界面和逻辑。<code>MainActivity</code>的地位非常重要，因为它通常是用户首次与应用交互的地方，承载着应用的主要功能和内容。</p>
+<p>而我们创建的安卓应用的入口就是<code>main/java/xxx/MainActivity.kt</code>，这里列出代码：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.example.demo  </span><br><span class="line">  </span><br><span class="line"><span class="keyword">import</span> android.os.Bundle  </span><br><span class="line"><span class="keyword">import</span> androidx.activity.ComponentActivity  </span><br><span class="line"><span class="keyword">import</span> androidx.activity.compose.setContent  </span><br><span class="line"><span class="keyword">import</span> androidx.activity.enableEdgeToEdge  </span><br><span class="line"><span class="keyword">import</span> androidx.compose.foundation.layout.fillMaxSize  </span><br><span class="line"><span class="keyword">import</span> androidx.compose.foundation.layout.padding  </span><br><span class="line"><span class="keyword">import</span> androidx.compose.material3.Scaffold  </span><br><span class="line"><span class="keyword">import</span> androidx.compose.material3.Text  </span><br><span class="line"><span class="keyword">import</span> androidx.compose.runtime.Composable  </span><br><span class="line"><span class="keyword">import</span> androidx.compose.ui.Modifier  </span><br><span class="line"><span class="keyword">import</span> androidx.compose.ui.tooling.preview.Preview  </span><br><span class="line"><span class="keyword">import</span> com.example.demo.ui.theme.DemoTheme  </span><br><span class="line">  </span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MainActivity</span> : <span class="type">ComponentActivity</span>() &#123;  </span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">onCreate</span><span class="params">(savedInstanceState: <span class="type">Bundle</span>?)</span></span> &#123;  </span><br><span class="line">        <span class="keyword">super</span>.onCreate(savedInstanceState)  </span><br><span class="line">        enableEdgeToEdge()  </span><br><span class="line">        setContent &#123;  </span><br><span class="line">            DemoTheme &#123;  </span><br><span class="line">                Scaffold(modifier = Modifier.fillMaxSize()) &#123; innerPadding -&gt;  </span><br><span class="line">                    Greeting(  </span><br><span class="line">                        name = <span class="string">&quot;Android&quot;</span>,  </span><br><span class="line">                        modifier = Modifier.padding(innerPadding)  </span><br><span class="line">                    )  </span><br><span class="line">                &#125;  </span><br><span class="line">            &#125;        &#125;    &#125;  </span><br><span class="line">&#125;  </span><br><span class="line">  </span><br><span class="line"><span class="meta">@Composable</span>  </span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">Greeting</span><span class="params">(name: <span class="type">String</span>, modifier: <span class="type">Modifier</span> = Modifier)</span></span> &#123;  </span><br><span class="line">    Text(  </span><br><span class="line">        text = <span class="string">&quot;Hello <span class="variable">$name</span>!&quot;</span>,  </span><br><span class="line">        modifier = modifier  </span><br><span class="line">    )  </span><br><span class="line">&#125;  </span><br><span class="line">  </span><br><span class="line"><span class="meta">@Preview(showBackground = true)</span>  </span><br><span class="line"><span class="meta">@Composable</span>  </span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">GreetingPreview</span><span class="params">()</span></span> &#123;  </span><br><span class="line">    DemoTheme &#123;  </span><br><span class="line">        Greeting(<span class="string">&quot;Android&quot;</span>)  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>MainActivity.kt</code>是Android应用的主要活动文件，负责定义应用的行为和用户界面。在这个文件中，使用了Jetpack Compose，这是Android的现代UI工具包，允许开发者使用Kotlin代码构建用户界面，而不是传统的XML布局。</p>
+<p>在<code>MainActivity</code>类中，<code>onCreate</code>方法是活动的入口点，主要作用是设置活动的内容。在这里，调用了<code>setContent</code>方法来定义用户界面。通过<code>DemoTheme</code>，应用了主题样式。<code>Scaffold</code>是一个布局组件，提供了基本的应用结构，如顶部应用栏、底部导航等。<code>innerPadding</code>用于处理内容的内边距，以避免与系统UI重叠。</p>
+<p>像上个小标题中我列出的文本试图+按钮的代码，可以使用如下kotlin实现：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.example.demo</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> android.os.Bundle</span><br><span class="line"><span class="keyword">import</span> androidx.activity.ComponentActivity</span><br><span class="line"><span class="keyword">import</span> androidx.activity.compose.setContent</span><br><span class="line"><span class="keyword">import</span> androidx.compose.foundation.layout.*</span><br><span class="line"><span class="keyword">import</span> androidx.compose.material3.Button</span><br><span class="line"><span class="keyword">import</span> androidx.compose.material3.Text</span><br><span class="line"><span class="keyword">import</span> androidx.compose.runtime.Composable</span><br><span class="line"><span class="keyword">import</span> androidx.compose.ui.Alignment</span><br><span class="line"><span class="keyword">import</span> androidx.compose.ui.Modifier</span><br><span class="line"><span class="keyword">import</span> androidx.compose.ui.unit.dp</span><br><span class="line"><span class="keyword">import</span> androidx.compose.ui.unit.sp</span><br><span class="line"><span class="keyword">import</span> com.example.demo.ui.theme.DemoTheme</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MainActivity</span> : <span class="type">ComponentActivity</span>() &#123;</span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">onCreate</span><span class="params">(savedInstanceState: <span class="type">Bundle</span>?)</span></span> &#123;</span><br><span class="line">        <span class="keyword">super</span>.onCreate(savedInstanceState)</span><br><span class="line">        setContent &#123;</span><br><span class="line">            DemoTheme &#123;</span><br><span class="line">                MainScreen()</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Composable</span></span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">MainScreen</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="comment">// 使用Column代替LinearLayout，设置垂直排列</span></span><br><span class="line">    Column(</span><br><span class="line">        modifier = Modifier</span><br><span class="line">            .fillMaxSize()</span><br><span class="line">            .padding(<span class="number">16.</span>dp),</span><br><span class="line">        horizontalAlignment = Alignment.CenterHorizontally,</span><br><span class="line">        verticalArrangement = Arrangement.Center</span><br><span class="line">    ) &#123;</span><br><span class="line">        <span class="comment">// TextView</span></span><br><span class="line">        Text(</span><br><span class="line">            text = <span class="string">&quot;Hello, World!&quot;</span>,</span><br><span class="line">            fontSize = <span class="number">24.</span>sp</span><br><span class="line">        )</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Button</span></span><br><span class="line">        Button(onClick = &#123; <span class="comment">/* <span class="doctag">TODO:</span> Handle button click */</span> &#125;) &#123;</span><br><span class="line">            Text(text = <span class="string">&quot;Click Me&quot;</span>)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>看起来也差不多。但现在好像都更推荐使用Jetpack Compose。</p>
+<p>主要原因是Hetpack Compose支持响应式编程，能够自动根据数据变化更新界面，简化了手动更新UI的过程。这种方式提高了开发效率，特别是在处理动态内容时，开发者可以更专注于业务逻辑而不是视图的状态管理。此外，Compose的可组合性使得开发者能够创建可重用的组件，增强了代码的可维护性和可读性。通过组合不同的UI元素，开发者可以快速构建复杂的界面，同时保持代码的清晰和结构化。</p>
+<p>虽然我的java依托，但搜搜语法也能直接上手试试。我编写了一个入门常见案例：点击后+1的按钮。常用前端框架都喜欢把这个小组件用在初始项目中。</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.example.demo</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> android.os.Bundle</span><br><span class="line"><span class="keyword">import</span> androidx.activity.ComponentActivity</span><br><span class="line"><span class="keyword">import</span> androidx.activity.compose.setContent</span><br><span class="line"><span class="keyword">import</span> androidx.compose.foundation.layout.*</span><br><span class="line"><span class="keyword">import</span> androidx.compose.material3.Button</span><br><span class="line"><span class="keyword">import</span> androidx.compose.material3.Text</span><br><span class="line"><span class="keyword">import</span> androidx.compose.runtime.*</span><br><span class="line"><span class="keyword">import</span> androidx.compose.ui.Alignment</span><br><span class="line"><span class="keyword">import</span> androidx.compose.ui.Modifier</span><br><span class="line"><span class="keyword">import</span> androidx.compose.ui.unit.dp</span><br><span class="line"><span class="keyword">import</span> androidx.compose.ui.unit.sp</span><br><span class="line"><span class="keyword">import</span> com.example.demo.ui.theme.DemoTheme</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MainActivity</span> : <span class="type">ComponentActivity</span>() &#123;</span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">onCreate</span><span class="params">(savedInstanceState: <span class="type">Bundle</span>?)</span></span> &#123;</span><br><span class="line">        <span class="keyword">super</span>.onCreate(savedInstanceState)</span><br><span class="line">        setContent &#123;</span><br><span class="line">            DemoTheme &#123;</span><br><span class="line">                MainScreen()</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Composable</span></span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">MainScreen</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">var</span> count <span class="keyword">by</span> remember &#123; mutableStateOf(<span class="number">0</span>) &#125;</span><br><span class="line"></span><br><span class="line">    Column(</span><br><span class="line">        modifier = Modifier</span><br><span class="line">            .fillMaxSize()</span><br><span class="line">            .padding(<span class="number">16.</span>dp),</span><br><span class="line">        horizontalAlignment = Alignment.CenterHorizontally,</span><br><span class="line">        verticalArrangement = Arrangement.Center</span><br><span class="line">    ) &#123;</span><br><span class="line">        Text(</span><br><span class="line">            text = count.toString(),</span><br><span class="line">            fontSize = <span class="number">48.</span>sp</span><br><span class="line">        )</span><br><span class="line"></span><br><span class="line">        Spacer(modifier = Modifier.height(<span class="number">16.</span>dp))</span><br><span class="line"></span><br><span class="line">        Button(onClick = &#123; count++ &#125;) &#123;</span><br><span class="line">            Text(text = <span class="string">&quot;Click Me&quot;</span>)</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        Spacer(modifier = Modifier.weight(<span class="number">1f</span>))</span><br><span class="line"></span><br><span class="line">        Text(</span><br><span class="line">            text = <span class="string">&quot;Hello Kinoko&quot;</span>,</span><br><span class="line">            modifier = Modifier.align(Alignment.CenterHorizontally)</span><br><span class="line">        )</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img.ma5hr00m.top/2025/20250109194746.png" alt="image.png"></p>
+<h3 id="打包为apk并安装在真实设备"><a href="#打包为apk并安装在真实设备" class="headerlink" title="打包为apk并安装在真实设备"></a>打包为apk并安装在真实设备</h3><p>有两种方式，命令行打包和IDE打包，先尝试后者。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scoop install gradle</span><br></pre></td></tr></table></figure>
+
+<p>Android Studio菜单栏Build-Build App Bundle(s)&#x2F;APK(s)-Build APK(s)，稍等片刻就会自动打包，打包可以获得debug版本的apk安装包，路径为<code>app/build/outputs/apk/debug/app-debug.apk</code>，usb数据线连接手机后使用adb安装即可。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adb -s xxx install C:\Users\xxx\AndroidStudioProjects\Demo\app\build\outputs\apk\debug\app-debug.apk</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>我这里因为同时连接了显示器和手机，所以用<code>-s</code>指定设备</p>
+</blockquote>
+<p>经检验，debug版本的app在手机上也可以正常安装使用。</p>
+<p><img src="https://img.ma5hr00m.top/2025/img_v3_02ic_2b2adb11-5e56-45c2-8343-f30b9e43cccg.jpg" alt="img_v3_02ic_2b2adb11-5e56-45c2-8343-f30b9e43cccg.jpg"></p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>kinoko</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="http://example.com/2025/01/09/2025/start-andorid-development/">http://example.com/2025/01/09/2025/start-andorid-development/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Do you believe in <strong>DESTINY</strong>?</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/Android/"># Android</a>
+                    
+                        <a href="/tags/Android-Studio/"># Android Studio</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2025/01/11/2025/androidhook-xposed-module/">Android Hook与简单的xposed模块开发实例</a>
+            
+            
+            <a class="next" rel="next" href="/2025/01/07/2025/oneplus/">刷机root-OnePlus</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© kinoko 2022-2025. All rights reserved.</span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

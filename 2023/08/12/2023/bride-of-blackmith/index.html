@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="kinoko">
+
+
+
+
+    <meta name="keywords" content="博客,blog,阿菇,阿菇kinoko,kinoko,usamikinoko">
+
+
+<title>燕市、铜器与《铜匠的花嫁》 | 阿菇的博客</title>
+
+
+
+    <link rel="icon" href="/favicon.jpg">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Kinoko&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                <a class="menu-item" href="/archives">Posts</a>
+                
+                <a class="menu-item" href="/category">Categories</a>
+                
+                <a class="menu-item" href="/tag">Tags</a>
+                
+                <a class="menu-item" href="/about">About</a>
+                
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Kinoko&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">
+                    <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"/></svg>
+                    <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE --><path fill="currentColor" d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"/></svg>
+                </div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                <a class="menu-item" href="/archives">Posts</a>
+                
+                <a class="menu-item" href="/category">Categories</a>
+                
+                <a class="menu-item" href="/tag">Tags</a>
+                
+                <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if (toggleMenu.classList.contains("active")) {
+            toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        } else {
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">燕市、铜器与《铜匠的花嫁》</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">kinoko</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">August 12, 2023&nbsp;&nbsp;0:00:00</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Life/">Life</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <div align='center'>
+    <a target="_blank" rel="noopener" href='http://tsubame-shiryoukan.jp/index.html'>
+    	<img src='https://agu-images.oss-cn-hangzhou.aliyuncs.com/test/image-20230825204752292.png' alt='banner' />
+    </a>
+</div>
+
+<p>阿菇很喜欢看漫画啦～ 其中有一部日本漫画名为《铜匠的花嫁》，讲得是是一个铜匠与他的女大学生未婚妻的甜蜜故事，算是一个正典的纯爱漫画🥰。</p>
+<p>这个漫画的主题是围绕铜器展开的，男主修出身于铜匠世家，满门心思扑在铜器技术上，青梅竹马的女友决定回家乡做他的经营者，支持他的事业。漫画中穿插了大量对铜器本身的介绍，以及燕市铜器的历史与现状，挺符合日本对工匠精神的颂扬的。</p>
+<p>阿菇本以为铜器只是个噱头，只是为了画纯爱而摘出来的一块垫脚石（恋爱脑对不住了😋）。直到有一天，阿菇发现事情没这么简单……</p>
+<h2 id="起因"><a href="#起因" class="headerlink" title="起因"></a>起因</h2><p>事情的起因是这样的。阿菇在刷推特的时候看到了一条推文：</p>
+<div align='center'>
+    <img style='height:500px' src='https://agu-images.oss-cn-hangzhou.aliyuncs.com/test/image-20230825205737275.png' />
+</div>
+
+<p>简单翻译一下，就是在 <em><strong>燕工业博物馆</strong></em>  举办了一场与 <a target="_blank" rel="noopener" href="https://twitter.com/namo_">@namo</a> 的谈话活动（见面会？），主题是『クプルムの花嫁』，就也是上文中说到的《铜匠的花嫁》。这里的 namo 是这部漫画的原作者，谈话活动现场会展出很多漫画原稿复制品和铜器实物。</p>
+<p>其实阿菇的第一反应很平淡，感觉就是一个漫画家熬出头了，漫画出名了，恭喜恭喜🎉！然后就划过去了。但后来一寻思，不对呀🤔，什么漫画的谈话活动是开在工业博物馆的？然后就想找时间研究研究，看看是为什么。</p>
+<h2 id="探究"><a href="#探究" class="headerlink" title="探究"></a>探究</h2><p>这漫画在国内的热度不高，贴吧也只有二十多个帖子，不能作为参考内容🥲。</p>
+<p>只能动动手自己去查查啦。</p>
+<h3 id="燕市和铜器"><a href="#燕市和铜器" class="headerlink" title="燕市和铜器"></a>燕市和铜器</h3><p>首先是去看的 <a target="_blank" rel="noopener" href="http://tsubame-shiryoukan.jp/"><em><strong>燕市産業史料館 的官网</strong></em></a> 。官网首页顶部就是《铜匠的花嫁》的活动宣传🎉，其余的则是一些比较寻常的介绍，博物馆的主题、主要展览物、介绍内容什么的，以及一些基本的地理位置、开馆休馆时间、可体验活动、收费等项目的介绍。</p>
+<p>简单了解一下燕市。</p>
+<p>燕市是一个位于新潟县的城市，以其金属加工技术而闻名。燕市的产业发展始于 1620 年（江户时代初期）开始的“和钉”（日本钉）铸造。燕市产业资料馆是向世界展示燕地区金属加工这一“优质名牌”的史料馆。馆内介绍了始于江户时期并延绵至今的金属加工产业的变迁与传承发展，同时记录了人们精心打造金属加工技术使之成为国际品牌的历程。</p>
+<p>燕市的金属加工技术包括 <strong>🔨鎚起銅器</strong>（锤起铜器）的制作。这是一种源自江户时代的传统工艺，通过锤击铜板来形成立体器物。它被指定为新潟县无形文化财产、文化厅无形文化财产和经济产业大臣传统工艺品。这也是漫画《铜匠的花嫁》中，男主家族的祖传手艺。</p>
+<p>记得好像国内也有这种工艺，之前在纪录片里看到过🤔。</p>
+<p>找资料的过程中，能看待一些铜匠们工作时的图片，和漫画里男主修的姿势如出一辙，再加上对相关知识的了解，感觉 namo 对这个东西应该是详细考察后再画的，细节很足，对铜器的刻画也很逼真：</p>
+<div align='center'>
+    <img src='https://www.city.tsubame.niigata.jp/section/rocket/img/manufacturing/tsuiki_img3.jpg' alt='燕市のものづくり | 下町ロケット×燕市特設サイト' />
+</div>
+
+<div align='center'>
+    <img src='https://www.city.tsubame.niigata.jp/section/rocket/img/manufacturing/tsuiki_img4.jpg' alt='鎚起銅器（ついきどうき）' />
+</div>
+
+<div align='center'>
+    <img src='https://www.city.tsubame.niigata.jp/section/rocket/img/manufacturing/tsuiki_img2.jpg' alt='鎚起銅器（ついきどうき）' />
+</div>
+
+<p>感兴趣的话可以看看下面这些网站，里面对锤起铜器工艺和燕市制造业有更详细的介绍：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://kougeihin.jp/craft/0704/">燕锤起铜器</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.city.tsubame.niigata.jp/section/rocket/manufacturing/">燕市のものづくり</a></li>
+</ul>
+<h3 id="继续继续"><a href="#继续继续" class="headerlink" title="继续继续"></a>继续继续</h3><p>了解这些肯定不是很够，我还是想知道这个活动本身和漫画的诞生 。</p>
+<p>嘎嘎地翻 namo 的推文，这人是2008年加入的推特，但推文只保留到去年 12月的（不知道是不是我的问题）。</p>
+<p>能翻到 namo 在 2022年12月有过一场艺术展，感觉很帅，很喜欢这种氛围：</p>
+<div style="display:flex" align='center'>
+    <img style='height:300px' src='https://agu-images.oss-cn-hangzhou.aliyuncs.com/test/image-20230825225231775.png' />
+    <img style='height:300px' src='https://agu-images.oss-cn-hangzhou.aliyuncs.com/test/image-20230825225501196.png' />
+</div>
+
+<p>能翻到最早和燕市官方的联动活动是在 2023年3月，namo 发布了一条<a target="_blank" rel="noopener" href="https://twitter.com/namo_/status/1629058560192827393">推文</a>，表示燕市工业博物馆将在接下来的一个月举行《铜匠的花嫁》原稿复制品展会，让大家有机会去游览一下。</p>
+<div align='center'>
+    <img style='height:400px' src='https://agu-images.oss-cn-hangzhou.aliyuncs.com/test/image-20230825225852725.png' />
+</div>
+
+<p>之后就没什么很特别的内容了，举办了一次之后可能看效果不错，又连续举办了两场，包括引起我兴趣的那条宣传用的推文。</p>
+<p>在这个过程中，我还翻到了 <em><strong>新潟県燕市官方推特</strong></em> 对 namo 手写签名板（呜呜呜，我也想要😍）的感谢推文，感觉日本那块对这样的宣传活动还是蛮重视的。这里截张签名版展示一下：</p>
+<div align='center'>
+    <img style='height:400px' src='https://agu-images.oss-cn-hangzhou.aliyuncs.com/test/image-20230825231009207.png' />
+</div>
+
+<h3 id="总结一下"><a href="#总结一下" class="headerlink" title="总结一下"></a>总结一下</h3><p>总的来说，namo 创作这部漫画可能只是在燕市进行了取材，本身并没有和燕市那边有过沟通。后来🔥热度起来了，燕市那边看这漫画可能比较适合宣传当地产业，就联系了作者举办了联合画展，收效不错后就连着举行了几场。</p>
+<p>互惠共利，好事。阿菇在翻推文的时候，也确实看到了许多人因为受到《铜匠与花嫁》漫画影响去了燕市产业资料馆进行了参观，也有因为发现资料馆中举办画展而去看漫画的，双赢嘛🎉！</p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p>翻的主要是推文啦，链接都贴在探究部分，就不往这里放了。下面的主要是一些翻找过程中浏览过的的链接。</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="http://tsubame-shiryoukan.jp/shinkan_ctjp.html">燕市産業史料館</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.city.tsubame.niigata.jp/section/rocket/manufacturing/">燕市制造业</a></li>
+<li><a target="_blank" rel="noopener" href="https://bangumi.tv/subject/336906">クプルムの花嫁</a></li>
+<li><a target="_blank" rel="noopener" href="https://bangumi.tv/person/18209">namo</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.tumblr.com/namobani?redirect_to=/namobani&source=content_warning_wall">namo tumblr</a></li>
+</ul>
+<h2 id="后话"><a href="#后话" class="headerlink" title="后话"></a>后话</h2><p>好啦，先说这么多吧，其实也没有研究的很透，就翻了翻推文满足了一下好奇心，大致推测了一下画展的原委，不保真😝～</p>
+<p>《铜匠的花嫁》本身也入围了「人氣漫畫大賞 2023」得奖作品名单，不知道能取得什么样的成绩（讲道理我对这东西的含金量也不清楚🫠），预祝它取得好成绩吧🎊！</p>
+<div align='center'>
+    <img src='https://agu-images.oss-cn-hangzhou.aliyuncs.com/test/image-20230825215146742.png' alt='2023game' />
+</div>
+
+<p>对这个漫画感兴趣的可以来啃啃🥩生肉，是上乘的狗粮哦！</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://seiga.nicovideo.jp/comic/51380?track=tsugimanga">クプルムの花嫁</a></p>
+<p>寡黙な職人と天真爛漫なギャルのイチャラブ婚約生活！</p>
+</blockquote>
+<p>最后，再来看一眼可爱的女主——稚名！</p>
+<div align='center'>
+    <img src='https://agu-images.oss-cn-hangzhou.aliyuncs.com/test/image-20230825214556552.png' alt='footer' />
+</div>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>kinoko</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="http://example.com/2023/08/12/2023/bride-of-blackmith/">http://example.com/2023/08/12/2023/bride-of-blackmith/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Do you believe in <strong>DESTINY</strong>?</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/ACG/"># ACG</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2023/08/22/2023/koa2-crud-example/">基于Koa2+SQLite快速构建CRUD API</a>
+            
+            
+            <a class="next" rel="next" href="/2023/06/08/2023/base-git/">git基础教程</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© kinoko 2022-2025. All rights reserved.</span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

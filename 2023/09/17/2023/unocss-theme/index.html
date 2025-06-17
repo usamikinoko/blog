@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="kinoko">
+
+
+
+
+    <meta name="keywords" content="博客,blog,阿菇,阿菇kinoko,kinoko,usamikinoko">
+
+
+<title>基于UnoCSS实现响应式设计&amp;颜色主题 | 阿菇的博客</title>
+
+
+
+    <link rel="icon" href="/favicon.jpg">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Kinoko&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                <a class="menu-item" href="/archives">Posts</a>
+                
+                <a class="menu-item" href="/category">Categories</a>
+                
+                <a class="menu-item" href="/tag">Tags</a>
+                
+                <a class="menu-item" href="/about">About</a>
+                
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Kinoko&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">
+                    <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"/></svg>
+                    <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE --><path fill="currentColor" d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"/></svg>
+                </div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                <a class="menu-item" href="/archives">Posts</a>
+                
+                <a class="menu-item" href="/category">Categories</a>
+                
+                <a class="menu-item" href="/tag">Tags</a>
+                
+                <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if (toggleMenu.classList.contains("active")) {
+            toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        } else {
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">基于UnoCSS实现响应式设计&amp;颜色主题</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">kinoko</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">September 17, 2023&nbsp;&nbsp;0:00:00</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Development/">Development</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <p>UnoCSS 是一个 🔥火热的原子级 CSS 引擎。具体介绍不多说，本篇文章主题是实践，概念性的知识请去其官方网站了解：<a target="_blank" rel="noopener" href="https://alfred-skyblue.github.io/unocss-docs-cn/">UnoCSS 中文文档</a>。</p>
+<p>此外，本篇文章撸出来的小页面在线展示链接如下，对最终效果感兴趣的话可以看看：<a target="_blank" rel="noopener" href="http://example.ma5hr00m.top/">Online Demo</a>。</p>
+<h2 id="准备"><a href="#准备" class="headerlink" title="准备"></a>准备</h2><p>使用 React&amp;UnoCSS 的组合。先撸个简单的 Demo 页面，用于展示本篇的主题：<br>​<br><img src="https://agu-img.oss-cn-hangzhou.aliyuncs.com/blog/20230926170511.png" alt="Demo页面"></p>
+<p>实际上就是一个简单的信息卡片，卡片底部是一个用于切换颜色主题的复选框。</p>
+<h2 id="响应式设计"><a href="#响应式设计" class="headerlink" title="响应式设计"></a>响应式设计</h2><h3 id="历史"><a href="#历史" class="headerlink" title="历史"></a>历史</h3><p>在 Web 发展的洪荒年代，大家搭建的网页多是使用固定布局，如果用户使用的屏幕尺寸与设计者考虑的屏幕尺寸不同，就会出现多余的滚动条或者多余的页面空白，严重降低了用户体验😵‍💫。</p>
+<p>如果你想感受一下早期的 Web 前端页面，可以看看这个<a target="_blank" rel="noopener" href="https://nic.eu.org/">👉历史悠久的网站</a>，并尝试分别使用不同设备访问它（或者使用 DevTools 自带的工具）。</p>
+<blockquote>
+<p>这个网站本身也比较有趣，以后我可能会讲讲它。</p>
+</blockquote>
+<p>随着科技的发展，人们使用的屏幕尺寸越来越多，逐渐出现了响应式网页设计的概念（<em>responsive web design，RWD</em>）。<em>RWD</em> 是一种让网页能够根据不同的设备和屏幕尺寸自动适应的设计方法。它可以让网页在手机、电脑等设不同备上保持良好的布局。你现在能看到的大多数网站都使用了响应式设计，最常见的就是顶部导航栏的标签：</p>
+<blockquote>
+<p>在此页面打开 Devtools，改变页面尺寸，看看会发生什么！<br>​</p>
+</blockquote>
+<h3 id="相关概念"><a href="#相关概念" class="headerlink" title="相关概念"></a>相关概念</h3><p>在正式开始之前，有一些常见概念需要你了解🧐：</p>
+<ul>
+<li><em>视口 viewport</em><br>视口是浏览器窗口中显示网页内容的区域。不同的设备有不同的视口大小，你可以使用meta标签来设置视口的宽度和缩放比例。</li>
+<li><em>媒体查询 media query</em><br>媒体查询是一种CSS技术，可以让你根据不同的媒体类型和特征（如屏幕宽度、高度、分辨率等）来应用不同的样式规则。</li>
+<li><em>流式布局 fluid layout</em><br>流式布局是一种使用百分比或相对单位（如em、rem、vw、vh等）来定义网页元素宽度和高度的布局方法。它可以让网页元素随着视口大小的变化而自动调整。</li>
+<li><em>断点 breakpoint</em><br>断点是指在不同的视口大小下，网页布局发生变化的临界点。你可以使用媒体查询来定义不同的断点，并在每个断点下应用不同的样式规则。</li>
+<li><em>弹性盒子 flexbox</em><br>弹性盒子是一种CSS布局模块，可以让你轻松地对齐和分配网页元素。它可以让你在水平或垂直方向上创建弹性的网格系统，并根据视口大小自动调整元素的大小和顺序。</li>
+<li><em>网格 grid</em><br>网格是另一种CSS布局模块，可以让你创建复杂的二维网格系统，并在每个网格单元中放置网页元素。它可以让你定义不同的行和列，并根据视口大小自动调整它们的大小和位置。</li>
+</ul>
+<h2 id="颜色主题"><a href="#颜色主题" class="headerlink" title="颜色主题"></a>颜色主题</h2><p>这个无需多言，很多网站都已经配置了亮色主题和暗色主题，用户可以自行选择。</p>
+<h2 id="实战"><a href="#实战" class="headerlink" title="实战"></a>实战</h2><h3 id="响应式设计-1"><a href="#响应式设计-1" class="headerlink" title="响应式设计"></a>响应式设计</h3><p><code>UnoCSS</code> 基本兼容了 <code>Tailwind CSS</code> 的语法，我们可以使用类似的方法使用断点，编写在不同尺寸下的组件样式。</p>
+<p>首先，我们可以在配置文件中手动设置不同层级的断点。当然，你也可以使用默认值，我这里稍微做了些修改，添加了 <code>xxs</code>、<code>xxl</code> 断点：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// uno.config.js</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="title function_">defineConfig</span>(&#123;</span><br><span class="line">    ... ...</span><br><span class="line">    <span class="attr">theme</span>: &#123;</span><br><span class="line">        <span class="attr">breakpoints</span>: &#123;</span><br><span class="line">            <span class="attr">xxs</span>: <span class="string">&#x27;0px&#x27;</span>,</span><br><span class="line">            <span class="attr">xs</span>: <span class="string">&#x27;320px&#x27;</span>,</span><br><span class="line">            <span class="attr">sm</span>: <span class="string">&#x27;480px&#x27;</span>,</span><br><span class="line">            <span class="attr">md</span>: <span class="string">&#x27;768px&#x27;</span>,</span><br><span class="line">            <span class="attr">lg</span>: <span class="string">&#x27;1024px&#x27;</span>,</span><br><span class="line">            <span class="attr">xl</span>: <span class="string">&#x27;1280px&#x27;</span>,</span><br><span class="line">            <span class="attr">xxl</span>: <span class="string">&#x27;1600px&#x27;</span>,</span><br><span class="line">        &#125;,</span><br><span class="line">    &#125;,</span><br><span class="line">    ... ...</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>按照如上代码进行配置后，我们可以在 React 的 <code>.jsx</code> 文件中通过 <code>md:</code> 语法设置不同断点下的样式：</p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">&lt;div className=&#123;<span class="string">`shadow card-base text-base flex flex-col p-10 md:w-fit md:h-fit xxs:box-border xxs:items-center xxs:justify-center xxs:w-full xxs:h-full`</span>&#125;&gt;</span><br><span class="line">    <span class="language-xml"><span class="tag">&lt;<span class="name">h2</span> <span class="attr">className</span>=<span class="string">&quot;text-lg font-bold m-0&quot;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">        Responsive Design &amp; Theme</span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;/<span class="name">h2</span>&gt;</span></span></span><br><span class="line">    <span class="language-xml"><span class="tag">&lt;<span class="name">p</span> <span class="attr">className</span>=<span class="string">&quot;mb-4 text-center&quot;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">        Change window size or click the following button.</span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;/<span class="name">p</span>&gt;</span></span></span><br><span class="line">    <span class="language-xml"><span class="tag">&lt;<span class="name">div</span> <span class="attr">className</span>=<span class="string">&#x27;h-30px w-full flex items-center justify-center&#x27;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;<span class="name">SwitchButton</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">              <span class="attr">height</span>=<span class="string">&#x27;50px&#x27;</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">              <span class="attr">width</span>=<span class="string">&#x27;60px&#x27;</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">              <span class="attr">layout</span>=<span class="string">&#x27;translate-x-[-50%]&#x27;</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">              <span class="attr">isChecked</span>=<span class="string">&#123;isChecked&#125;</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">              <span class="attr">SwitchFunction</span>=<span class="string">&#123;handleSwitch&#125;</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">        /&gt;</span></span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line">&lt;/div&gt;</span><br></pre></td></tr></table></figure>
+
+<p>正如本篇文章开头展示的图片，这段代码实现了一个简单的信息卡片。当页面宽度不小于 <code>768px</code> 时，卡片为固定尺寸，可以显示背景背景；当页面宽度小于 <code>768px</code> 时，这个卡片会占满全屏，遮挡住页面背景。</p>
+<p><img src="https://agu-img.oss-cn-hangzhou.aliyuncs.com/blog/20230926171533.png" alt="对比展示"></p>
+<h3 id="主题切换"><a href="#主题切换" class="headerlink" title="主题切换"></a>主题切换</h3><p>在展示页面中，我只做了亮暗色主题。</p>
+<p>如果你想要在 UnoCSS 中使用亮暗色主题，需要在配置文件中进行设置。我使用的方法参考了该框架作者 <code>Anthony Fu</code> 的一条推文。</p>
+<p><img src="https://agu-img.oss-cn-hangzhou.aliyuncs.com/blog/20230926171653.png" alt="展示"></p>
+<p>该条推文至今已有一年时间，或许已经出现了更加优秀的主题切换方案。<br>​<br>首先，我们需要在配置文件中进行配置，设置 <code>shortcuts</code> 并设置了亮暗色主题的不同颜色。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="title function_">defineConfig</span>(&#123;</span><br><span class="line">    ... ...</span><br><span class="line">    <span class="attr">shortcuts</span>:&#123;</span><br><span class="line">        <span class="string">&#x27;switch-animation&#x27;</span>: <span class="string">&#x27;transition duration-300&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;bg-base&#x27;</span>: <span class="string">&#x27;bg-[#f0f0f0] dark:bg-[#20202a] switch-animation&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;card-base&#x27;</span>: <span class="string">&#x27;bg-[#ffffff] dark:bg-[#10101a] switch-animation&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;text-base&#x27;</span>: <span class="string">&#x27;text-[#20202a] dark:text-[#f0f0f0] switch-animation&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;switch-label-base&#x27;</span>: <span class="string">&#x27;bg-gray-200 dark:bg-gray-800 switch-animation&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;switch-span-base&#x27;</span>: <span class="string">&#x27;bg-white dark:bg-gray-300 switch-animation&#x27;</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">    ... ...</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>然后，我们编写一个 <code>SwitchButton.jsx</code> 组件，用于切换主题状态。为了使这个状态能够应用到主页面，我们将这个 <code>theme</code> 状态提升到其父组件中，并将其值绑定到相对底层的 div 元素中，以控制颜色主题。具体代码实现如下：</p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// SwitchButton/index.jsx</span></span><br><span class="line"><span class="keyword">import</span> <span class="title class_">PropTypes</span> <span class="keyword">from</span> <span class="string">&#x27;prop-types&#x27;</span>;</span><br><span class="line">​</span><br><span class="line"><span class="keyword">function</span> <span class="title function_">SwitchButton</span>(<span class="params">&#123; height, width, layout, theme, SwitchFunction &#125;</span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> <span class="title function_">handleSwitch</span> = (<span class="params">event</span>) =&gt; &#123;</span><br><span class="line">        <span class="title class_">SwitchFunction</span>(event.<span class="property">target</span>.<span class="property">checked</span>);</span><br><span class="line">    &#125;;</span><br><span class="line">​</span><br><span class="line">    <span class="keyword">return</span> (</span><br><span class="line">        <span class="language-xml"><span class="tag">&lt;<span class="name">div</span> <span class="attr">className</span>=<span class="string">&#123;</span>`<span class="attr">relative</span> <span class="attr">h-</span>[$&#123;<span class="attr">height</span>&#125;] <span class="attr">w-</span>[$&#123;<span class="attr">width</span>&#125;] <span class="attr">flex</span> <span class="attr">items-center</span> <span class="attr">justify-center</span> $&#123;<span class="attr">layout</span>&#125;`&#125;&gt;</span></span></span><br><span class="line"><span class="language-xml">            <span class="tag">&lt;<span class="name">input</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">                <span class="attr">type</span>=<span class="string">&quot;checkbox&quot;</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">                <span class="attr">id</span>=<span class="string">&quot;dark-light&quot;</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">                <span class="attr">className</span>=<span class="string">&quot;absolute z-1 w-12 h-5&quot;</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">                <span class="attr">onChange</span>=<span class="string">&#123;handleSwitch&#125;</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">            /&gt;</span></span></span><br><span class="line"><span class="language-xml">            <span class="tag">&lt;<span class="name">label</span> </span></span></span><br><span class="line"><span class="tag"><span class="language-xml">                <span class="attr">htmlFor</span>=<span class="string">&quot;dark-light&quot;</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">                <span class="attr">className</span>=<span class="string">&#x27;absolute z-2 block w-11 h-6 switch-label-base rounded-full shadow-inner cursor-pointer switch-animation hover:cursor-pointer&#x27;</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">            &gt;</span></span></span><br><span class="line"><span class="language-xml">                <span class="tag">&lt;<span class="name">span</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">                    <span class="attr">className</span>=<span class="string">&#123;</span>`<span class="attr">absolute</span> <span class="attr">top-1</span> <span class="attr">left-1.5</span> <span class="attr">w-4</span> <span class="attr">h-4</span> <span class="attr">switch-span-base</span> <span class="attr">rounded-full</span> <span class="attr">shadow-md</span> <span class="attr">switch-animation</span> $&#123;<span class="attr">theme</span>==<span class="string">&#x27;dark&#x27;</span> ? &#x27;<span class="attr">translate-x-</span>[<span class="attr">100</span>%]&#x27; <span class="attr">:</span> &#x27;&#x27;&#125;`&#125;</span></span></span><br><span class="line"><span class="tag"><span class="language-xml">                &gt;</span>   </span></span><br><span class="line"><span class="language-xml">                <span class="tag">&lt;/<span class="name">span</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">            <span class="tag">&lt;/<span class="name">label</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line">    );</span><br><span class="line">&#125;</span><br><span class="line">​</span><br><span class="line"><span class="title class_">SwitchButton</span>.<span class="property">propTypes</span> = &#123;</span><br><span class="line">    <span class="attr">height</span>: <span class="title class_">PropTypes</span>.<span class="property">string</span>.<span class="property">isRequired</span>,</span><br><span class="line">    <span class="attr">width</span>: <span class="title class_">PropTypes</span>.<span class="property">string</span>.<span class="property">isRequired</span>,</span><br><span class="line">    <span class="attr">layout</span>: <span class="title class_">PropTypes</span>.<span class="property">string</span>.<span class="property">isRequired</span>,</span><br><span class="line">    <span class="attr">theme</span>: <span class="title class_">PropTypes</span>.<span class="property">string</span>.<span class="property">isRequired</span>,</span><br><span class="line">    <span class="title class_">SwitchFunction</span>: <span class="title class_">PropTypes</span>.<span class="property">func</span>.<span class="property">isRequired</span>,</span><br><span class="line">&#125;;</span><br><span class="line">​</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="title class_">SwitchButton</span>;</span><br></pre></td></tr></table></figure>
+
+<br/>
+
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// App.jsx</span></span><br><span class="line"><span class="keyword">import</span> &#123; useState &#125; <span class="keyword">from</span> <span class="string">&#x27;react&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="title class_">SwitchButton</span> <span class="keyword">from</span> <span class="string">&#x27;./SwitchButton/index&#x27;</span>;</span><br><span class="line">​</span><br><span class="line"><span class="keyword">function</span> <span class="title function_">App</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> [theme, setTheme] = <span class="title function_">useState</span>(<span class="string">&#x27;dark&#x27;</span>);</span><br><span class="line">​</span><br><span class="line">  <span class="keyword">const</span> <span class="title function_">handleSwitch</span> = (<span class="params"></span>) =&gt; &#123;</span><br><span class="line">    <span class="title function_">setTheme</span>(<span class="function">(<span class="params">prevChecked</span>) =&gt;</span> (prevChecked === <span class="string">&#x27;dark&#x27;</span> ? <span class="string">&#x27;light&#x27;</span> : <span class="string">&#x27;dark&#x27;</span>));</span><br><span class="line">  &#125;;</span><br><span class="line">​</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    <span class="language-xml"><span class="tag">&lt;<span class="name">div</span> <span class="attr">className</span>=<span class="string">&#123;</span>`<span class="attr">w-100vw</span> <span class="attr">h-100vh</span> <span class="attr">flex</span> <span class="attr">flex-col</span> $&#123;<span class="attr">theme</span>&#125;`&#125;&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;<span class="name">main</span> <span class="attr">className</span>=<span class="string">&quot;w-100vw flex-1 flex justify-center items-center bg-base&quot;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;<span class="name">div</span> <span class="attr">className</span>=<span class="string">&#123;</span>` <span class="attr">shadow</span> <span class="attr">card-base</span> <span class="attr">text-base</span> <span class="attr">flex</span> <span class="attr">flex-col</span> <span class="attr">p-10</span>  <span class="attr">md:w-fit</span> <span class="attr">md:h-fit</span> <span class="attr">xxs:box-border</span> <span class="attr">xxs:items-center</span> <span class="attr">xxs:justify-center</span> <span class="attr">xxs:w-full</span> <span class="attr">xxs:h-full</span>`&#125;&gt;</span></span></span><br><span class="line"><span class="language-xml">          <span class="tag">&lt;<span class="name">h2</span> <span class="attr">className</span>=<span class="string">&quot;text-lg font-bold m-0&quot;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">            Responsive Design &amp; Theme</span></span><br><span class="line"><span class="language-xml">          <span class="tag">&lt;/<span class="name">h2</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">          <span class="tag">&lt;<span class="name">p</span> <span class="attr">className</span>=<span class="string">&quot;mb-4 text-center&quot;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">            Change window size or click the following button.</span></span><br><span class="line"><span class="language-xml">          <span class="tag">&lt;/<span class="name">p</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">          <span class="tag">&lt;<span class="name">div</span> <span class="attr">className</span>=<span class="string">&#x27;h-30px w-full flex items-center justify-center&#x27;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">            <span class="tag">&lt;<span class="name">SwitchButton</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">              <span class="attr">height</span>=<span class="string">&#x27;50px&#x27;</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">              <span class="attr">width</span>=<span class="string">&#x27;60px&#x27;</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">              <span class="attr">layout</span>=<span class="string">&#x27;translate-x-[-50%]&#x27;</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">              <span class="attr">theme</span>=<span class="string">&#123;theme&#125;</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">              <span class="attr">SwitchFunction</span>=<span class="string">&#123;handleSwitch&#125;</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">            /&gt;</span></span></span><br><span class="line"><span class="language-xml">          <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;/<span class="name">main</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line">  );</span><br><span class="line">&#125;</span><br><span class="line">​</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="title class_">App</span>;</span><br></pre></td></tr></table></figure>
+
+<p>至此，我们的颜色主题切换效果也已经实现了，具体效果请移步 <code>demo</code> 网站查看：<a target="_blank" rel="noopener" href="http://example.ma5hr00m.top/">demo</a></p>
+<h2 id="后续"><a href="#后续" class="headerlink" title="后续"></a>后续</h2><p>写这个 demo 的时候其实还不会用状态管理库，所以选择了状态提升，现在看起来很捞。</p>
+<p>跨组件传参的话，建议直接使用状态管理库，比如 <code>jotai</code>.</p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>kinoko</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="http://example.com/2023/09/17/2023/unocss-theme/">http://example.com/2023/09/17/2023/unocss-theme/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Do you believe in <strong>DESTINY</strong>?</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/Frontend/"># Frontend</a>
+                    
+                        <a href="/tags/UnoCSS/"># UnoCSS</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2023/09/17/2023/nvm-node/">通过nvm配置Node.js开发环境</a>
+            
+            
+            <a class="next" rel="next" href="/2023/09/17/2023/web-usual-auth/">常见Web鉴权方案</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© kinoko 2022-2025. All rights reserved.</span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

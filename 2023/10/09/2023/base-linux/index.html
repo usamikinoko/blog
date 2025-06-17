@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="kinoko">
+
+
+
+
+    <meta name="keywords" content="博客,blog,阿菇,阿菇kinoko,kinoko,usamikinoko">
+
+
+<title>面向新生的Linux教程 | 阿菇的博客</title>
+
+
+
+    <link rel="icon" href="/favicon.jpg">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Kinoko&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                <a class="menu-item" href="/archives">Posts</a>
+                
+                <a class="menu-item" href="/category">Categories</a>
+                
+                <a class="menu-item" href="/tag">Tags</a>
+                
+                <a class="menu-item" href="/about">About</a>
+                
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Kinoko&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">
+                    <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"/></svg>
+                    <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE --><path fill="currentColor" d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"/></svg>
+                </div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                <a class="menu-item" href="/archives">Posts</a>
+                
+                <a class="menu-item" href="/category">Categories</a>
+                
+                <a class="menu-item" href="/tag">Tags</a>
+                
+                <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if (toggleMenu.classList.contains("active")) {
+            toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        } else {
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">面向新生的Linux教程</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">kinoko</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">October 9, 2023&nbsp;&nbsp;0:00:00</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Development/">Development</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <p>::: tip<br>2023 年 <em><strong>Vidar-Team</strong></em> 第四次新生培训 Linux 部分内容讲解。<br>:::</p>
+<h2 id="什么是操作系统"><a href="#什么是操作系统" class="headerlink" title="什么是操作系统"></a>什么是操作系统</h2><h3 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h3><p>大家都知道计算机硬件和软件。硬件就是我们计算机的物理组成部分，比如内存、硬盘、键盘，都是些电子元件；软件就是大家常用的浏览器、游戏这些。<br>你单独使用硬件或软件都很难正常工作。想让计算机正常工作，就需要硬件和软件相互配合。而负责中间这个过程的，就是操作系统。</p>
+<p>操作系统（Operating System），也就是我们说的 OS，本质上就是一组相互关联的软件程序。<br>操作系统是计算机最底层的软件，负责管理计算机的硬件和软件资源，控制着计算机的运行。</p>
+<p>我们平常使用的应用程序，包括 vscode、firefox 这样的软件应用，以及我们写的 C 语言程序、Python 脚本什么的，都需要以操作系统为基本支撑。没有操作系统，这些应用程序就都无法正常运行。</p>
+<h3 id="组成"><a href="#组成" class="headerlink" title="组成"></a>组成</h3><p>如下图所示，操作系统可以简单划分为内核和系统调用两部分：</p>
+<p><img src="https://agu-img.oss-cn-hangzhou.aliyuncs.com/blog/20231013143007.png" alt="操作系统抽象划分"></p>
+<ul>
+<li>内核：内核是操作系统的核心，它负责管理计算机的硬件资源，如CPU、内存、磁盘、网络等。内核可以基于权限和规则对资源访问进行裁决，保证系统的安全性和稳定性。内核运行在特权模式下，可以直接访问硬件设备和指令。</li>
+<li>系统调用：系统调用是用户进程进入内核的接口层，它是由内核函数实现的。通过系统调用，用户进程可以临时切换到内核模式，使用内核提供的服务和功能，如文件操作、进程管理、网络通信等。系统调用对资源进行抽象，提供一致性接口，避免用户在使用资源时发生错误，且编程效率大大提高。</li>
+</ul>
+<p>一些系统组件运行在应用程序层，比如我们经常使用的 shell、图形界面等，它们也是操作系统的一部分。</p>
+<h2 id="Linux"><a href="#Linux" class="headerlink" title="Linux"></a>Linux</h2><p>Linux 是一个操作系统。它由 <em>Linus</em> 于 1991 年构思设计而成。最初这只是他的一项兴趣爱好。<br>现如今，经过多年的发展，这项兴趣爱好已经成为了拥有最大用户群的操作系统。</p>
+<p><img src="https://pakhotin.org/wp-content/uploads/2023/07/53113-106400-Linux-xl.jpg" alt="Linux Logo"></p>
+<p>在座的大多数人都在使用 Windows 操作系统，Windwos 足够满足大家的日常学习生活，比如写代码、玩游戏、看视频。<br>那我们今天为什么要来介绍 Linux 呢？</p>
+<p>原因很简单。如果你未来要踏足计算机领域，不管你是要学习计算机安全，还是要做些其他的什么方向，你都会有茫茫多的场景需要接触到 Linux，你没法避开它。<br>不论你是否会把 Linux 当作主力操作系统，你都有必要学会使用它。</p>
+<h2 id="Linux-的优势"><a href="#Linux-的优势" class="headerlink" title="Linux 的优势"></a>Linux 的优势</h2><p>现在来说说我们为什么要使用 Linux。</p>
+<p>Linux 自带强大的命令行工具，可以完成各种工作，比如文件操作、网络通信、进程管理等，而不需要使用图形化界面。<br>以前有很多设置你可能需要在 windows 的系统设置里面翻来翻去，而在 Linux 下，你只需要打开命令行，敲一些指令就行。</p>
+<p>此外，相比 Windows 系统，Linux 可以做到更加高效，更加安全，更加稳定，以及更小的损耗。<br>这些优势使得 Linux 在服务器领域占据了大量份额，对运维来说，熟练使用 Linux 是必备技能。</p>
+<p>同时，Linux 还是一款开源的操作系统，每个人都可以下载其源代码进行定制。<br>这使得 Linux 有着强大的生命力，可以适应各种场景的需求，也促生了 Linux 活跃的社区生态。</p>
+<p>现阶段，对大家来说，使用 Linux 最大的好处就是可以快速地搭建各种环境。</p>
+<p>比如，你现在想要在 Windows 系统中配置一个基本的 Java 开发环境（<a target="_blank" rel="noopener" href="https://www.runoob.com/java/java-environment-setup.html">教程</a>），<br>你需要先去 Java 官网下载 JDK，然后安装，接着配置 <code>JAVA_HOME</code> 等环境变量，这样才能开始写代码。一些没有经验的新生就会在这里消耗大量时间。<br>而在 Linux 下你不需要这么麻烦，多数情况下，你只需要使用一行类似的命令就可以完成上述工作：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt install openjdk-17-jdk</span><br></pre></td></tr></table></figure>
+
+<p>当这句指令执行成功后，你就可以开始写代码了。非常轻松愉快，也节省了很多时间，让你专注于 Java 语言本身，而非繁琐的环境配置。</p>
+<h2 id="发行版"><a href="#发行版" class="headerlink" title="发行版"></a>发行版</h2><p>Linux 操作系统分为很多种，这些不同的 Linux 统称为 Linux 发行版（<em>Linux distribution</em>）。</p>
+<p>这些发行版都是基于 Linux 内核的，它们之间的差异主要体现在软件包管理工具、软件包源、软件包版本等方面，我们一会儿会做详细讲解。</p>
+<p>大家可以看这张图，这张图展示了一些常见的 Linux 发行版：</p>
+<p><img src="https://agu-img.oss-cn-hangzhou.aliyuncs.com/blog/20231015001556.png" alt="常见Linux发行版"></p>
+<p>从这张图里，大家可以看到现在当下流行的一些发行版，比如 <code>Ubuntu</code>、<code>Fedora</code>、<code>ArchLinux</code>、<code>CentOS</code> 等等。<br>这些发行版各有特点，有各自的适用场景，也都有着庞大的用户群体以及高度活跃的社区生态。</p>
+<p>实际上，现有的 Linux 发行版远不止图中展示的这些，现在光是被记录 Linux 版本列表中的就有超过 300 个。<br>它们大多数都正处于活跃的开发中，由不同的公司、组织或其他群体进行维护，不断地被改进。</p>
+<p>接下来，我们会以 <code>Ubuntu22.04</code> 为例，来介绍 Linux 操作系统的一些常见概念以及基本使用方法。</p>
+<h2 id="来，Ubuntu！"><a href="#来，Ubuntu！" class="headerlink" title="来，Ubuntu！"></a>来，Ubuntu！</h2><h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><p>在自己的计算机中安装一个 Ubuntu 系统有以下几种方式：</p>
+<ol>
+<li>安装到VMware，Virtual Box等虚拟机软件里（推荐），这也是大多数初学者的选择。</li>
+<li>安装到物理机上，单系统或双系统，但不推荐大家这样做。<br>刚开始你直接单系统的话可能会出各种各样的问题，你可能会在一段时间内不断的搞坏自己的系统，然后重装，然后再搞坏，然后再重装，但这个折腾的过程中你也能学到很多东西，看你愿不愿意花这个时间。<br>双系统的话，确实兼具了使用 Windows 的方便和体验 Linux 物理机的优势，但你有可能会遇到一些奇奇怪怪的问题，而这些问题你去网上有时候很难搜到解决方案，会耗费你很多时间。</li>
+<li>WSL（<em>Windows Subsystem for Linux</em>）也是一种可选方案，这是微软为 Windows 提供的一个 Linux 子系统。<br>但 WSL 相比虚拟机或者物理机来说都会有一些限制，比如你无法使用图形界面，无法使用一些特殊的硬件设备等等。</li>
+</ol>
+<p>关于如何在自己的计算机中安装一个 Ubuntu 系统，今天不会讲解具体步骤，这次分享会之前我们已经在群里发过了详细的教程，大家可以从群文件中找到那份文件，自行查阅。<br>网上也有详细的教程，大家也都可以搜到。</p>
+<h3 id="换源-包管理"><a href="#换源-包管理" class="headerlink" title="换源 &amp; 包管理"></a>换源 &amp; 包管理</h3><p>当你在安装好 Ubuntu 虚拟机后，你可以看到这样的桌面：</p>
+<p><img src="https://agu-img.oss-cn-hangzhou.aliyuncs.com/blog/20231015005727.png" alt="Ubuntu默认桌面"></p>
+<p>乍一看还是和 <code>windows</code> 区别蛮大的。</p>
+<p>为了方便的安装各种软件，我们需要先了解一下软件源和包管理工具。</p>
+<p>软件源（<em>software source</em>）是指存放软件包的服务器，它们通常由软件开发商或者 Linux 发行版的维护者维护。</p>
+<p>包管理工具（<em>package manager</em>）是指用于安装、更新、卸载软件包的工具，它们可以从软件源中下载软件包，然后安装到系统中。<br><code>Ubuntu</code> 自带的包管理工具是 <code>apt</code>，它的软件源默认是国外的。</p>
+<p>出于一些众所周知的原因，国内用户访问国外链接会比较慢，有时候还会请求超时。<br>不管不问的话用起来会很不爽。<br>为了解决问题，我们需要对我们的软件源进行更换，一般是将其更换为国内源，比如清华镜像源。</p>
+<p>我们可以使用指令来完成换源的操作，具体指令可以看看群里的文档，这里就不再赘述了。</p>
+<p>在换源之后，我们需要执行命令更新软件包列表 <code>sudo apt update</code>。<br>成功执行后，我们就可以使用 <code>apt</code> 来方便地管理软件了。</p>
+<p>常用的 <code>apt</code> 指令有图片中这些，不需要刻意去记，你自己用几次就熟悉了。</p>
+<p><img src="https://agu-img.oss-cn-hangzhou.aliyuncs.com/blog/20231015010916.png" alt="常用apt指令"></p>
+<p>除了 apt，其他 Linux 发行版也都有各自的包管理工具，比如 CentOS 的 <code>yum</code>、Fedora 的 <code>dnf</code>、Arch 的 <code>pacman</code> 等等。<br>他们的使用方法都差不多，也都是用来管理软件包的。<br>根据自己用的发行版来就好了。</p>
+<p><img src="https://agu-img.oss-cn-hangzhou.aliyuncs.com/blog/20231014223037.png" alt="根据包管理器划分Linux发行版"></p>
+<p>上面这张图是根据包管理工具的不同对当前常见的 Linux 发行版做的一个分类。</p>
+<h2 id="文件系统"><a href="#文件系统" class="headerlink" title="文件系统"></a>文件系统</h2><p>现在来说说目录结构，这也是 Windows 和 Linux 之间的一个重要区别。</p>
+<p>Windows 的目录结构是以物理存储介质为主，通过分区来实现文件目录的管理，每个分区被视为一个独立的盘符，如 C 盘、D 盘等等。<br>不同分区之间相互独立，联系并不紧密。</p>
+<p>而在 Linux 中，所有分区都被挂载到根目录下，所有的文件和目录都被组织成以一个跟节点开始的树形结构。<br>这个树形结构就是 Linux 的文件系统。</p>
+<p>打开 Linux 的终端，输入 <code>ls /</code>，你就可以看到根目录下的所有文件和目录。</p>
+<p><img src="https://agu-img.oss-cn-hangzhou.aliyuncs.com/blog/20231015105831.png" alt="ls &#x2F; 执行结果"></p>
+<p>Linux 的根目录是 <code>/</code>，它是整个文件系统的起点，在根目录之下的既可以是其他目录，也可以是文件。<br>而每一个目录中又可以包含其他目录和文件，如此反复就构成了一个庞大的文件系统。</p>
+<p><img src="https://agu-img.oss-cn-hangzhou.aliyuncs.com/blog/20231015113020.png" alt="Linux文件系统"></p>
+<p>根目录下的每个目录都有各自作用。</p>
+<p>比如这里的 <code>/home</code> 目录，就是用户的主目录。在 Linux 中，每个用户都有自己的主目录，用来存放用户的个人文件。<br>用户主目录一般是以用户的帐号命名的，比如上图中的 alice、bob、eve。</p>
+<p>再比如这里的 <code>/lib</code> 目录，这个目录里存放着系统最基本的动态连接共享库，其作用类似于 Windows 里的 DLL 文件。<br>几乎所有的应用程序都需要用到这些共享库。</p>
+<!-- 介绍各个目录的作用 -->
+
+<p>这张图中的箭头是在表示某些目录之间的关系。</p>
+<p>先来看根目录下的 <code>/bin</code>，bin 是 <code>binary</code> 的缩写，这个目录下存放着一些最基本的命令，比如 <code>ls</code>、<code>cp</code>、<code>mv</code>、<code>rm</code> 等等。这些命令在系统启动时就会用到，可以被当前系统下所有用户使用。<br>与 bin 相连的箭头指向了 <code>/usr/bin</code>，这个目录下存放着一些用户级的命令，比如 <code>vim</code>、<code>gcc</code> 等，这些命令只能被当前用户使用。</p>
+<p>类似的还有 <code>/sbin</code> 和 <code>/usr/sbin</code>。</p>
+<h2 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h2><p>讲完前面这些，我们就可以来说说 Linux 常用的一些指令了。</p>
+<p><code>ls</code>用来列出目录下的所有文件和目录。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ls</span><br><span class="line">ls -a</span><br><span class="line">ls -l</span><br><span class="line">ls &lt;path&gt;</span><br></pre></td></tr></table></figure>
+
+<p><code>cd</code>用于切换目录。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">cd ~ </span><br><span class="line">cd ..</span><br><span class="line">cd -</span><br><span class="line">cd &lt;path&gt;</span><br></pre></td></tr></table></figure>
+
+<p><code>mkdir</code> 用于创建目录。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mkdir &lt;name&gt;</span><br><span class="line">mkdir –p &lt;name&gt;</span><br></pre></td></tr></table></figure>
+
+<p><code>cp</code> 用于复制文件或目录到指定位置。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cp &lt;src&gt; &lt;dst&gt;</span><br><span class="line">cp –r &lt;src&gt; &lt;dst&gt;</span><br></pre></td></tr></table></figure>
+
+<p><code>mv</code> 用于移动文件或目录到指定位置，这个指令也可以用来给某个文件或目录重命名。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mv &lt;src&gt; &lt;dst&gt;</span><br></pre></td></tr></table></figure>
+
+<p><code>rm</code> 用于删除文件或目录。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">rm &lt;target&gt;</span><br><span class="line">rm –r &lt;target&gt;</span><br><span class="line">rm –f &lt;target&gt;</span><br></pre></td></tr></table></figure>
+
+<h2 id="权限管理"><a href="#权限管理" class="headerlink" title="权限管理"></a>权限管理</h2><p>在多用户计算机系统的管理中，权限是指某个特定用户具有特定的系统资源使用权利。</p>
+<p>个人主机大家一般不会管这么多，通常都是直接使用管理员身份登陆了，因为个人计算机的使用者一般都是大家可以信任的人。<br>而在服务器上就不是这种情况。服务器上的用户可能彼此之间并不熟悉，而服务器中又往往存储着各种各样的资源，有些资源你不希望别的用户看到。<br>服务器中的数据越重要，价值越高，往往服务器中对权限的设定就要越详细，用户的分级也要越明确。</p>
+<p>与 windows 不同，Linux 为每个文件都设置了很多属性，最大的作用就是维护数据安全。<br>举个简单的例子，在你的 Linux 系统中，和系统服务相关的文件通常只有 root 用户才能读或写。<br>就拿 <code>/etc/shadow</code> 这个文件来说，此文件记录了系统中所有用户的密码数据，非常重要，因此绝不能让任何人读取（否则密码数据会被窃取），只有 root 才可以有读取权限。</p>
+<p>再比如说，本来 root 用户才能做的开关机、新增或删除用户等命令，一旦允许任何人拥有这些权限，系统就可能会经常莫名其妙的挂掉。<br>而且，万一 root 用户的密码被其他人获取，他们就可以登录你的系统，从事一些只有 root 用户才能执行的操作，这是绝对不允许发生的。</p>
+<p>因此，在服务器上，绝对不是所有的用户都使用 root 身份登录，而要根据不同的工作需要和职位需要，合理分配用户等级和权限等级。</p>
+<h3 id="查看权限"><a href="#查看权限" class="headerlink" title="查看权限"></a>查看权限</h3><p>Linux 系统中，我们可以使用上文提到过的 <code>ls -al</code> 查看当前目录下所有文件的权限属性。</p>
+<p><img src="https://agu-img.oss-cn-hangzhou.aliyuncs.com/blog/20231015122718.png" alt="ls -al 指令"></p>
+<p>在这些信息中，最左侧这一列就是文件的权限属性，它由 10 个字符组成。</p>
+<p>左侧 10 个字符，分为四部分，第一个字符表示文件类型，后面每部分 3 个字符，分别代表了所有者权限、所有者所在组权限、其他用户权限。</p>
+<p>文件类型共有以下可能的值：</p>
+<table>
+<thead>
+<tr>
+<th align="center"><code>d</code></th>
+<th align="center"><code>-</code></th>
+<th align="center"><code>l</code></th>
+<th align="center"><code>b</code></th>
+<th align="center"><code>c</code></th>
+<th align="center"><code>s</code></th>
+<th align="center"><code>p</code></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">目录</td>
+<td align="center">普通文件</td>
+<td align="center">链接文件</td>
+<td align="center">块设备</td>
+<td align="center">字符设备</td>
+<td align="center">套接字</td>
+<td align="center">管道</td>
+</tr>
+</tbody></table>
+<p>文件权限共有以下可能的值，所有者、所有组、其他用户权限都一样：</p>
+<table>
+<thead>
+<tr>
+<th align="center"><code>r</code></th>
+<th align="center"><code>w</code></th>
+<th align="center"><code>x</code></th>
+<th align="center"><code>-</code></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">读权限，用数字4表示</td>
+<td align="center">写权限，用数字2表示</td>
+<td align="center">执行权限，用数字1表示</td>
+<td align="center">无权限，用数字0表示</td>
+</tr>
+</tbody></table>
+<p>了解这些属性值之后，我们举个例子来讲解一下。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">drwxr-xr-x   3 root root       4096  9月 11 22:23 home</span><br></pre></td></tr></table></figure>
+
+<p>比如我们的 <code>/home</code> 目录，它的权限属性是 <code>drwxr-xr-x</code>，表示这是一个目录文件，这个目录可以被所有者读取、写入和执行，而属于同一组的用户和其他用户只能读取和执行它。</p>
+<h3 id="修改权限"><a href="#修改权限" class="headerlink" title="修改权限"></a>修改权限</h3><p>我们可以使用 <code>chmod</code> 指令来修改文件的权限属性。一般有两种方式，一种是符号模式，一种是绝对模式。</p>
+<h4 id="符号模式"><a href="#符号模式" class="headerlink" title="符号模式"></a>符号模式</h4><p>我们可以使用以下格式的指令去修改文件的权限属性：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">chmod</span> [ugoa][+-=][rwx] filename</span><br></pre></td></tr></table></figure>
+
+<p>第一个参数是权限修改的范围，第二个参数是权限的操作，第三个参数是权限的类型。</p>
+<p>这里的第一个参数可以是以下四个字母中的任意一个：</p>
+<ul>
+<li><code>u</code> 表示文件的所有者</li>
+<li><code>g</code> 表示文件的所属组</li>
+<li><code>o</code> 表示其他用户</li>
+<li><code>a</code> 表示所有用户，相当于 <code>ugo</code> 的合集</li>
+</ul>
+<p>第二个符号参数可以是以下三个符号中的任意一个：</p>
+<ul>
+<li><code>+</code> 添加权限</li>
+<li><code>-</code> 删除权限</li>
+<li><code>=</code> 设置权限</li>
+</ul>
+<p>第三个符号参数就是我们前面说过的 <code>rwx</code>，分别表示读、写、执行权限。</p>
+<p>直接看使用案例可能更直观一些：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">chmod</span> u+x filename</span><br><span class="line"><span class="built_in">chmod</span> g-w filename</span><br><span class="line"><span class="built_in">chmod</span> o=rw- filename</span><br></pre></td></tr></table></figure>
+
+<h4 id="绝对模式"><a href="#绝对模式" class="headerlink" title="绝对模式"></a>绝对模式</h4><p>由于权限中 rwx，其中一种权限只有存在和不存在两种状态，每种权限可以用一个 bit 来表示，<code>0</code> 表示无权限，<code>1</code> 表示有权限，rwx 只要三个 bit 表示。<br>三个 bit 表示的一个二进制数即可表示rwx的情况。</p>
+<p><img src="https://agu-img.oss-cn-hangzhou.aliyuncs.com/blog/20231015141918.png" alt="权限原理"></p>
+<p>求和之后，我们可以得到一个三位的八进制数，这个数就是我们要设置的权限。</p>
+<p>因此，我们可以使用一个三位的八进制数来表示权限，比如 <code>777</code>，这个数的二进制表示为 <code>111 111 111</code>，表示所有者、所属组和其他用户都有读、写、执行权限。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">chmod</span> 777 filename</span><br></pre></td></tr></table></figure>
+
+<h3 id="其他相关指令"><a href="#其他相关指令" class="headerlink" title="其他相关指令"></a>其他相关指令</h3><p>除了 <code>chmod</code> 之外，还有一些指令用于 Linux 系统的权限管理，比如 <code>chown</code>、<code>chgrp</code> 等等。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">chown</span> user2 filename</span><br><span class="line"><span class="built_in">chgrp</span> group2 filename</span><br></pre></td></tr></table></figure>
+
+<p>这两个指令分别用于修改文件的所有者和所属组，使用的频率比较低，用起来也比较简单，大家知道就好。</p>
+<h2 id="更多的知识"><a href="#更多的知识" class="headerlink" title="更多的知识"></a>更多的知识</h2><p>Linux 操作系统先讲这么多，更多的知识就留给大家自己去探索了。</p>
+<p>大家如果想看一些 Linux 教程书籍的话，推荐《鸟哥的 Linux 私房菜》，这本书是 Linux 界的经典书籍，内容详实，适合初学者阅读。<br>学校图书馆和协会里也都有，欢迎大家来协会线下借阅。</p>
+<p><img src="https://agu-img.oss-cn-hangzhou.aliyuncs.com/blog/20231015143017.png" alt="鸟哥的Linux私房菜"></p>
+<p>这些知识光听没什么用，大家还是要自己动手去实践，自己安装一个 Linux，多玩一玩，基本就能掌握个七七八八了。</p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>kinoko</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="http://example.com/2023/10/09/2023/base-linux/">http://example.com/2023/10/09/2023/base-linux/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Do you believe in <strong>DESTINY</strong>?</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/Tutorial/"># Tutorial</a>
+                    
+                        <a href="/tags/Linux/"># Linux</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2023/10/15/2023/base-network/">速通计算机网络相关概念</a>
+            
+            
+            <a class="next" rel="next" href="/2023/10/01/2023/docker-qa-01/">构建Docker镜像时遇到的问题</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© kinoko 2022-2025. All rights reserved.</span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

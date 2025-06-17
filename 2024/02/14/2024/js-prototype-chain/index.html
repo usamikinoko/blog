@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="kinoko">
+
+
+
+
+    <meta name="keywords" content="博客,blog,阿菇,阿菇kinoko,kinoko,usamikinoko">
+
+
+<title>JavaScript原型链详解 | 阿菇的博客</title>
+
+
+
+    <link rel="icon" href="/favicon.jpg">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Kinoko&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                <a class="menu-item" href="/archives">Posts</a>
+                
+                <a class="menu-item" href="/category">Categories</a>
+                
+                <a class="menu-item" href="/tag">Tags</a>
+                
+                <a class="menu-item" href="/about">About</a>
+                
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Kinoko&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">
+                    <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"/></svg>
+                    <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE --><path fill="currentColor" d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"/></svg>
+                </div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                <a class="menu-item" href="/archives">Posts</a>
+                
+                <a class="menu-item" href="/category">Categories</a>
+                
+                <a class="menu-item" href="/tag">Tags</a>
+                
+                <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if (toggleMenu.classList.contains("active")) {
+            toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        } else {
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">JavaScript原型链详解</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">kinoko</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">February 14, 2024&nbsp;&nbsp;0:00:00</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Security/">Security</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <p>继续补档，发现这块内容其实蛮多的。后面估计还会有两篇（怎么还有两篇啊喂！），分别是 <a href="#">JavaScript执行原理·补</a> 和 <a href="#">JavaScript部分特性</a>，这周不知道能不能搞定。</p>
+<p>先看 JS 原型链吧。</p>
+<h2 id="JS-继承机制设计"><a href="#JS-继承机制设计" class="headerlink" title="JS 继承机制设计"></a>JS 继承机制设计</h2><p>1994年，网景公司（Netscape）发布了 Navigator v0.9，轰动一时。但当时的网页不具备交互功能，数据的交互全部依赖服务器端，这浪费了时间与服务器资源。</p>
+<p>网景公司需要一种网页脚本语言实现用户与浏览器的互动，工程师 <a target="_blank" rel="noopener" href="https://brendaneich.com/">Brendan Eich</a> 负责该语言的开发。他认为这种语言不必复杂，只需进行一些简单操作即可，比如填写表单。</p>
+<p>可能是受当时面向对象编程（object-oriented programming）的影响，Brendan  设计的 JS 里面所有的数据类型都是对象（object）。他需要为 JS 设计一种机制把这些对象连接起来，即“继承”机制。</p>
+<blockquote>
+<p>继承允许子类继承父类的属性和方法，并且可以在子类中添加新的属性和方法，实现代码的重用和扩展性。</p>
+</blockquote>
+<p>出于设计的初衷，即“开发一种简单的网页脚本语言”，Brendan 没有选择给 JS 引入类（class）的概念，而是创造了基于原型链的继承机制。</p>
+<p>在 Java 等面向对象的语言中，一般是通过调用 class 的构造函数（construct）创建实例，如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Dog</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> String name;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">Dog</span><span class="params">(String name)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Main</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">Dog</span> <span class="variable">dog</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Dog</span>(<span class="string">&quot;Rover&quot;</span>);</span><br><span class="line">        System.out.println(dog.name); <span class="comment">// Rover</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Brendam 为 JS 做了简化设计，直接对构造函数使用<code>new</code>创建实例：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">Dog</span>(<span class="params">name</span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">name</span> = name;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> dog = <span class="keyword">new</span> <span class="title class_">Dog</span>(<span class="string">&quot;Rover&quot;</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(dog.<span class="property">name</span>) <span class="comment">// Rover</span></span><br></pre></td></tr></table></figure>
+
+<p>这种设计避免了在 JS 中引入 class，但这引出一个问题：JS 的实例该如何共享属性和方法？基于构造函数创建的实例都是独立的副本。</p>
+<p>先看看 Java 是如何基于 class 实现属性和方法共享的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Animal</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">eat</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Animal is eating&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Dog</span> <span class="keyword">extends</span> <span class="title class_">Animal</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">bark</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Dog is barking&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Cat</span> <span class="keyword">extends</span> <span class="title class_">Animal</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">meow</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Cat is meowing&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Main</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">Dog</span> <span class="variable">myDog</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Dog</span>();</span><br><span class="line">        <span class="type">Cat</span> <span class="variable">myCat</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Cat</span>();</span><br><span class="line">        </span><br><span class="line">        myDog.eat(); <span class="comment">// Animal is eating</span></span><br><span class="line">        myDog.bark(); <span class="comment">// Dog is barking</span></span><br><span class="line">        myCat.eat(); <span class="comment">// Animal is eating</span></span><br><span class="line">        myCat.meow(); <span class="comment">// Cat is meowing</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在这个例子中，<code>Dog</code>和<code>Cat</code>子类继承了<code>Animal</code>父类的<code>eat()</code>方法，并分别添加了<code>bark()</code>和<code>meow()</code>方法，这种基于类实现的继承很顺畅也便于理解。</p>
+<p>JS 中没有 class，但这种需求切实存在。Brendan 通过为构造函数添加<code>prototype</code>属性解决这个问题。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">Dog</span>(<span class="params">name</span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">name</span> = name;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title class_">Dog</span>.<span class="property"><span class="keyword">prototype</span></span>.<span class="property">bark</span> = <span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="variable language_">this</span>.<span class="property">name</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> dogA = <span class="keyword">new</span> <span class="title class_">Dog</span>(<span class="string">&quot;Rover&quot;</span>);</span><br><span class="line"><span class="keyword">var</span> dogB = <span class="keyword">new</span> <span class="title class_">Dog</span>(<span class="string">&quot;Fido&quot;</span>);</span><br><span class="line">dogA.<span class="title function_">bark</span>(); <span class="comment">// Rover</span></span><br><span class="line">dogB.<span class="title function_">bark</span>(); <span class="comment">// Fido</span></span><br></pre></td></tr></table></figure>
+
+<p>我们给构造函数<code>Dog</code>的<code>prototype</code>添加了<code>bark()</code>方法，这样做的话，基于<code>Dog</code>创建的实例都可以使用<code>bark()</code>方法，数据共享同理。</p>
+<p>那这是如何实现的呢，或者说，<code>prototype</code>是什么，为什么可以在多个实例之间共享属性及方法？这就是我们接下来要说的内容。</p>
+<p>在这里先丢一张图，接下来的内容可以搭配这张图一起看，相信这会对初学者理解 JS 原型链很有帮助：</p>
+<p><img src="https://wiki.wgpsec.org/images/js-prototype-chain-pollution/3.png" alt="img"></p>
+<h2 id="prototype-原型"><a href="#prototype-原型" class="headerlink" title="prototype 原型"></a>prototype 原型</h2><p>在 JS 中，每个函数都有一个<code>prototype</code>属性，每个对象都有一个<code>__proto__</code>属性。</p>
+<p>函数的<code>prototype</code> 属性本质上是一个对象，它包含了通过这个函数作为构造函数（即使用 <code>new</code> 关键字）创建的所有实例所共享的属性和方法。</p>
+<p>而<code>__proto__</code>是所有对象都有的一个属性，它指向了创建这个对象的构造函数的<code>prototype</code>。也就是说，如果我们有<code>var dog = new Dog()</code>，那么<code>dog.__proto__</code>就是<code>Dog.prototype</code>。</p>
+<blockquote>
+<p>“引用”是指一个变量或者对象指向内存中的一个位置，这个位置存储了某个值。这里也可以说<code>dog.__proto__</code>是<code>Dog.prototype</code>的一个引用。</p>
+</blockquote>
+<p>那么 JS 是如何通过<code>prototype</code>实现继承的呢？</p>
+<p>当我们试图访问一个对象的属性时，如果该对象本身没有这个属性，JS 就会去它的<code>__proto__</code>（也就是它的构造函数的<code>prototype</code>）中寻找。因为<code>prototype</code>本身也是一个对象，如果 JS 在<code>prototype</code>中也没有找到被访问的属性，那么它就会去<code>prototype</code>的<code>__proto__</code>中寻找，以此类推，直到找到这个属性或者到达原型链的末端<code>null</code>。</p>
+<p>通过这种方式，JS 就实现了它所需要的继承机制。这种通过对象的<code>__proto__</code>属性逐步向上查询的机制，就是我们所说的 JS 原型链。</p>
+<p>再拿这个例子做一次讲解：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">Dog</span>(<span class="params">name</span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">name</span> = name;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title class_">Dog</span>.<span class="property"><span class="keyword">prototype</span></span> = &#123;</span><br><span class="line">  <span class="string">&quot;species&quot;</span>: <span class="string">&quot;dog&quot;</span>,</span><br><span class="line">&#125; </span><br><span class="line">  </span><br><span class="line"><span class="keyword">var</span> dog = <span class="keyword">new</span> <span class="title class_">Dog</span>(<span class="string">&#x27;Rover&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(dog.<span class="property">name</span>); <span class="comment">// Rover</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(dog.<span class="property">species</span>); <span class="comment">// dog</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(dog.<span class="property">age</span>); <span class="comment">// undefined</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(dog.<span class="property">__proto__</span>.<span class="property">__proto__</span>.<span class="property">__proto__</span>); <span class="comment">// null</span></span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(dog.<span class="property">__proto__</span> === <span class="title class_">Dog</span>.<span class="property"><span class="keyword">prototype</span></span>) <span class="comment">// true</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">Dog</span>.<span class="property"><span class="keyword">prototype</span></span>.<span class="property">__proto__</span> === <span class="title class_">Object</span>.<span class="property"><span class="keyword">prototype</span></span>) <span class="comment">// true</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">Object</span>.<span class="property"><span class="keyword">prototype</span></span>.<span class="property">__proto__</span>) <span class="comment">// null</span></span><br></pre></td></tr></table></figure>
+
+<p>调用<code>dog.name</code>时，JS 查找到<code>dog</code>实例有<code>name</code>属性，就返回<code>Rover</code>；</p>
+<p>调用<code>dog.species</code>时，JS 发现当前实例中没有该属性，就去<code>dog.__proto__</code>中查询，找到<code>species</code>属性并返回<code>dog</code>；</p>
+<p>调用<code>dog.age</code>时，JS 发现当前实例和当前实例的<code>__proto__</code>属性中都没有该属性，就再向上去寻找，也就到<code>Dog.prototype.__proto__</code>（即<code>Object.prototype</code>）中去寻找，已然没有找到，就继续向上找，但<code>Object.prototype.__proto__</code>是整条原型链的起点——<code>null</code>，JS 查找不到<code>age</code>属性，就会返回一个<code>undefined</code>；</p>
+<p>如果我们再向上查询一层，即尝试访问<code>dog.__proto__.__proto__.__proto__.__proto__</code>，会直接抛出报错，JS 定义<code>null</code>没有原型，yejiu1无法访问到它的<code>prototype</code>属性。</p>
+<h2 id="constructor-构造函数"><a href="#constructor-构造函数" class="headerlink" title="constructor 构造函数"></a>constructor 构造函数</h2><p>在 JS 中，每个函数对象还有一个特殊的属性叫做<code>constructor</code>。这个属性指向创建该对象的构造函数。当我们创建一个函数时，JS 会自动为该函数创建一个<code>prototype</code>对象，并且这个<code>prototype</code>对象包含一个指向该函数本身的<code>constructor</code>属性。</p>
+<p>当我们使用构造函数创建实例对象时，这些实例对象会继承构造函数的<code>prototype</code>对象，从而形成原型链。因此，通过<code>constructor</code>属性，实例对象就可以访问到创建它们的构造函数。</p>
+<p>直接把<code>constructor</code>当作反向<code>prototype</code>理解即可。以刚才的代码举例：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">Dog</span>.<span class="property"><span class="keyword">prototype</span></span>.<span class="property">constructor</span> === <span class="title class_">Dog</span>); <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="前端开发中的原型链"><a href="#前端开发中的原型链" class="headerlink" title="前端开发中的原型链"></a>前端开发中的原型链</h2><h3 id="class-语法糖"><a href="#class-语法糖" class="headerlink" title="class 语法糖"></a>class 语法糖</h3><p>现在的 Web 前端开发中几乎不直接使用原型链了，JS 已经在 ES6（ECMAScript 2015）中引入了类（Class）的概念，因为这能使得面向对象编程更加直观。</p>
+<p>个人感觉这表示着 JS 与 Brendan Eich 当年所设想的“简单的客户端脚本语言”越走越偏了，但这也说明 JS 一直在蓬勃发展，活跃的社区生态让 JS 把它的触手伸向了互联网的角角落落，越来越多的开发者将 JS 变得愈来愈完善。</p>
+<p>但请注意，JS 的 class 在底层上仍然是基于原型链的，只是一种语法糖。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Animal</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params">name</span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">name</span> = name;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">speak</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="variable language_">this</span>.<span class="property">name</span> + <span class="string">&#x27; makes a noise.&#x27;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> animal = <span class="keyword">new</span> <span class="title class_">Animal</span>(<span class="string">&#x27;Simba&#x27;</span>);</span><br><span class="line">animal.<span class="title function_">speak</span>(); <span class="comment">// Outputs: &quot;Simba makes a noise.&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>以上代码是一个使用了 class 的 JS 示范，其基于原型链的版本如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">Animal</span>(<span class="params">name</span>) &#123;</span><br><span class="line">  <span class="variable language_">this</span>.<span class="property">name</span> = name;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title class_">Animal</span>.<span class="property"><span class="keyword">prototype</span></span>.<span class="property">speak</span> = <span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="variable language_">this</span>.<span class="property">name</span> + <span class="string">&#x27; makes a noise.&#x27;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> animal = <span class="keyword">new</span> <span class="title class_">Animal</span>(<span class="string">&#x27;Simba&#x27;</span>);</span><br><span class="line">animal.<span class="title function_">speak</span>(); <span class="comment">// Outputs: &quot;Simba makes a noise.&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>这两个例子在功能上是相同的，但是它们的写法有所不同。class 语法提供了一种更清晰的方式来创建对象和处理继承。在 class 语法中，你可以直接在类定义内部声明方法，而在原型链中，你需要在原型对象上添加方法。</p>
+<h3 id="性能影响"><a href="#性能影响" class="headerlink" title="性能影响"></a>性能影响</h3><p>我们前面说过，JS 在原型链中查找当前对象不存在的属性时，需要一级级的向上查找。如果我们要查找的属性在较深层的对象中，就会拖慢我们程序的运行速度；如果目标属性不存在中，JS 就会遍历整个原型链，这无疑会对程序的性能造成负面影响。</p>
+<p>此外，在遍历对象的属性时，原型链中的每个可枚举属性都将被枚举。如果我们想要检查一个对象是否具有某个属性，并且这个属性是直接定义在该对象上的，而不是定义在它的原型链上的，那么我们需要使用<code>hasOwnProperty</code>方法或<code>Object.hasOwn</code>方法。</p>
+<p><code>hasOwnProperty</code>可以用来检查一个对象是否具有特定的自身属性（也就是该属性不是从原型链上继承来的）。这个方法是定义在<code>Object.prototype</code>上的，所以除非一个对象的原型链被设置为<code>null</code>（或者在原型链深层被覆盖），否则所有的对象都会继承这个方法。</p>
+<p>该方法的使用方法如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> obj = &#123;</span><br><span class="line">    <span class="attr">prop</span>: <span class="string">&#x27;value&#x27;</span></span><br><span class="line">&#125;;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(obj.<span class="title function_">hasOwnProperty</span>(<span class="string">&#x27;prop&#x27;</span>)); <span class="comment">// 输出：true</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> objWithNoProto = <span class="title class_">Object</span>.<span class="title function_">create</span>(<span class="literal">null</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(objWithNoProto.<span class="property">hasOwnProperty</span>); <span class="comment">// 输出：undefined</span></span><br></pre></td></tr></table></figure>
+
+<p>此外，除非是为了与新的 JS 特性兼容，否则永远不应扩展原生原型。如果要使用 JS 原型链操作，也要对用户的输入进行严格校验，因为 JS 原型链有着独特的安全问题。</p>
+<h2 id="JS-原型链污染"><a href="#JS-原型链污染" class="headerlink" title="JS 原型链污染"></a>JS 原型链污染</h2><blockquote>
+<p>JS 原型链污染推荐 phithon 大佬的 <a target="_blank" rel="noopener" href="https://www.leavesongs.com/PENETRATION/javascript-prototype-pollution-attack.html#0x03">深入理解 JavaScript Prototype 污染攻击</a>，以下<code>merge</code>示范代码就来自这篇文章。</p>
+</blockquote>
+<p>出于设计上的因素，JS 原型链操作容易产生独特的安全问题——JS 原型链污染。</p>
+<p>原理很简单，就是 JS 基于原型链实现的继承机制。如果我们能控制某个对象的原型，那我们就可以控制所有基于该原型创建的对象。以下是一个简单的示范案例：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 创建一个空对象 userA</span></span><br><span class="line"><span class="keyword">let</span> userA = &#123;&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 给 userA 添加一个属性 isAdmin</span></span><br><span class="line">userA.<span class="property">isAdmin</span> = <span class="literal">false</span>;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(userA.<span class="property">isAdmin</span>); <span class="comment">// false</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 现在我们想让所有用户都有这个属性，我们可以使用原型</span></span><br><span class="line">userA.<span class="property">__proto__</span>.<span class="property">isAdmin</span> = <span class="literal">true</span>;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(userA.<span class="property">isAdmin</span>); <span class="comment">// false</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 现在我们创建一个新用户 userB</span></span><br><span class="line"><span class="keyword">let</span> userB = &#123;&#125;;</span><br><span class="line"><span class="comment">// userB 会继承 userA 的 isAdmin 属性</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(userB.<span class="property">isAdmin</span>); <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
+
+<p>在 CTF 中，往往都是去找一些能够控制对象键名的操作，比如<code>merge</code>、<code>clone</code>等，这其中<code>merge</code>又是最常见的可操纵键名操作。最普通的<code>merge</code>函数如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">merge</span>(<span class="params">target, source</span>) &#123;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> key <span class="keyword">in</span> source) &#123;</span><br><span class="line">      <span class="keyword">if</span> (key <span class="keyword">in</span> source &amp;&amp; key <span class="keyword">in</span> target) &#123;</span><br><span class="line">          <span class="title function_">merge</span>(target[key], source[key])</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">          target[key] = source[key]</span><br><span class="line">      &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>此时，我们运行以下代码，以 JSON 格式创建<code>o2</code>，在与<code>o1</code>合并的过程中，经过赋值操作<code>target[key] = source[key]</code>，实现了一个基本的原型链污染，被污染的对象是<code>Object.prototype</code>：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> o1 = &#123;&#125;;</span><br><span class="line"><span class="keyword">let</span> o2 = <span class="title class_">JSON</span>.<span class="title function_">parse</span>(<span class="string">&#x27;&#123;&quot;a&quot;: 1, &quot;__proto__&quot;: &#123;&quot;b&quot;: 2&#125;&#125;&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="title function_">merge</span>(o1, o2); <span class="comment">// 1 2</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(o1.<span class="property">a</span>, o1.<span class="property">b</span>);</span><br><span class="line"></span><br><span class="line">o3 = &#123;&#125;;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(o3.<span class="property">b</span>); <span class="comment">// 2</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title class_">Object</span>.<span class="property"><span class="keyword">prototype</span></span>); <span class="comment">// [Object: null prototype] &#123; b: 2 &#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>还有一个值得思考的问题，如果我们创建<code>o2</code>使用的语句是：<code>let o2 = &#123;a: 1, &quot;__proto__&quot;: &#123;b: 2&#125;&#125;</code>，则不会实现原型链污染，可以思考一下原因。</p>
+<h2 id="后话"><a href="#后话" class="headerlink" title="后话"></a>后话</h2><p>读到这里，应该就能大致理解什么是 JS 原型链了，也对开发和安全中的 JS 原型链有了一个基本的认识。</p>
+<p>但还有一个疑问没有解决：JS 原型链的本质是什么，它是一种机制，还是一种数据结构？</p>
+<p>原型链（Prototype Chain）从本质上来讲是一种机制，而不是某种特殊的数据结构。只是从习惯上来讲，我们会把从实例对象到 Object 这中间的 <code>__proto__</code> 调用称为“原型链”，上面说过的<code>dog.__proto__.__proto__.__proto__</code>就是例子——因为这确实很形象。</p>
+<h2 id="参阅文章"><a href="#参阅文章" class="headerlink" title="参阅文章"></a>参阅文章</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://www.ruanyifeng.com/blog/2011/06/designing_ideas_of_inheritance_mechanism_in_javascript.html">Javascript继承机制的设计思想</a>，by 阮一峰的网络日志</li>
+<li><a target="_blank" rel="noopener" href="https://blog.huli.tw/2017/08/27/the-javascripts-prototype-chain/">該來理解 JavaScript 的原型鍊了</a>，by Huli’s Blog</li>
+<li><a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Inheritance_and_the_prototype_chain">继承与原型链</a>，by MDN Web Docs</li>
+<li><a target="_blank" rel="noopener" href="https://www.leavesongs.com/PENETRATION/javascript-prototype-pollution-attack.html#0x03">深入理解 JavaScript Prototype 污染攻击</a>，by phithon</li>
+</ul>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>kinoko</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="http://example.com/2024/02/14/2024/js-prototype-chain/">http://example.com/2024/02/14/2024/js-prototype-chain/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Do you believe in <strong>DESTINY</strong>?</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/JavaScript/"># JavaScript</a>
+                    
+                        <a href="/tags/JavaScript-Prototype-Chain/"># JavaScript Prototype Chain</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2024/02/16/2024/js-scope-and-hoisting/">JavaScript作用域与提升</a>
+            
+            
+            <a class="next" rel="next" href="/2024/02/12/2024/js-obfuscation-deobfuscation/">JavaScript混淆与反混淆</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© kinoko 2022-2025. All rights reserved.</span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

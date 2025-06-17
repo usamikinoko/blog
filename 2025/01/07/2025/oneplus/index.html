@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="kinoko">
+
+
+
+
+    <meta name="keywords" content="博客,blog,阿菇,阿菇kinoko,kinoko,usamikinoko">
+
+
+<title>刷机root-OnePlus | 阿菇的博客</title>
+
+
+
+    <link rel="icon" href="/favicon.jpg">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Kinoko&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                <a class="menu-item" href="/archives">Posts</a>
+                
+                <a class="menu-item" href="/category">Categories</a>
+                
+                <a class="menu-item" href="/tag">Tags</a>
+                
+                <a class="menu-item" href="/about">About</a>
+                
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Kinoko&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">
+                    <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"/></svg>
+                    <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE --><path fill="currentColor" d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"/></svg>
+                </div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                <a class="menu-item" href="/archives">Posts</a>
+                
+                <a class="menu-item" href="/category">Categories</a>
+                
+                <a class="menu-item" href="/tag">Tags</a>
+                
+                <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if (toggleMenu.classList.contains("active")) {
+            toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        } else {
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">刷机root-OnePlus</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">kinoko</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">January 7, 2025&nbsp;&nbsp;0:00:00</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Development/">Development</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <p>手上有台备用的oneplus ace2，这两天正好利用起来，看看有没有好玩的东西。</p>
+<p>前段时间按照教程刷了root，虽然中间险些变砖，但总体不难，按照教程走就行。刷机root的过程在此略过，注意下不要变砖就行，自己不会操作的话，网上也有很多现成的一键root工具（感谢先人的馈赠），稍微研究下即可。</p>
+<h2 id="ADB工具"><a href="#ADB工具" class="headerlink" title="ADB工具"></a>ADB工具</h2><p>ADB（Android Debug Bridge）是一个用于与Android设备进行交互的命令行工具。它允许开发者和用户通过计算机与Android设备进行通信，执行各种操作，如安装和卸载应用程序、调试应用、访问设备的文件系统、执行命令等。</p>
+<p>windows下的包管理工具也算比较成熟了，直接用winget安装即可</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">winget install Google.PlatformTools</span><br></pre></td></tr></table></figure>
+
+<p>然后使用adb命令时会抛出报错：</p>
+<p><img src="https://img.ma5hr00m.top/blog2410/20241022114332.png" alt="image.png"></p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/w_s_x_b/article/details/91793734">由于找不到adbwinapi.dll,无法继续执行代码。重新安装程序可能会解决此问题-CSDN博客</a></p>
+</blockquote>
+<p>相关文件路径，需要管理员权限</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">AdbWinApi.ddl和adb.exe的位置</span></span><br><span class="line">C:\Users\xxx\AppData\Local\Microsoft\WinGet\Packages\Google.PlatformTools_Microsoft.Winget.Source_8wekyb3d8bbwe\platform-tools</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">adb.exe移动到</span></span><br><span class="line">C:\Windows\System32</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">AdbWinApi.ddl移动到</span></span><br><span class="line">C:/Windows/SysWOW64</span><br></pre></td></tr></table></figure>
+
+<p>复制完文件后关闭并重新打开cmd命令行，可正常使用adb工具：</p>
+<p><img src="https://img.ma5hr00m.top/blog2410/20241022114730.png" alt="image.png"></p>
+<p>在这里贴了常用命令，基本够用，有更进一步的需求再搜</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看已连接设备</span></span><br><span class="line">adb devices</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">安装 APK 文件</span></span><br><span class="line">adb install path/to/your/app.apk</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">卸载应用</span></span><br><span class="line">adb uninstall package.name.of.your.app</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">复制文件到设备</span></span><br><span class="line">adb push local/file/path /sdcard/remote/file/path</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">从设备复制文件到本地</span></span><br><span class="line">adb pull /sdcard/remote/file/path local/file/path</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看设备日志</span></span><br><span class="line">adb logcat</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">重启设备</span></span><br><span class="line">adb reboot</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">进入设备的 shell</span></span><br><span class="line">adb shell</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">获取设备的屏幕截图</span></span><br><span class="line">adb exec-out screencap -p &gt; screenshot.png</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">录制设备屏幕</span></span><br><span class="line">adb shell screenrecord /sdcard/video.mp4</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">清除应用数据</span></span><br><span class="line">adb shell pm clear package.name.of.your.app</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看设备的系统信息</span></span><br><span class="line">adb shell getprop</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">进入特定的应用程序</span></span><br><span class="line">adb shell am start -n package.name.of.your.app/.MainActivity</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">停止特定的应用程序</span></span><br><span class="line">adb shell am force-stop package.name.of.your.app</span><br></pre></td></tr></table></figure>
+
+<h2 id="oneplus投屏到windows10"><a href="#oneplus投屏到windows10" class="headerlink" title="oneplus投屏到windows10"></a>oneplus投屏到windows10</h2><p>windows10打开设置-系统-投影到此电脑，初次使用会要求添加功能，下载对应模块即可</p>
+<p><img src="https://img.ma5hr00m.top/2025/20250107110827.png" alt="image.png"></p>
+<p>自动安装对应模块，再将投影到此电脑设置为“所有位置可用”。</p>
+<p>然后手机设置-蓝牙和设备连接-连接与偏好设置-投射屏幕-右上角三个点无线显示打钩-连接电脑，无线显示要现在开发者选项中打开。随后电脑和手机同时开启投屏功能，配对后即可连接，不过实际测试无线连接的延迟比较大。</p>
+<p><img src="https://img.ma5hr00m.top/2025/20250107111325.png" alt="image.png"></p>
+<h2 id="usb调试-MIDI"><a href="#usb调试-MIDI" class="headerlink" title="usb调试-MIDI"></a>usb调试-MIDI</h2><p>使用usb数据线将手机与电脑链接时，总是能看到MIDI的连接方式，那这到底是什么呢。</p>
+<p><a target="_blank" rel="noopener" href="https://www.midifan.com/modulenews-detailview-35773.htm">MIDI 到底是个什么鬼？希望所有人都知道 MIDI 给世界带来了什么改变 - midifan：我们关注电脑音乐</a></p>
+<p>这里有个类比。要用电脑打印一封信，你可以在它的QWERTY键盘上键入。这将使用一种称为ASCII（美国信息交换标准代码）的计算机语言，向您的计算机发送与您键入的字母相对应的数据。</p>
+<p>这个标准化的代码集表示字母、数字和符号。因为计算机讲的是ASCII，文字处理器可以在屏幕上显示这些字母。因为你的打印机使用ASCII码，所以计算机可以将数据从文字处理器发送到打印机，打印机将打印出你的信件。</p>
+<p>MIDI也是一种语言-一组标准化代码，表示音乐参数，如音高、动态、节奏等。它的工作原理与上面给出的ASCII示例类似：在MIDI兼容的键盘上播放音符，该键盘将数据发送到与所播放内容相对应的计算机。录音或记谱程序可以识别这些音符并将其显示在屏幕上。</p>
+<p>然后，您可以将计算机中的MIDI数据发送到与MIDI兼容的音频发生器（可以将其视为音乐打印机），它可以复制您最初在键盘上播放的内容。您也可以通过将键盘直接连接到与MIDI兼容的音频发生器来实时使用MIDI。</p>
+<p>MIDI全称是Musical Instrument Digital Interface，翻译成中文就是：乐器数字接口。是20世纪80年代初为解决电声乐器之间的通信问题而提出的。MIDI是编曲界最广泛的音乐标准格式，可称为“计算机能理解的乐谱”。<br>它用音符的数字控制信号来记录音乐。一首完整的MIDI音乐只有几十KB大，而能包含数十条音乐轨道。几乎所有的现代音乐都是用MIDI加上音色库来制作合成的。MIDI 传输的不是声音信号， 而是音符、控制参数等指令, 它指示MIDI 设备要做什么，怎么做， 如演奏哪个音符、多大音量等。它们被统一表示成MIDI 消息(MIDI Message) 。传输时采用异步串行通信, 标准通信波特率为31.25×( 1±0.01) KBaud。</p>
+<blockquote>
+<p>重要的是要记住MIDI不是音频，而是数据。</p>
+</blockquote>
+<p>到这里就差不多了，大概知道这是个电子音乐垂类的功能就可以了，一般用不上。</p>
+<h2 id="推送图片到相册查找不到"><a href="#推送图片到相册查找不到" class="headerlink" title="推送图片到相册查找不到"></a>推送图片到相册查找不到</h2><p>推送图片到相册实现起来很简单，上面有说过相关指令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adb push .\mobile.jpg /sdcard/DCIM/Camera/</span><br></pre></td></tr></table></figure>
+
+<p>这时你会发现相册中并没有推送的图片，诶，这是为什么呢？Android系统通常会自动扫描新添加的媒体文件，但有时可能需要一些时间，或者可能是因为相册缓存数据导致新文件不显示。所以我们需要手动触发扫描，可以扫描整个媒体库，也可以单独扫描新推送的文件：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adb shell am broadcast -a android.intent.action.MEDIA_SCANNER_SCAN_FILE -d file:///sdcard/DCIM/Camera/</span><br></pre></td></tr></table></figure>
+
+<p>然后就能在相册中找到我们推送到图像视频文件了。</p>
+<h2 id="bank-app-hide-root"><a href="#bank-app-hide-root" class="headerlink" title="bank app hide root"></a>bank app hide root</h2><p>我们初步root完设备之后，打开银行软件，会提示当前设备存在风险然后强制退出，这明显干扰设备的日常使用，得解决这个问题。</p>
+<p>我是跟着这个教程走了一遍：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/506203078">新版Magisk(面具)隐藏root方法</a>。最后实现的效果就是关闭usb调试的条件下，可以正常使用三大银行app——工商银行、农业银行和招商银行。</p>
+<p>先开启Zygisk(Beta)模块，然后重启手机。</p>
+<p>重启后下载<a target="_blank" rel="noopener" href="https://github.com/LSPosed/LSPosed.github.io/releases/tag/shamiko-357">Release Shamiko v1.1.1 · LSPosed&#x2F;LSPosed.github.io · GitHub</a>，主机端下载的话就推送到移动设备</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adb push .\Shamiko-v1.2.1-383-release.zip /sdcard/</span><br></pre></td></tr></table></figure>
+
+<p>然后在magisk中找到shamiko以模块形式安装，安装好之后再重启手机。</p>
+<p>重启手机，打开面具右上角设置，打开遵循排除列表选项，再点击配置排除列表，然后勾选你要隐藏root的应用。注意，此处你要点开每个应用的下拉列表手动选中每个配置，只勾选复选框只会选中部分配置项。然后退出排除列表页面再关闭排除列表选项，再重启。</p>
+<p><img src="https://img.ma5hr00m.top/2025/20250107165934.png" alt="image.png"></p>
+<p>重启完成后，原先会检测到你root环境的大部分应用应该都可以使用了，但我的工商银行app依然检测出了不安全的环境。</p>
+<p>此时我们要随机包名Magisk达到隐藏Magisk的效果，以防止被某些软件检测到。</p>
+<p><img src="https://img.ma5hr00m.top/2025/20250107170119.png" alt="image.png"></p>
+<p>操作完成后再重启设备。重启后再次打开工商银行app，会提示检测到有usb调试有不安全的流量，这时我们把usb调试功能关闭，就可以正常使用工商银行app了。</p>
+<blockquote>
+<p>如果还不行的话可以试着安装<a target="_blank" rel="noopener" href="https://yun.daxiaamu.com/files/Xposed%E6%A8%A1%E5%9D%97/bankrx/#google_vignette">Xposed模块&#x2F;bankrx - 一加手机官方ROM - 一加手机官方ROM下载</a>工具，也是下载安装包直接<code>adb install</code>即可。</p>
+</blockquote>
+<h2 id="有趣的模块"><a href="#有趣的模块" class="headerlink" title="有趣的模块"></a>有趣的模块</h2><p>参考这篇博客：<a target="_blank" rel="noopener" href="https://ivonblog.com/posts/magisk-recommended-modules/">2023年Magisk推薦安裝的模組，提升手機效能、擋廣告、自定義主題 · Ivon的部落格</a></p>
+<h3 id="KTweak"><a href="#KTweak" class="headerlink" title="KTweak"></a>KTweak</h3><ul>
+<li>下載網址：<a target="_blank" rel="noopener" href="https://github.com/tytydraco/KTweak-Android-App">GitHub - tytydraco&#x2F;KTweak-Android-App: The Android App for KTweak.</a></li>
+</ul>
+<p>提升Android反应速度，不限机型皆可使用。</p>
+<p>作者宣称程序代码比其他性能提升模块（NFS injector、LKT、MAGNETAR）要公开透明，基于事实证据对系统进行调校。这里提供的链接是前端APP，每次开机后自动启用指令脚本，就不需要装Magisk模块了。提供balance与latency模式，后者以反应速度优先。</p>
+<h3 id="Viper4Android"><a href="#Viper4Android" class="headerlink" title="Viper4Android"></a>Viper4Android</h3><ul>
+<li>下载网址：<a target="_blank" rel="noopener" href="https://github.com/programminghoch10/ViPER4AndroidRepackaged">GitHub - programminghoch10&#x2F;ViPER4AndroidRepackaged: A refined ViPER4Android installer.</a></li>
+</ul>
+<p>中国的蝰蛇音效，提升手机扬声器与耳机音乐表现的音效模块。历史悠久的闭源音效软件，提升音效效果最好。此处链接为打包好的Magisk模块，装完就可以用。</p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>kinoko</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="http://example.com/2025/01/07/2025/oneplus/">http://example.com/2025/01/07/2025/oneplus/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Do you believe in <strong>DESTINY</strong>?</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/Android/"># Android</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2025/01/09/2025/start-andorid-development/">浅试Android开发</a>
+            
+            
+            <a class="next" rel="next" href="/2024/11/20/2024/python-venv/">python-venv如何实现切换虚拟环境</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© kinoko 2022-2025. All rights reserved.</span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

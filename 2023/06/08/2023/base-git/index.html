@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="kinoko">
+
+
+
+
+    <meta name="keywords" content="博客,blog,阿菇,阿菇kinoko,kinoko,usamikinoko">
+
+
+<title>git基础教程 | 阿菇的博客</title>
+
+
+
+    <link rel="icon" href="/favicon.jpg">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Kinoko&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                <a class="menu-item" href="/archives">Posts</a>
+                
+                <a class="menu-item" href="/category">Categories</a>
+                
+                <a class="menu-item" href="/tag">Tags</a>
+                
+                <a class="menu-item" href="/about">About</a>
+                
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Kinoko&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">
+                    <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"/></svg>
+                    <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE --><path fill="currentColor" d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"/></svg>
+                </div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                <a class="menu-item" href="/archives">Posts</a>
+                
+                <a class="menu-item" href="/category">Categories</a>
+                
+                <a class="menu-item" href="/tag">Tags</a>
+                
+                <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if (toggleMenu.classList.contains("active")) {
+            toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        } else {
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">git基础教程</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">kinoko</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">June 8, 2023&nbsp;&nbsp;0:00:00</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Development/">Development</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <blockquote>
+<p><a target="_blank" rel="noopener" href="https://git-scm.com/doc">git官方文档</a>👈有问题建议先看文档，二手资料有时会存在奇奇怪怪的问题。</p>
+</blockquote>
+<p>emmm，其实是想写一篇<strong>使用<code>hexo</code>快速搭建个人博客</strong>的教程，但感觉在那篇教程里穿插着讲<code>git</code>的话，很多初学者可能搞不清楚<code>git</code>到底是什么，甚至可能会把<code>git</code>和<code>hexo</code>的概念绑定起来，那样就比较麻烦了。所以就决定先写一篇文章介绍<code>git</code>（去年学得时候没写，正好也是补充一下）。</p>
+<h2 id="git相关概念"><a href="#git相关概念" class="headerlink" title="git相关概念"></a>git相关概念</h2><p>到底什么是<code>git</code>呢？用一句话来说，<code>git</code>是一种<strong>分布式版本控制系统</strong>。暂时看不懂也没关系，接下来会详细说所谓的“分布式版本控制系统”是什么。</p>
+<h3 id="版本控制系统"><a href="#版本控制系统" class="headerlink" title="版本控制系统"></a>版本控制系统</h3><p>先说说版本控制系统是个啥。</p>
+<p>为了方便理解，在这里举一个常见的案例来进行解释：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">你需要和舍友共同完成一篇3000字的论文，你写A部分，舍友写B部分。</span><br><span class="line">初步完成A部分内容后，你通过QQ等软件将文本文件发送给舍友，让他继续写B部分，而同时你也在你的电脑上接着完善A部分。</span><br><span class="line">当舍友完成B部分后，他又将文本文件发送给你，然后，你需要将A部分改动的内容与舍友的B部分合并，找出哪些地方发生了变化，这就有点麻烦了。</span><br><span class="line">写完论文之后，你和舍友聚在一块，进一步完善论文。你发现，你的猪头舍友在写B部分时误删了一些A的内容，而你在合并时没有注意，导致这部分内容你和舍友都没有备份，无奈之下你们只好重写了这块丢失的内容。</span><br><span class="line">再次完善论文时，你们发现，在编写的过程中论文B部分的立意跑偏了，你们需要重写B部分。但现在AB混在了一起，很难把论文恢复到原先的状态。</span><br><span class="line">在崩溃的边缘，你有可能会想，有没有一款软件，能够自动记录对文件的每次修改，同时还可以与别的成员协同编辑，这样就不需要来回发送文件，也不需要反复另存文件以保证留有文档的备份？</span><br></pre></td></tr></table></figure>
+
+<p>这种时候，就到我们的主角出场的时候了，它就是今天的主角：</p>
+<p><del>在线共享文档</del> 版本控制系统！</p>
+<p>版本控制系统（Version Control System，VCS）就可以完成上述的工作，它可以自动跟踪文件的变化、还原文件的历史记录、协调多人在同一个项目中工作，宾且可以在必要情况下回溯到过去的任意版本。</p>
+<p>在软件开发中，版本控制系统可以帮助开发人员有效地管理和维护代码库，支持项目的分支、合并等操作。这样，在多人协作开发的情况下，不同的成员可以同时对同一个项目进行开发，而不会产生代码冲突等问题。此外，版本控制系统还可以提供更好的安全备份和恢复机制，以防止意外的数据丢失或代码损坏！</p>
+<p>常见的版本控制系统有<code>Subversion</code>、<code>Mercurial</code>，当然，还有我们的主角——<code>git</code>！</p>
+<h3 id="分布式-集中式"><a href="#分布式-集中式" class="headerlink" title="分布式 &amp; 集中式"></a>分布式 &amp; 集中式</h3><p>再说说什么是分布式，以及与分布式对应的集中式。</p>
+<p>在版本控制系统中，<strong>分布式</strong>是指每个开发者都有完整的<strong>代码库副本</strong>，并且可以在本地进行修改、提交和推送等操作。</p>
+<p>相比之下，<strong>集中式</strong>版本控制系统（例如<code>SVN</code>）依赖于一个<strong>中央代码库</strong>。开发者从中央代码库检出代码副本，然后在本地进行修改，修改后，他们<strong>必须</strong>将更改推送回中央代码库，否则其他开发者无法获得最新版本的代码。</p>
+<p>二者的区别在于，在分布式系统中，每个开发者都有完整的代码库副本，可以在本地进行修改、提交和推送等操作；而在集中式系统中，开发者只能从中央代码库检出代码，并且必须将更改推送回中央代码库。这就意味着，在分布式系统中，开发者可以在没有网络连接的情况下继续工作，不需要频繁地与中央服务器进行通信，同时，每个开发者都能拥有完整的历史记录，方便历史回溯等操作。</p>
+<h2 id="git安装配置"><a href="#git安装配置" class="headerlink" title="git安装配置"></a>git安装配置</h2><p>阿菇的系统是<code>Fedora 37</code>，如有差异请自行解决。在终端执行以下命令安装<code>git</code>。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Fedora用户使用这句</span></span><br><span class="line"><span class="built_in">sudo</span> dnf install git</span><br><span class="line"></span><br><span class="line"><span class="comment"># Ubuntu用户使用这句</span></span><br><span class="line"><span class="built_in">sudo</span> apt install git</span><br></pre></td></tr></table></figure>
+
+<h3 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h3><p>我们可以通过修改<code>git</code>配置来定制<code>git</code>环境。首先需要设置用户名和邮箱地址，我们之后的每一次<code>git</code>提交都会包含这些信息。使用以下指令全局设置<code>username</code>和<code>email</code>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 将&quot;your-username&quot;和&quot;your-email-address&quot;替换为你的用户名和邮箱地址</span></span><br><span class="line"><span class="comment"># 建议设置为你的github账户的用户名和绑定的邮箱地址</span></span><br><span class="line">git config --global user.name  <span class="string">&quot;your-usernmae&quot;</span></span><br><span class="line">git config --global user.email <span class="string">&quot;your-email-address&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>你还可以使用以下指令检查你的<code>git</code>配置信息：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git config --list</span><br></pre></td></tr></table></figure>
+
+<p>使用以下指令查看当前系统所有的<code>git</code>配置文件及其位置：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git config --list --show-origin</span><br></pre></td></tr></table></figure>
+
+<p>进一步的配置，如设置默认的文本编辑器、搭建git服务器等，可以参考官方文档，这里不过多介绍。</p>
+<h2 id="本地创建git仓库"><a href="#本地创建git仓库" class="headerlink" title="本地创建git仓库"></a>本地创建git仓库</h2><p>仓库，可以简单的理解成一个目录，这个目录里的文件和资源都可以通过git进行管理。</p>
+<p>使用以下指令初始化一个本地的git仓库。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 将 your-repo-name 替换为你的git仓库的名称</span></span><br><span class="line">git init your-repo-name</span><br></pre></td></tr></table></figure>
+
+<p>使用这句指令后，会有输出提醒，你新建了一个空的Git仓库。转进到这个目录，你会发现这个目录下其实已经包括了一个隐藏目录<code>.git</code>，这里面存储的是一些版本信息，用于跟踪管理文件信息，平常不去碰它就好了。</p>
+<h2 id="git分区"><a href="#git分区" class="headerlink" title="git分区"></a>git分区</h2><p>此部分讲解<code>git</code>的三个工作分区是怎么工作的，也就是<code>git</code>到底是如何对我们的项目进行版本控制的。</p>
+<h3 id="三个分区"><a href="#三个分区" class="headerlink" title="三个分区"></a>三个分区</h3><p>一个完整的本地<code>git</code>工作目录包括三个分区，工作区、暂存区和版本库。</p>
+<ul>
+<li><strong>工作区</strong>：指的是当前目录下除<code>.git</code>目录外的区域，用户可以随意修改工作区文件的内容。</li>
+<li><strong>暂存区</strong>：指的是<code>.git</code>目录下的<code>index</code>文件，该文件包含了当前工作树中所有被添加到版本控制中的文件列表和它们的元数据，如文件名、文件类型、文件大小、最后修改时间等信息。</li>
+<li><strong>版本库</strong>：指的是存储代码版本历史记录的地方，也就是代码仓库。git的版本库包含了所有commit的snapshot和message，以及所有branch、tag等元数据信息。通常情况下，一个项目只有一个版本库，它可以存储在本地或者远程服务器上，开发者可以通过命令行或者图形界面工具来管理和操作版本库。</li>
+</ul>
+<p>以上三个分区中，暂存区和版本库可以合称为<strong>git仓库</strong>。</p>
+<p>看到这里，你可能会有些疑惑，我们刚才使用<code>init</code>指令不是创建了一个git仓库吗，为什么这里又说<strong>暂存区和版本库可以合称git仓库</strong>，工作区去哪里了？</p>
+<p>我们刚才使用<code>git init</code>指令，<strong>本质上是创建了一个空的项目目录，这个项目目录下自动包含了一个<code>.git</code>目录</strong>（也就是<code>git</code>仓库），方便我们对这个项目目录进行版本管理，刚才所说的暂存区和版本库，实际上都位于<code>.git</code>隐藏目录下。出于习惯，我们一般会把整个项目目录叫做一个<code>git仓库</code>，也可以叫做<strong>本地仓库</strong>，与接下来会讲到的<strong>远程仓库</strong>相对应。</p>
+<h3 id="在分区之间操纵文件"><a href="#在分区之间操纵文件" class="headerlink" title="在分区之间操纵文件"></a>在分区之间操纵文件</h3><p>这张图可以清晰的看到三个分区之间的关系，以及我们应该如何使用<code>git</code>来操作我们的文件。</p>
+<p><img src="https://img.ma5hr00m.top/blog/20231216105917.png" alt="git三个分区之间的关系"></p>
+<p>在具体讲解如何在不同分区之间操纵文件之前，先说一下如何查看某个文件的状态。我们可以使用以下指令查看当前git目录中某个文件的具体状态：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git status</span><br></pre></td></tr></table></figure>
+
+<p>在这个指令的输出中，一个文件存在以下三种状态：</p>
+<ul>
+<li>不显示：表明该<strong>文件没有发生改动</strong>，改动是指该文件在工作区和在版本库中的内容不同，新建、删除文件均属于改动；</li>
+<li>红色文件：表示<strong>文件已发生改动，且没有添加到暂存区中</strong>；</li>
+<li>绿色文件：表明<strong>文件已发生改动，且已经添加到暂存区中</strong>。</li>
+</ul>
+<p>具体的指令就不细说了，直接在底下罗列出来，需要时拿过来用就行，很容易就能看懂。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 工作区 -&gt; 暂存区</span></span><br><span class="line">git add filename</span><br><span class="line"></span><br><span class="line"><span class="comment"># 暂存区 -&gt; 版本库</span></span><br><span class="line">git commit -m <span class="string">&quot;message&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 前两句指令的合体，同时实现前两句指令的功能</span></span><br><span class="line">git commit -am <span class="string">&quot;message&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 缓存区 -&gt; 工作区</span></span><br><span class="line">git <span class="built_in">rm</span> --cached filename</span><br><span class="line">git <span class="built_in">rm</span> --staged filename</span><br><span class="line">git reset HEAD filename</span><br><span class="line"></span><br><span class="line"><span class="comment"># 撤销当前工作区所有改动，包括文件删除和创建操作</span></span><br><span class="line">git checkout -- filename</span><br><span class="line">git restore filename</span><br></pre></td></tr></table></figure>
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>kinoko</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="http://example.com/2023/06/08/2023/base-git/">http://example.com/2023/06/08/2023/base-git/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Do you believe in <strong>DESTINY</strong>?</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/Tutorial/"># Tutorial</a>
+                    
+                        <a href="/tags/Git/"># Git</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2023/08/12/2023/bride-of-blackmith/">燕市、铜器与《铜匠的花嫁》</a>
+            
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© kinoko 2022-2025. All rights reserved.</span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

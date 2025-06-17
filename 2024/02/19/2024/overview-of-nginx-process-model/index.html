@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="kinoko">
+
+
+
+
+    <meta name="keywords" content="博客,blog,阿菇,阿菇kinoko,kinoko,usamikinoko">
+
+
+<title>Nginx进程模型概述 | 阿菇的博客</title>
+
+
+
+    <link rel="icon" href="/favicon.jpg">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Kinoko&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                <a class="menu-item" href="/archives">Posts</a>
+                
+                <a class="menu-item" href="/category">Categories</a>
+                
+                <a class="menu-item" href="/tag">Tags</a>
+                
+                <a class="menu-item" href="/about">About</a>
+                
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Kinoko&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">
+                    <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"/></svg>
+                    <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE --><path fill="currentColor" d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"/></svg>
+                </div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                <a class="menu-item" href="/archives">Posts</a>
+                
+                <a class="menu-item" href="/category">Categories</a>
+                
+                <a class="menu-item" href="/tag">Tags</a>
+                
+                <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if (toggleMenu.classList.contains("active")) {
+            toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        } else {
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">Nginx进程模型概述</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">kinoko</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">February 19, 2024&nbsp;&nbsp;0:00:00</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Development/">Development</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <p>Nginx 平时一直有在用，但说实话，对其工作原理一直没有深入了解。那不如从现在开始了解，之后会慢慢更。先说说进程模型。</p>
+<h2 id="发展"><a href="#发展" class="headerlink" title="发展"></a>发展</h2><p>Nginx 的开发始于 2002 年，由 Igor Sysoev 发起，最初是为了解决 C10K 问题，即如何让一个服务器同时处理超过一万个客户端连接。</p>
+<p>第一个公开版本发布于 2004 年 10 月。自此，Nginx 此开始了它的快速发展。Nginx 目前是世界上使用最多的 Web 服务器之一，根据 Netcraft 的统计，截至 2024 年 2 月，Nginx 占据了全球 Web 服务器市场的 32.8% 的份额，仅次于 Apache。</p>
+<h2 id="安装与管理"><a href="#安装与管理" class="headerlink" title="安装与管理"></a>安装与管理</h2><p>主流 Linux 发行版的包管理工具都支持下载 nginx，这里以 Manjaro 为例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> pacman -S nginx</span><br></pre></td></tr></table></figure>
+
+<p>Nginx 可通过<code>-s</code>参数响应一些自带的信号，比如：</p>
+<ul>
+<li><code>stop</code>：立即关闭</li>
+<li><code>quit</code>：正常关闭</li>
+<li><code>reload</code>：重新加载配置文件</li>
+<li><code>reopen</code>：重新打开日志文件</li>
+</ul>
+<p>例如，当我们在<code>etc/nginx/conf.d</code>中修改配置文件添加 Web 服务时，改动内容并不会直接生效，需要我们重启 nginx 服务或者使用<code>-s reload</code>指令传递重新加载配置文件的信号。</p>
+<p>此外，我们可以通过<code>systemctl</code>等指令管理本地的 Nginx 服务，比如最常见的检查 Nginx 状态的指令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl status nginx</span><br></pre></td></tr></table></figure>
+
+<h2 id="Nginx配置文件结构"><a href="#Nginx配置文件结构" class="headerlink" title="Nginx配置文件结构"></a>Nginx配置文件结构</h2><p>在正式介绍之前，我想要先从 nginx 配置文件入手，这可能会更加便于理解，毕竟配置文件是我们接触 nginx 最直接的地方。</p>
+<p>Linux 下 nginx 配置文件的默认位置是在<code>/etc/nginx/nginx.conf</code>，这里先举一个简单的例子：</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 全局块</span></span><br><span class="line"><span class="attribute">user</span>  nobody; <span class="comment"># 指定运行nginx服务的用户和用户组</span></span><br><span class="line"><span class="attribute">worker_processes</span>  <span class="number">1</span>; <span class="comment"># 指定工作线程数</span></span><br><span class="line"><span class="attribute">error_log</span>  logs/<span class="literal">error</span>.log; <span class="comment"># 指定错误日志的路径和级别</span></span><br><span class="line"><span class="attribute">pid</span>        logs/nginx.pid; <span class="comment"># 指定pid文件的路径</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># events块</span></span><br><span class="line"><span class="section">events</span> &#123;</span><br><span class="line">    <span class="attribute">worker_connections</span>  <span class="number">1024</span>; <span class="comment"># 指定每个工作进程可以同时开启的最大连接数</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># http块</span></span><br><span class="line"><span class="section">http</span> &#123;</span><br><span class="line">    <span class="comment"># http全局块</span></span><br><span class="line">    <span class="attribute">include</span>       mime.types; <span class="comment"># 引入MIME-Type定义文件</span></span><br><span class="line">    <span class="attribute">default_type</span>  application/octet-stream; <span class="comment"># 设置默认的MIME-Type</span></span><br><span class="line">    <span class="attribute">sendfile</span>        <span class="literal">on</span>; <span class="comment"># 开启sendfile传输文件的优化</span></span><br><span class="line">    <span class="attribute">keepalive_timeout</span>  <span class="number">65</span>; <span class="comment"># 设置连接超时时间</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># server块</span></span><br><span class="line">    <span class="section">server</span> &#123;</span><br><span class="line">        <span class="comment"># server全局块</span></span><br><span class="line">        <span class="attribute">listen</span>       <span class="number">8000</span>; <span class="comment"># 监听8000端口</span></span><br><span class="line">        <span class="attribute">server_name</span>  localhost; <span class="comment"># 设置虚拟主机的名称</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># location块</span></span><br><span class="line">        <span class="section">location</span> / &#123;</span><br><span class="line">            <span class="attribute">root</span>   html; <span class="comment"># 设置根目录的路径</span></span><br><span class="line">            <span class="attribute">index</span>  index.html index.htm; <span class="comment"># 设置默认的首页文件</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment"># location块</span></span><br><span class="line">        <span class="section">location</span> /images &#123;</span><br><span class="line">            <span class="attribute">root</span>   /data; <span class="comment"># 设置图片资源的路径</span></span><br><span class="line">            <span class="attribute">autoindex</span> <span class="literal">on</span>; <span class="comment"># 开启目录浏览功能</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment"># location块</span></span><br><span class="line">        <span class="section">location</span> <span class="regexp">~ \.php$</span> &#123;</span><br><span class="line">            <span class="attribute">root</span>           html; <span class="comment"># 设置PHP文件的路径</span></span><br><span class="line">            <span class="attribute">fastcgi_pass</span>   <span class="number">127.0.0.1:9000</span>; <span class="comment"># 设置PHP-FPM的地址和端口</span></span><br><span class="line">            <span class="attribute">fastcgi_index</span>  index.php; <span class="comment"># 设置默认的PHP文件</span></span><br><span class="line">            <span class="attribute">fastcgi_param</span>  SCRIPT_FILENAME  /scripts<span class="variable">$fastcgi_script_name</span>; <span class="comment"># 设置PHP脚本的完整路径</span></span><br><span class="line">            <span class="attribute">include</span>        fastcgi_params; <span class="comment"># 引入fastcgi的配置文件</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>全局块：从开始到<code>events</code>块之间的部分，主要设置一些影响 nginx 服务器整体运行的配置指令，例如<code>user</code>，<code>worker_processes</code>，<code>error_log</code>，<code>pid</code>等。</li>
+<li><code>events</code>块：涉及的指令主要影响 nginx 服务器与用户的网络连接，例如<code>worker_connections</code>，<code>accept_mutex</code>，<code>multi_accept</code>，<code>use</code>等。</li>
+<li><code>http</code>块：包含<code>http</code>全局块和多个<code>server</code>块，代理、缓存和日志定义等绝大多数的功能和第三方模块的配置都可以放在这个块中。<code>http</code>全局块是不包含在<code>server</code>块中的部分，主要设置一些影响<code>http</code>协议的配置指令，例如<code>include</code>，<code>default_type</code>等。<code>server</code>块是虚拟主机的配置，每个<code>server</code>块可以包含<code>server</code>全局块和多个<code>location</code>块。<code>server</code>全局块是不包含在<code>location</code>块中的部分，主要设置一些影响虚拟主机的配置指令，例如<code>listen</code>，<code>server_name</code>等。<code>location</code>块是 URL 匹配的配置，每个<code>location</code>块可以包含一些针对特定请求的处理规则，例如<code>root</code>，<code>index</code>，<code>proxy_pass</code>等。</li>
+</ul>
+<p>从方便理解的角度，每个<code>server</code>块就对应一个应用，而<code>location</code>可以理解为应用对应的路由。一般情况下，我们想要在自己的服务器中新增某个 Web 应用配置，就在<code>http</code>块中添加<code>server</code>块即可。</p>
+<p>你可以尝试在 nginx 默认端口为 80 的<code>server</code>块中添加下面这个<code>location</code>块：</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">location</span> / &#123;</span><br><span class="line">    <span class="attribute">default_type</span> text/plain</span><br><span class="line">    return <span class="number">200</span> <span class="string">&quot;pong&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>退出保存，使用<code>nginx -s reload</code>重新加载配置文件，使用<code>curl</code>或在浏览器中请求<code>http://ocalhost/ping</code>，即可得到返回的<code>pong</code>响应数据。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl http://localhost/ping <span class="comment"># pong</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="工作模式概述"><a href="#工作模式概述" class="headerlink" title="工作模式概述"></a>工作模式概述</h2><p>在正式开始 Nginx 进程模型的介绍之前，还需要了解下 nginx 的基本工作模式是怎样的。</p>
+<p>Nginx 服务启动后，会创建一个 master 主进程，该主进程在进行一部分初始化工作后，会产生一个或多个工作进程 worker；收到来自客户端的请求后，nginx 可能涉及与后端服务器的通信，它可以将收到的 http 请求代理转发到目标服务器，由专门的后端服务器处理数据。</p>
+<p>同时，为了提高对请求的响应效率，降低服务器受到的网络压力，nginx 采用了缓存机制，将历史应答数据缓存到本地，保障了客户端对缓存文件的快速访问。</p>
+<h2 id="进程模型"><a href="#进程模型" class="headerlink" title="进程模型"></a>进程模型</h2><p>Nginx 采用了 master-worker 进程模型。相比于 apache 采用的传统多进模型，nginx 的进程模型有一些显著的优势：</p>
+<ul>
+<li>Master-worker 异步非阻塞的特点允许 nginx 在高并发下保持低资源低消耗高性能，同时也提高了服务的稳定性，单个 workder 进程出现异常不影响其他 worker 和 master 的运行；</li>
+<li>实现了热部署，即在不重启 nginx 服务的前提下重新加载配置文件；</li>
+<li>……</li>
+</ul>
+<p><img src="https://img.ma5hr00m.top/blog/20240229225629.png" alt="20240229225629"></p>
+<h3 id="master-进程"><a href="#master-进程" class="headerlink" title="master 进程"></a>master 进程</h3><p>master 模块负责接收外部信号，在根据信号的不同管理 worker 模块以实现对应的功能。master 模块本身不会处理网络请求，它只是作为一个调度者，作为用户与 worker 之间的桥梁而存在。</p>
+<p>在 nginx 服务初始化时，master 会读取并解析配置文件，出现错误就报告并推出。我们可以使用<code>-t</code>参数主动检查配置文件是否存在错误，以确保不会重启 nginx 失败：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> nginx -t</span><br></pre></td></tr></table></figure>
+
+<p>在运行过程中，master 进程也会监控 worker 进程运行状态、如果 worker 模块出现异常，master 就会<code>fork()</code>一个新的 worker 进程，保证整个 nginx 服务正常运行。</p>
+<p>那现在，我们会想知道 master 进程具体是如何管理 worker 进程的呢 🤔️</p>
+<h3 id="master-管理-worker"><a href="#master-管理-worker" class="headerlink" title="master 管理 worker"></a>master 管理 worker</h3><p>master 进程通过信号量机制（Semaphore Mechanism）和定时器机制（Timer Mechanism）来监控并管理 worker 进程。</p>
+<p>信号量机制（semaphore mechanism）是一种用于实现进程间同步和互斥的方法，它使用一个整数变量来表示系统中某种资源的数量或状态，进程可以通过原子操作（atomic operation）来增加或减少信号量的值，从而实现对资源的请求和释放。</p>
+<p>nginx 的 master 模块和 worker 模块之间通过信号（signal）来实现同步和通信，信号是一种用于进程间交互的软件中断，它可以用来传递一些简单的信息或命令。nginx 使用了一些预定义的信号，比如<code>SIGCHLD</code>、<code>SIGALRM</code>、<code>SIGTERM</code>、<code>SIGQUIT</code>、<code>SIGHUP</code>、<code>SIGUSR1</code>等，每个信号都有特定的含义和作用。</p>
+<ul>
+<li>当 worker 模块退出或者崩溃时，它会向 master 模块发送<code>SIGCHLD</code>信号，通知 master 模块有子进程已经终止。master 模块在收到<code>SIGCHLD</code>信号后，会调用<code>waitpid()</code>函数来回收子进程的资源，并检查子进程的退出码，如果是非正常退出，就会重新<code>fork()</code>一个新的 worker 模块，保证服务的可用性。</li>
+<li>当 master 模块需要重启或者升级时，它会向 worker 模块发送<code>SIGTERM</code>或者<code>SIGQUIT</code>信号，要求 worker 模块正常关闭或者立即终止。worker 模块在收到这些信号后，会停止接受新的请求，并处理完已经接受的请求，然后退出。master 模块在收到所有 worker 模块的<code>SIGCHLD</code>信号后，会重新加载配置文件，并启动新的 worker 模块。</li>
+<li>当 master 模块需要重新加载配置文件或者重新打开日志文件时，它会向 worker 模块发送<code>SIGHUP</code>或者<code>SIGUSR1</code>信号，要求 worker 模块重新读取配置文件或者重新打开日志文件。worker 模块在收到这些信号后，会先关闭旧的配置文件或者日志文件，然后打开新的配置文件或者日志文件，并继续处理请求。</li>
+</ul>
+<p>而定时器机制（timer mechanism）是一种用于实现进程间通信和调度的方法，它使用一个计数器来表示系统中某种事件的发生时间或间隔，进程可以通过设置或取消定时器来触发或取消某种动作，从而实现对事件的响应和控制。</p>
+<p>nginx 则使用了<code>SIGALRM</code>信号来实现定时器的功能。</p>
+<ul>
+<li>当 master 模块启动时，它会设置一个定时器，每隔一定的时间（默认是 5 秒），就会向 worker 模块发送 <code>SIGALRM</code>信号，要求 worker 模块向 master 模块报告自己的状态，比如是否存活、是否忙碌、是否有异常等。master 模块在收到 worker 模块的回应后，会更新 worker 模块的状态，并根据 worker 模块的状态来调整定时器的间隔，如果 worker 模块频繁退出或者出错，就会缩短定时器的间隔，反之则会延长定时器的间隔。</li>
+<li>当 master 模块收到<code>SIGALRM</code>信号时，它会检查 worker 模块是否存活，如果发现有 worker 模块已经死亡，就会重新<code>fork()</code>一个新的 worker 模块，保证服务的可用性。master 模块还会检查 worker 模块是否忙碌，如果发现有 worker 模块长时间没有处理请求，就会认为 worker 模块已经卡死，然后向 worker 模块发送<code>SIGKILL</code>信号，强制终止 worker 模块，并重新<code>fork()</code>一个新的 worker 模块，保证服务的可用性。</li>
+</ul>
+<h3 id="worker-进程"><a href="#worker-进程" class="headerlink" title="worker 进程"></a>worker 进程</h3><p>worker 接受 master 的调度，负责处理客户端的连接和请求。客户端的请求完全由 worker 处理，而且请求与 worker 是一一对应的关系。同时，worker 进程之间都是平等关系。</p>
+<p>这句话可以引出来一个问题：worker 之间是平等的关系，每条请求只由单个 worker处理，但接收请求时会存在多个 worker，那 master 是怎么决定让哪个 worker 去处理当前请求的呢？</p>
+<h3 id="worker-工作流程"><a href="#worker-工作流程" class="headerlink" title="worker 工作流程"></a>worker 工作流程</h3><p>在开始之前，有必要先介绍 nginx 的 accepy_mutex 机制，该机制有效的避免了惊群效应（thundering herd problem）和锁队列（lock convoy）问题，而这些问题会导致 nginx 的性能下降和资源浪费。</p>
+<p>accept_mutex 是一个互斥锁（mutex），它可以保证在同一时刻，只有一个 worker 可以接受新连接，其他 worker 则会等待或者处理已有的连接。</p>
+<p>accept_mutex 机制的开启和关闭可以通过配置文件中的<code>accept_mutex</code>指令来控制，它的默认值是<code>off</code>。同时，还会有一个<code>accept_mutex_delay</code>时间参数，它指定了在另一个 worker 正在接受新连接的情况下，worker 尝试重新开始接受新连接的最长时间，它的默认值是<code>500ms</code>。这个参数可以避免工作进程频繁地抢夺 accept_mutex，从而减少系统开销。</p>
+<p>好，到这里就差不多。现在介绍 worker 工作流程。</p>
+<p>在 nginx 服务器启动时，会先创建一个 master 进程，master 会先建立好需要<code>listen</code>的 socket（listenfd）之后，再根据配置文件中<code>worker_process</code>指令创建指定数量的 worker 进程，用于处理请求。然后，master 会创建 accept_mutex，并把它传递给 worker。</p>
+<p>每个 worker 都会初始化事件模块（event module）和连接模块（connection module），事件模块负责监听和处理事件，连接模块负责管理连接。worker 会根据配置文件中的<code>use</code>指令，选择最合适的事件通知机制,再根据配置文件中的<code>worker_connections</code>指令，创建一个连接池（connection pool），并分配一定数量的连接（connection）给事件模块，每个连接都有一个读事件（read event）和一个写事件（write event）。</p>
+<p>当有新连接到来时，事件模块会通知 worker，然后所有 worker 会来抢唯一的 accept_mutex，抢到 mutex 的 worker 进程就会注册 listenfd 读事件，在读事件里调用 accept 接受该连接。当 worker 接受完新连接后，它会释放 accept_mutex，并处理新连接的请求。</p>
+<p>那没抢到 mutex 的 worker 会做什么呢？它们会等待<code>accept_mutex_delay</code>的时间，如果在这段时间内没有其他 worker 获得 mutex，它们就会再次尝试获取 mutex，并重复上述过程；如果在这段时间内有其他 worker 获得 mutex，那么等待的 worker 就会放弃，转而继续处理已有的连接或者进入休眠状态。</p>
+<p>抢到 mutex 的 worker 会进入事件循环（event loop），不断地检查事件队列中是否有就绪的事件，如果有，就调用相应的事件处理函数。对于读事件，事件处理函数会读取客户端发送的数据，并根据数据的类型，调用相应的模块来处理请求，例如，如果是 HTTP 请求，就调用 HTTP 模块（HTTP module）；如果是邮件请求，就调用邮件模块（mail module）……对于写事件，事件处理函数会发送数据给客户端，并根据数据的状态，决定是否关闭连接或者继续处理请求。</p>
+<p>处理完一个连接或者请求时，worker 会把连接放回连接池中，等待下一次使用，或者释放连接，以便其他工作进程使用。</p>
+<h2 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h2><h3 id="Netcraft"><a href="#Netcraft" class="headerlink" title="Netcraft"></a>Netcraft</h3><p>Netcraft 是一家英国的网络安全公司，成立于 1995 年。该公司主要提供互联网基础架构，网络安全，以及网站评测等服务。 其中，Netcraft 的网站评测功能可以帮助用户评估网站的安全性，包括网站托管地址，服务器软件，以及脚本语言等信息。</p>
+<p>Netcraft 每月都会对全球的网站进行抽样调查，收集网站的响应头、域名、IP 地址、证书等数据，然后根据这些数据分析出网站使用的服务器软件，操作系统，网络服务商等信息。</p>
+<p>Netcraft 的调查报告已经成为人们了解全球网站数量以及各种服务器市场份额等情况的主要依据。访问 <a target="_blank" rel="noopener" href="https://www.netcraft.com/">Netcraft</a> 的官网就可以查看最新的调查结果，或者使用它的搜索功能，查询任意网站的相关信息。</p>
+<h3 id="异步非阻塞"><a href="#异步非阻塞" class="headerlink" title="异步非阻塞"></a>异步非阻塞</h3><p>前文中有提到 master-worker 是一种异步非阻塞的进程模型。我认为可以在这里做一个更详细的描述，就是该进程模型为什么是“异步非阻塞”的：</p>
+<ul>
+<li><strong>异步</strong>：在 nginx 的 master-worker 模式中，master 进程负责管理 worker 进程，而 worker 进程则处理实际的客户端请求。这种架构下，master 进程和 worker 进程之间采用异步通信方式，master 进程不会阻塞在等待 worker 进程的响应上，从而提高了整体的并发处理能力；</li>
+<li><strong>非阻塞</strong>：nginx 中的 worker 进程使用非阻塞 I&#x2F;O 操作来处理客户端请求。这意味着当一个请求需要进行 I&#x2F;O 操作时（比如读取文件或从网络接收数据），worker 进程不会一直等待数据准备就绪，而是会继续处理其他请求。一旦数据准备就绪，worker 进程会立即处理它，而不会阻塞在这个操作上；</li>
+<li><strong>事件驱动</strong>：nginx 使用事件驱动的方式来处理 I&#x2F;O 操作。它利用操作系统提供的事件通知机制（如 epoll 或 kqueue）来实现非阻塞 I&#x2F;O。当一个事件发生时（比如一个连接建立或数据可读），nginx 将相应的事件添加到事件队列中，并通过事件驱动的方式处理这些事件，而不是通过阻塞式的等待。</li>
+</ul>
+<p>nginx 的 master-worker 模式通过异步、非阻塞和事件驱动的设计，实现了高性能和高并发处理能力。这种模式使得 nginx 能够高效地处理大量并发请求，而不会因为阻塞在 I&#x2F;O 操作上而导致性能下降。而 apache 传统的多进程模型（Prefork）无法实现异步非阻塞，所以会把这点作为 nginx 相比 apache 的一个优势。</p>
+<h2 id="后话"><a href="#后话" class="headerlink" title="后话"></a>后话</h2><p>只是一个概述，很多内容等着补充 😪️</p>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://docshome.gitbook.io/nginx-docs/">Nginx 中文文档</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.freecodecamp.org/chinese/news/the-nginx-handbook/">Nginx 完全手册</a>，by freeCodeCamp</li>
+<li><a target="_blank" rel="noopener" href="https://learnku.com/articles/38414">Nginx 工作模式和进程模型</a>，by 已下线</li>
+</ul>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>kinoko</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="http://example.com/2024/02/19/2024/overview-of-nginx-process-model/">http://example.com/2024/02/19/2024/overview-of-nginx-process-model/</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Do you believe in <strong>DESTINY</strong>?</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/Nginx/"># Nginx</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2024/04/21/2024/aliyunctf-2024/">AliyunCTF2024 Writeup</a>
+            
+            
+            <a class="next" rel="next" href="/2024/02/16/2024/js-scope-and-hoisting/">JavaScript作用域与提升</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© kinoko 2022-2025. All rights reserved.</span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>
