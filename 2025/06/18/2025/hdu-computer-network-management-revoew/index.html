@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="Kinoko">
+
+
+
+
+    <meta name="keywords" content="博客,blog,阿菇,阿菇kinoko,kinoko,usamikinoko">
+
+
+<title>Final Review of HDU course - Computer Network Management | 阿菇的博客</title>
+
+
+
+    <link rel="icon" href="http://q.qlogo.cn/headimg_dl?dst_uin=3411281455&spec=640&img_type=jpg">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const pagebody = document.getElementsByTagName('body')[0]
+
+            function setTheme(status) {
+
+                if (status === 'dark') {
+                    window.sessionStorage.theme = 'dark'
+                    pagebody.classList.add('dark-theme');
+
+                } else if (status === 'light') {
+                    window.sessionStorage.theme = 'light'
+                    pagebody.classList.remove('dark-theme');
+                }
+            };
+
+            setTheme(window.sessionStorage.theme)
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Kinoko&#39;s Blog</a></div>
+            <div class="menu navbar-right">
+                
+                <a class="menu-item" href="/archives">Posts</a>
+                
+                <a class="menu-item" href="/category">Categories</a>
+                
+                <a class="menu-item" href="/tag">Tags</a>
+                
+                <a class="menu-item" href="/about">About</a>
+                
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Kinoko&#39;s Blog</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">
+                    <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" d="M4.5 17.27q-.213 0-.356-.145T4 16.768t.144-.356t.356-.143h15q.213 0 .356.144q.144.144.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.144T4 11.999t.144-.356t.356-.143h15q.213 0 .356.144t.144.357t-.144.356t-.356.143zm0-4.77q-.213 0-.356-.143Q4 7.443 4 7.23t.144-.356t.356-.143h15q.213 0 .356.144T20 7.23t-.144.356t-.356.144z"/></svg>
+                    <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><!-- Icon from Material Symbols Light by Google - https://github.com/google/material-design-icons/blob/master/LICENSE --><path fill="currentColor" d="m12 12.708l-5.246 5.246q-.14.14-.344.15t-.364-.15t-.16-.354t.16-.354L11.292 12L6.046 6.754q-.14-.14-.15-.344t.15-.364t.354-.16t.354.16L12 11.292l5.246-5.246q.14-.14.345-.15q.203-.01.363.15t.16.354t-.16.354L12.708 12l5.246 5.246q.14.14.15.345q.01.203-.15.363t-.354.16t-.354-.16z"/></svg>
+                </div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                <a class="menu-item" href="/archives">Posts</a>
+                
+                <a class="menu-item" href="/category">Categories</a>
+                
+                <a class="menu-item" href="/tag">Tags</a>
+                
+                <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if (toggleMenu.classList.contains("active")) {
+            toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        } else {
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">Final Review of HDU course - Computer Network Management</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">Kinoko</a>
+                    
+
+                    
+                        <span class="post-time">
+                        <!-- Date: <a href="#">June 18, 2025&nbsp;&nbsp;0:00:00</a> -->
+                        <!-- I think the article publish date only needs to be precise to the day. Therefore, I removed the code that displays the exact timestamp. -->
+                        Date: <a href="#">June 18, 2025</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/HDU/">HDU</a>
+                            
+                        </span>
+                    
+                    
+                        <span class="post-count">
+                            Words:
+                                <a href="">2.9k</a>  
+                        </span>
+                    
+                    
+                        <span class="post-count">
+                            Time:
+                                <a href="">18min</a>  
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <p>The <em><strong>Computer Network Management</strong></em> course at HDU is too shallow. This article simply documents knowledge I have not learned yet during review.</p>
+<p>The following sections <strong>are</strong> based on the course textbook “计算机网络管理（第三版）-西安电子科技大学出版社”.</p>
+<h1 id="Chapter-1-Introduction-to-Network-Manager"><a href="#Chapter-1-Introduction-to-Network-Manager" class="headerlink" title="Chapter 1 - Introduction to Network Manager"></a>Chapter 1 - Introduction to Network Manager</h1><h2 id="RFC-Document"><a href="#RFC-Document" class="headerlink" title="RFC Document"></a>RFC Document</h2><p>An RFC (Request for Comments) document is a technical standard or protocol published by the Internet Engineering Task Force (IETF). It defines fundamental internet specifications like HTTP, TCP&#x2F;IP, and DNS. Each RFC has a unique number (e.g., RFC 791 defines the IP protocol). These documents serve as essential references for network engineers and developers.</p>
+<h1 id="Chapter-2-Abstract-Syntax-Notation"><a href="#Chapter-2-Abstract-Syntax-Notation" class="headerlink" title="Chapter 2 - Abstract Syntax Notation"></a>Chapter 2 - Abstract Syntax Notation</h1><h2 id="ASN-1"><a href="#ASN-1" class="headerlink" title="ASN.1"></a>ASN.1</h2><p>ASN.1 (Abstract Syntax Notation One) is an international standard that defines how to represnet, encode, and transmit network data.</p>
+<p>Think of it as a “universal language manual” for data. For example, when phones share files, without standardized rules, an Android device might send photos that an iPhone can not open. ASN.1 pre-defines rules like “photos must be sent in JPEG format, filenames encode in UTF-8.” This ensures all devices pack and unpack data the same – just like everyone speaking the same language for smooth communication.</p>
+<p>Real-world applications include digital certificates for web authentication and monitoring data transmitted by routers, all relying on ASN.1 for standardized formatting. </p>
+<h3 id="Lexical-Conventions"><a href="#Lexical-Conventions" class="headerlink" title="Lexical Conventions"></a>Lexical Conventions</h3><ul>
+<li>Formatting is insignificant –multiple spaces or blank lines are equivalent to a single space.</li>
+<li>Identifiers (for values and fields), type references (type names), and module names consist of letters (case-sensitve), digits, and hyphens.</li>
+<li>Identifiers must start with a lowercase letter.</li>
+<li>Type references and module names must start with an uppercase letter.</li>
+<li>All ASN.1 built-in types are written in uppercase.</li>
+<li>Keywords are always in uppercase.</li>
+<li>Comments start with a double hyphen (<code>--</code>) and end with another double hyphen or the line’s end.</li>
+</ul>
+<h3 id="Abstract-Data-Types"><a href="#Abstract-Data-Types" class="headerlink" title="Abstract Data Types"></a>Abstract Data Types</h3><p>ASN.1 is a specification for describing data representation, encoding, transmission, and decoding formats.</p>
+<p>ASN.1 tags are divided into four categories:</p>
+<ol>
+<li><code>UNIVERSAL</code> Tags: Defined by the standard, these are fundamental tags applicable in all scenarios. Basic types like <code>BOOLEAN</code>, <code>INTEGER</code>, etc, use these by default.</li>
+<li><code>Application</code> Tags: Used for a custom data types in specific applications, allowing protocols to define unique identifiers for their data structures.</li>
+<li>Context-Specific Tags: Limited to local scope (e.g., within a complex structure like <code>SEQUENCE</code>), trmporarily distinguishing fields within that context.</li>
+<li><code>PRIVATE</code> Tags: Defined by users or organizations for internet protocols, assigning unique identifiers to proprietary data types.</li>
+</ol>
+<p>ASN.1 defines over 20 data types, categorized into four groups:</p>
+<ol>
+<li><strong>Simple Types</strong>: “Atomic types” consisting of a single component (e.g., <code>BOOLEAN</code>, <code>INTEGER</code>, <code>BIT STRING</code>). They define basic value sets and serve as building blocks for complex types.</li>
+<li><strong>Constructed Types</strong>: Composed of multiple elements (e.g., SEQUENCE—ordered field sets, SET—unordered with unique fields). They build complex data structures.</li>
+<li><strong>Tagged Types:</strong> Derived from existing types using explicit&#x2F;implicit tags, enabling type reuse and differentiation for flexible definitions.</li>
+<li><strong>Other Types:</strong> Includes <code>CHOICE</code> (select one from predefined types) and <code>ANY</code> (matches any type—flexible but requires caution to avoid parsing ambiguity). These address special data description needs.</li>
+</ol>
+<h3 id="Macro-Definitions"><a href="#Macro-Definitions" class="headerlink" title="Macro Definitions"></a>Macro Definitions</h3><p>Macro Definitions are advanced features in ASN.1 that allow users to create reusable custom templates, simplifying the definitions of complex types.</p>
+<p>Macros function like functions or templates in programming languages, but operate ar the type system level. They commonly used to defines sets of types with similar structures but varying details, such protocol message familirs or data reords formats.</p>
+<h4 id="Module-Definition"><a href="#Module-Definition" class="headerlink" title="Module Definition"></a>Module Definition</h4><p>The module in ASN.1 is similar to a structure in the C language and is used to define an abstract data type. A defined module can be referenced by name. For example, a module defines an abstract syntax, and an application entity sends the module name to the presentation service to specify the format of its APDU. The basic form of a module definition is as follows:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;modulereference&gt; DEFINITIONS ::=  </span><br><span class="line">BEGIN  </span><br><span class="line">    EXPORTS  </span><br><span class="line">    IMPORTS  </span><br><span class="line">    AssignmentList  </span><br><span class="line">END  </span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>modulereference</code> is the module name, followed by an optional corresponding object identifier.</li>
+<li><code>EXPORTS</code> construct specifies the parts that the module can make available externally.</li>
+<li><code>IMPORTS</code> construct specifies other types and values that the module needs to reference.</li>
+<li><code>AssignmentList</code> part contains all the type, value, and macro definitions of the module,</li>
+</ul>
+<p>Here is an example of a module definition:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">LanNetworkModule&#123;iso org dod internet private enterprises Xenterprises 95&#125;  </span><br><span class="line">DEFINITIONS EXPLICIT TAGS ::=  </span><br><span class="line">BEGIN  </span><br><span class="line">    EXPORTS  </span><br><span class="line">        LanNetworkName ::= SEQUENCE OF RelativeDistinguishedName--End of EXPORTS  </span><br><span class="line">    IMPORTS  </span><br><span class="line">        RelativeDistinguishedName FROM InformationFramework&#123;joint-iso-ccitt  </span><br><span class="line">        Ds(5) modules(1) informationFramework(1)&#125; --End of IMPORTS  </span><br><span class="line">    MacAddresses ::= OCTET STRING(SIZE(6))  </span><br><span class="line">    LanWorkstationSerialNumbers ::= OCTET STRING(SIZE(32))  </span><br><span class="line">    LanSegment ::= SET OF LanWorkstationSerialNumbers  </span><br><span class="line">    EthernetNetworks ::= SET OF MacAddresses  </span><br><span class="line">    TokenRingNetworks ::= SET OF LanSegment  </span><br><span class="line">    LanNetwork ::= SET &#123;  </span><br><span class="line">        etherNet [0] IMPLICIT EthernetNetworks,  </span><br><span class="line">        tokenNet [1] IMPLICIT TokenRingNetworks &#125;  </span><br><span class="line">END  </span><br></pre></td></tr></table></figure>
+
+<p>Above ASN.1 module defines an abstract representation of Local Area Network (LAN) architectures. It primrily serves fot standardized description of LAN components in network management or communication protocols.</p>
+<h5 id="OID"><a href="#OID" class="headerlink" title="OID"></a>OID</h5><p>In <code>LanNetworkModule&#123;iso org dod internet private enterprises Xenterprises 95&#125;</code>, the <strong>OID</strong> is <code>iso org dod internet private enterprises Xenterprises 95</code>. Its meaning and purpose are as follows:</p>
+<p>An OID is a hierarchical, globally unique identifier resembling a “numeric address” that locates specific objects through its tree structure. The above OID can be broken down as:</p>
+<p>iso (International Organization for Standardization) → org (organization branch) → dod (U.S. Department of Defense) → internet (internet branch) → private (private enterprises) → enterprises (generic enterprise branch) → Xenterprises (specific company name) → 95 (sub-branch assigned by the company).</p>
+<p>Its numeric representation is: <code>1.3.6.1.4.1.95</code></p>
+<blockquote>
+<p>where <code>iso=1</code>, <code>org=3</code>, <code>dod=6</code>, <code>internet=1</code>, <code>private=4</code>, <code>enterprises=1</code>, and <code>Xenterprises</code> is assigned number <code>95</code>.</p>
+</blockquote>
+<h4 id="Macro-Notation"><a href="#Macro-Notation" class="headerlink" title="Macro Notation"></a>Macro Notation</h4><p>ASN.1 macro notation is a mechanism for defining reusable “type templates”.</p>
+<p>The core idea is to use macros to quickly generate similar ASN.1 types. It consists of <strong>macro definition</strong> (specifying the template structure) and <strong>macro instance</strong> (filling the template to get a specific type).</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">-- Macro Definition: Specify the “template” for type and value </span><br><span class="line">&lt;MACRO_NAME&gt; MACRO ::= </span><br><span class="line">BEGIN</span><br><span class="line">  TYPE NOTATION ::= &lt;type-syntax-rules&gt;  -- Define what the type looks like </span><br><span class="line">  VALUE NOTATION ::= &lt;value-syntax-rules&gt;  -- Define how to fill in values </span><br><span class="line">  -- (Optional) Supported sub - rules... </span><br><span class="line">END</span><br><span class="line"></span><br><span class="line">-- Macro Instance: Fill the template with specific values to generate an actual type </span><br><span class="line">&lt;InstanceName&gt; ::= &lt;MACRO_NAME&gt; &#123; </span><br><span class="line">  &lt;Fill TYPE NOTATION&gt; </span><br><span class="line">  &lt;Fill VALUE NOTATION&gt; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Here is an example of a macro notation:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">-- Macro Definition: Create an “integer pair” template, specifying the type as SEQUENCE(INTEGER, INTEGER) </span><br><span class="line">Pair-integers MACRO ::= </span><br><span class="line">BEGIN</span><br><span class="line">  TYPE NOTATION ::= &quot;SEQUENCE(INTEGER, INTEGER)&quot;  -- Type syntax: a sequence of two integers </span><br><span class="line">  VALUE NOTATION ::=  -- Value syntax (can be empty in simple scenarios, used to constrain values in complex scenarios) </span><br><span class="line">END</span><br><span class="line"></span><br><span class="line">-- Macro Instance: Use the macro to generate a specific type “Coordinate Pair”, which is actually SEQUENCE(INTEGER, INTEGER) </span><br><span class="line">Coordinate ::= Pair-integers &#123;&#125;  -- Directly reuse the macro to get a sequence type composed of two integers </span><br></pre></td></tr></table></figure>
+
+<p>When repeatedly using similar types (e.g., integer pairs, string pairs), macros let you define a template once and reuse it in instances – reducing code duplication and improving maintainability. This works like “function&#x2F;class templates” in programming languages.</p>
+<h2 id="Basic-Encoding-Rule"><a href="#Basic-Encoding-Rule" class="headerlink" title="Basic Encoding Rule"></a>Basic Encoding Rule</h2><p>Basic Encoding Rules (BER) encode abstract type values in ASN.1 as byte strings. The structure of these byte strings follows Type-Length-Value (TLV) format.</p>
+<h1 id="Chapter3-Management-Information-Base"><a href="#Chapter3-Management-Information-Base" class="headerlink" title="Chapter3 - Management Information Base"></a>Chapter3 - Management Information Base</h1><h2 id="TCP-IP-Protocol-Suite"><a href="#TCP-IP-Protocol-Suite" class="headerlink" title="TCP&#x2F;IP Protocol Suite"></a>TCP&#x2F;IP Protocol Suite</h2><ul>
+<li><p><strong>ARPANET</strong>: The precursor to the modern internet, it laid the groundwork for internet development and drove early network technology exploration.</p>
+</li>
+<li><p><strong>TCP&#x2F;IP Protocol Suite</strong>: The foundational protocol set for internet communication, it defines rules for device interaction across multiple layers, from the application layer to the network interface layer.</p>
+</li>
+<li><p><strong>SNMP</strong> (Simple Network Management Protocol): A TCP&#x2F;IP-based network management protocol used to monitor and manage devices (e.g., routers, switches) and collect network data.</p>
+</li>
+<li><p><strong>OSI&#x2F;RM</strong> (Open Systems Interconnection Reference Model): A network architecture model by ISO, dividing communication into seven layers (application, presentation, session, transport, network, data link, physical) to standardize and explain network processes.</p>
+</li>
+</ul>
+<p><img src="https://agu-img.oss-cn-hangzhou.aliyuncs.com/image2506/image-20250618230308818.png" alt="image-20250618230308818"></p>
+<p><img src="https://agu-img.oss-cn-hangzhou.aliyuncs.com/image2506/image-20250618230422642.png" alt="image-20250618230422642"></p>
+<p>SNMP manages the operation of the TCP&#x2F;IP protocol. Information related to the TCP&#x2F;IP protocol’s operation is stored in the Management Information Base (MIB) using the structure defined by SNMP.</p>
+<h2 id="TCP-IP-Network-Management-Framework"><a href="#TCP-IP-Network-Management-Framework" class="headerlink" title="TCP&#x2F;IP Network Management Framework"></a>TCP&#x2F;IP Network Management Framework</h2><p>The following diagram illustrates the overall SNMP framework:</p>
+<p><img src="https://agu-img.oss-cn-hangzhou.aliyuncs.com/image2506/image-20250618231022608.png" alt="image-20250618231022608"></p>
+<p>The upper part of the diagram shows the service primitives supported by the SNMP protocol. These primitives facilitate communication between the manager and the agent to query and modify the Management Information Base.</p>
+<ul>
+<li><strong>Get</strong> retrieves data.</li>
+<li><strong>Set</strong> modifies data.</li>
+<li><strong>GetNext</strong> scans the MIB tree and retrieves data sequentially.</li>
+<li><strong>Trap</strong> enables asynchronous reporting from the agent to the manager.</li>
+</ul>
+<h3 id="Trap-Directed-Polling"><a href="#Trap-Directed-Polling" class="headerlink" title="Trap - Directed Polling"></a>Trap - Directed Polling</h3><p>To enable the management station to monitor managed devices timely and effectively without overly increasing network traffic load, a trap - directed polling process is used. Here’s how it works:</p>
+<ol>
+<li><strong>Initial Polling Phase</strong><br>When the management station starts or at fixed intervals, it uses <strong>Get operations</strong> to poll all agents. This fetches key info (e.g., interface characteristics) and basic performance stats (e.g., packet counts sent&#x2F;received via an interface over time). After getting these baseline data, the management station stops polling.</li>
+<li><strong>Exception Reporting Phase</strong><br>Agents then take over monitoring. When abnormal events occur (e.g., agent restart, link failure, load exceeding thresholds), the agent uses a <strong>Trap operation</strong> to actively report to the management station. This avoids continuous polling - induced network overload.</li>
+<li><strong>In - depth Event Query Phase</strong><br>Upon receiving a trap, the management station can query the relevant agent (via Get operations again) for detailed info. This helps analyze root causes, forming a “baseline polling → active exception reporting → on - demand in - depth query” loop.</li>
+</ol>
+<h3 id="The-Components-of-SNMPv1"><a href="#The-Components-of-SNMPv1" class="headerlink" title="The Components of SNMPv1"></a>The Components of SNMPv1</h3><p>The initial network management framework of the Internet was defined by four documents, which form the core of SNMPv1:</p>
+<ul>
+<li><strong>RFC 1155</strong> defines the Structure of Management Information (SMI), specifying the syntax and semantics of managed objects, establishing fundamental rules for describing management data.</li>
+<li><strong>RFC 1212</strong> explains how to define MIB modules, providing guidelines for standardizing the structure of Management Information Base modules.</li>
+<li><strong>RFC 1213</strong> defines the core set of MIB-II managed objects, which are essential for any SNMP system to implement.</li>
+<li><strong>RFC 1157</strong> serves as the protocol specification for SNMPv1, detailing its workflow and interaction logic.</li>
+</ul>
+<h3 id="MIB-Structure"><a href="#MIB-Structure" class="headerlink" title="MIB Structure"></a>MIB Structure</h3><p>The MIB (Management Information Base) is a logical database storing management object information in network management, serving as the core component of SNMP (Simple Network Management Protocol).</p>
+<p>It provides a standardized framework for information interaction between Network Management Systems (NMS) and Agents, allowing management stations to query or set object values via SNMP for network device monitoring and management.</p>
+<h1 id="Chapter4-Simple-Network-Management-Protocol"><a href="#Chapter4-Simple-Network-Management-Protocol" class="headerlink" title="Chapter4 - Simple Network Management Protocol"></a>Chapter4 - Simple Network Management Protocol</h1><h2 id="History-of-SNMP"><a href="#History-of-SNMP" class="headerlink" title="History of SNMP"></a>History of SNMP</h2><h3 id="SNMPv1"><a href="#SNMPv1" class="headerlink" title="SNMPv1"></a>SNMPv1</h3><p>SNMPv1 was developed during the early days of the internet to provide a unified management solution for heterogeneous network environments. It uses a request-response model and relies on Get, Set, and Trap operations for data exchange between management stations and agents.</p>
+<p>However, as a pioneering version, SNMPv1 has significant flaws:</p>
+<ol>
+<li><strong>No security mechanisms</strong> – Data is transmitted in plaintext, with no authentication or encryption, making configurations vulnerable to tampering and information easy to steal.</li>
+<li><strong>Limited performance</strong> – It supports only a few basic operations and struggles with large-scale data retrieval, making it inefficient for complex network management.</li>
+</ol>
+<h3 id="S-SNMP-SMP"><a href="#S-SNMP-SMP" class="headerlink" title="S-SNMP &amp; SMP"></a>S-SNMP &amp; SMP</h3><p>To address SNMPv1’s security flaws, <strong>S-SNMP</strong> (Simple Secure Network Management Protocol) and <strong>SMP</strong> (Simple Management Protocol) emerged.</p>
+<p>S-SNMP attempted to introduce <strong>MD5-based authentication</strong> and <strong>DES encryption</strong> to secure data transmission at its core. SMP focused on <strong>symmetric key authentication</strong>, aiming to verify trusted identities through key management mechanisms.</p>
+<p>Unfortunately, both solutions failed to gain widespread adoption due to <strong>poor compatibility</strong> and <strong>lack of standardization</strong>, remaining experimental. However, they provided valuable insights for future protocol improvements.</p>
+<h3 id="SNMPv2"><a href="#SNMPv2" class="headerlink" title="SNMPv2"></a>SNMPv2</h3><p>The emergence of <strong>SNMPv2</strong> marked a major step forward in network management protocols.</p>
+<p>On the functional side, it introduced the <strong>GetBulk</strong> operation, enabling bulk data retrieval and significantly reducing polling overhead. The <strong>InformRequest</strong> operation addressed the unreliability of traps by using acknowledgment mechanisms to ensure critical alerts were never lost.</p>
+<p>For data types, SNMPv2 added new options like <strong>Counter64</strong> to better handle traffic statistics in high-speed networks.</p>
+<p>Security-wise, early versions still relied on <strong>community string authentication</strong>, but SNMPv2c later separated <strong>read-only</strong> and <strong>read-write</strong> permissions, reducing the risk of configuration tampering.</p>
+<p>Compared to its predecessor, SNMPv2 not only improved management efficiency but also set the stage for future advancements with gradual security enhancements. This progress laid a solid foundation for the eventual maturity of <strong>SNMPv3</strong>.</p>
+<blockquote>
+<p>Because SNMPv2 failed to meet <strong>commercial-grade security requirements</strong> – such as data origin authentication, high-level management capabilities and so on – the SNMPv3 working group continued developing a new standard.</p>
+<p>Finally, in <strong>1999</strong>, they released the <strong>SNMPv3</strong> standard, addressing these critical security gaps.</p>
+</blockquote>
+<h2 id="SNMPv1-1"><a href="#SNMPv1-1" class="headerlink" title="SNMPv1"></a>SNMPv1</h2><h3 id="SNMPv1-Supported-Operations"><a href="#SNMPv1-Supported-Operations" class="headerlink" title="SNMPv1 Supported Operations"></a>SNMPv1 Supported Operations</h3><p>SNMP supports basic operations like retrieving and modifying the values of managed objects. Specifically, an SNMP entity can perform the following actions on objects in MIB-2:</p>
+<ul>
+<li><strong>Get</strong>: Retrieves the value of a scalar object from the Management Information Base (MIB).</li>
+<li><strong>Set</strong>: Modifies the value of a scalar object in the MIB.</li>
+<li><strong>Trap</strong>: Allows an agent to notify the manager of changes in managed object states using trap messages.</li>
+</ul>
+<p>However, SNMP does not permit managers to alter the structure of the MIB—meaning they <strong>cannot</strong> add or delete instances of managed objects (e.g., adding or removing table rows).</p>
+<h3 id="SNMP-PDU"><a href="#SNMP-PDU" class="headerlink" title="SNMP PDU"></a>SNMP PDU</h3><p>To understand how SNMP transfers data between devices, first break down its message and PDU (Protocol Data Unit).</p>
+<p>An SNMP message has a “three-layer” structure: version number, community name, and SNMP PDU.</p>
+<ul>
+<li>The <strong>version number</strong> indicates the SNMP version (e.g., SNMPv1).</li>
+<li>The <strong>community name</strong> acts like a simple password—the agent and manager must use the same one, but it is transmitted in plaintext, making it insecure.</li>
+<li>The most critical part is the <strong>SNMP PDU</strong>, which contains the actual operation details.</li>
+</ul>
+<p><img src="https://agu-img.oss-cn-hangzhou.aliyuncs.com/image2506/image-20250619001835140.png" alt="image-20250619001835140"></p>
+<p>SNMP defines <strong>5 management operations</strong>, but the <strong>Request PDUs (3 types) from the Manager</strong>.</p>
+<h4 id="Request-PDUs-3-types-from-the-Manager"><a href="#Request-PDUs-3-types-from-the-Manager" class="headerlink" title="Request PDUs (3 types) from the Manager"></a>Request PDUs (3 types) from the Manager</h4><p>GetRequest, GetNextRequest, and SetRequest share the same PDU structure:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PDU Type + Request ID + 0 + 0 + Variable Bindings</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>PDU Type</strong>: Numeric code to distinguish operations (e.g., 0 for GetRequest, 1 for GetNextRequest).</li>
+<li><strong>Request ID</strong>: Unique identifier assigned by the manager. The agent echoes this in the response to match requests with replies and prevent duplicate packets (e.g., from network retransmissions).</li>
+<li><strong>Variable Bindings</strong>: List of MIB objects to operate on. For Get requests, specify the target OIDs; for Set requests, include OIDs and their new values.</li>
+</ul>
+<h4 id="Response-PDU-1-type-from-the-Agent"><a href="#Response-PDU-1-type-from-the-Agent" class="headerlink" title="Response PDU (1 type) from the Agent"></a>Response PDU (1 type) from the Agent</h4><p>The agent uses GetResponsePDU for all replies (Get, GetNext, or Set), with the structure:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PDU Type + Request ID + Error Status + Error Index + Variable Bindings</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>Error Status</strong>: Result code (e.g., noError for success, tooBig if response exceeds size limits, noSuchName for invalid OIDs).</li>
+<li><strong>Error Index</strong>: If an error occurs (non-zero Error Status), this points to the problematic variable in the binding list for troubleshooting.</li>
+</ul>
+<h4 id="Trap-PDU-1-type-from-the-Agent"><a href="#Trap-PDU-1-type-from-the-Agent" class="headerlink" title="Trap PDU (1 type) from the Agent"></a>Trap PDU (1 type) from the Agent</h4><p>Traps are unsolicited alerts sent by the agent. Their format differs significantly:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PDU Type + Enterprise ID + Agent Address + Generic Trap + Specific Trap + Timestamp + Variable Bindings</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>Enterprise ID</strong>: Matches <code>sysObjectID</code> in MIB-2, identifying the vendor (e.g., Huawei or Cisco).</li>
+<li><strong>Agent Address</strong>: IP of the device sending the trap (“who is reporting”).</li>
+<li><strong>Generic Trap</strong>: Standard alert type (e.g., coldStart for reboots, linkDown for broken links).</li>
+<li><strong>Specific Trap</strong>: Vendor-defined alert codes, varying by device.</li>
+<li><strong>Timestamp</strong>: Time the trap was sent (sysUpTime in MIB-2), indicating “when the event occurred.”</li>
+</ul>
+<h1 id="Chapter5-Remote-Network-Monitor"><a href="#Chapter5-Remote-Network-Monitor" class="headerlink" title="Chapter5 - Remote Network Monitor"></a>Chapter5 - Remote Network Monitor</h1><p>Firstly, let us learn what is RMON!</p>
+<blockquote>
+<p>I suddenly realized I haven’t explained what MIB-2 is!</p>
+<p>MIB-2 is the standardized second-generation implementation of MIB. It clearly classifies and defines objects within the MIB, serving as a “standard version” in the evolution of Management Information Bases.</p>
+</blockquote>
+<h3 id="What-is-RMON"><a href="#What-is-RMON" class="headerlink" title="What is RMON"></a>What is RMON</h3><p><strong>RMON</strong> (Remote Network Monitoring) is a network management standard based on the SNMP framework, specifically designed to monitor data traffic on network segments or entire networks.</p>
+<p><img src="https://agu-img.oss-cn-hangzhou.aliyuncs.com/image2506/image-20250619010553717.png" alt="image-20250619010553717"></p>
+<p>It was initially developed to manage multiple LANs and remote sites from a central point, improving network management efficiency. The core concept involves storing network information in the RMON MIB (Management Information Base). Probes (agents&#x2F;monitors, which can be embedded in routers, switches, or run as PC programs) collect data, while management stations retrieve this data using SNMP for network monitoring.</p>
+<p>RMON has two widely used versions:</p>
+<ul>
+<li><p>RMON v1: Widely adopted, it defines 9 MIB groups (statistics, history, alarms, events, hosts, filters, matrix, capture, top N hosts, with later extensions for token ring networks). It focuses on MAC layer and below, helping administrators monitor basic network operations—such as subnet traffic statistics, historical sampling data, and alert thresholds.</p>
+</li>
+<li><p>RMON v2: An extension of v1, it monitors traffic above the MAC layer (e.g., IP and application layers), providing deeper insights into network protocols (like IP packet source&#x2F;destination addresses) and application-layer performance. It expands monitoring from LANs to wider networks and introduces 9 additional functional groups for enhanced high-layer traffic analysis.</p>
+</li>
+</ul>
+<h3 id="Table-Management-Principles"><a href="#Table-Management-Principles" class="headerlink" title="Table Management Principles"></a>Table Management Principles</h3><p>In SNMPv1’s management framework, table operation specs are incomplete—at least for adding&#x2F;deleting rows, which lack clear definitions. This ambiguity often causes reader questions and user complaints.</p>
+<p>RMON specs, however, define textual conventions and procedural rules. They enable clear, standardized row operations without altering the SNMP framework.</p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>Kinoko</span>
+                    </p>
+                
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                    
+                        <a href="/tags/Network/"># Network</a>
+                    
+                        <a href="/tags/HDU/"># HDU</a>
+                    
+                        
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+            
+            <a class="next" rel="next" href="/2025/06/17/2025/terminal-zsh-p10k/">Setting Up zsh with oh-my-zsh, Powerlevel10k, and Tabby Terminal</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Kinoko 2022-2025. All rights reserved.</span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>
