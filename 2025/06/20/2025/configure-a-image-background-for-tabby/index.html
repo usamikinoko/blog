@@ -15,7 +15,7 @@
     <meta name="keywords" content="博客,blog,阿菇,阿菇kinoko,kinoko,usamikinoko">
 
 
-<title>Install and Test SNMP on Rocky Linux | 阿菇的博客</title>
+<title>How to set a background image for Tabby | 阿菇的博客</title>
 
 
 
@@ -136,76 +136,11 @@
                 <div class="container">
     
     
-        <div class="post-toc">
-    <div class="tocbot-list">
-    </div>
-    <div class="tocbot-list-menu">
-        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
-        <a onclick="go_top()">Back to top</a>
-        <a onclick="go_bottom()">Go to bottom</a>
-    </div>
-</div>
-
-<script>
-    var tocbot_timer;
-    var DEPTH_MAX = 6; // 为 6 时展开所有
-    var tocbot_default_config = {
-        tocSelector: '.tocbot-list',
-        contentSelector: '.post-content',
-        headingSelector: 'h1, h2, h3, h4, h5',
-        orderedList: false,
-        scrollSmooth: true,
-        onClick: extend_click,
-    };
-
-    function extend_click() {
-        clearTimeout(tocbot_timer);
-        tocbot_timer = setTimeout(function() {
-            tocbot.refresh(obj_merge(tocbot_default_config, {
-                hasInnerContainers: true
-            }));
-        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
-    }
-
-    document.ready(function() {
-        tocbot.init(obj_merge(tocbot_default_config, {
-            collapseDepth: 1
-        }));
-    });
-
-    function expand_toc() {
-        var b = document.querySelector('.tocbot-toc-expand');
-        var expanded = b.getAttribute('data-expanded');
-        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
-        tocbot.refresh(obj_merge(tocbot_default_config, {
-            collapseDepth: expanded ? 1 : DEPTH_MAX
-        }));
-        b.innerText = expanded ? 'Expand all' : 'Collapse all';
-    }
-
-    function go_top() {
-        window.scrollTo(0, 0);
-    }
-
-    function go_bottom() {
-        window.scrollTo(0, document.body.scrollHeight);
-    }
-
-    function obj_merge(target, source) {
-        for (var item in source) {
-            if (source.hasOwnProperty(item)) {
-                target[item] = source[item];
-            }
-        }
-        return target;
-    }
-</script>
-    
 
     
     <article class="post-wrap">
         <header class="post-header">
-            <h1 class="post-title">Install and Test SNMP on Rocky Linux</h1>
+            <h1 class="post-title">How to set a background image for Tabby</h1>
             
                 <div class="post-meta">
                     
@@ -223,14 +158,14 @@
                         <span class="post-category">
                     Category:
                             
-                                <a href="/categories/HDU/">HDU</a>
+                                <a href="/categories/Tips/">Tips</a>
                             
                         </span>
                     
                     
                         <span class="post-count">
                             Words:
-                                <a href="">164</a>  
+                                <a href="">190</a>  
                         </span>
                     
                     
@@ -244,22 +179,18 @@
         </header>
 
         <div class="post-content">
-            <p>Continuing from the previous article, I will put it into practice. Following the course design assignment requirements for my school curriculum, I will install and test SNMP on my Rocky Linux Server.</p>
-<h2 id="Install-SNMP"><a href="#Install-SNMP" class="headerlink" title="Install SNMP"></a>Install SNMP</h2><p>Install SNMP service and related tools.</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> dnf install net-snmp net-snmp-utils</span><br></pre></td></tr></table></figure>
+            <p>As I mentioned in my other articles, Tabby is an excellent terminal emulator with almost all the essential features a terminal needs.</p>
+<p>However, you will notice Tabby does not directly support setting background images. I find this quite surprising (Though tools like Termius also lack this feature), since many users want to customize their terminal with image backgrounds.</p>
+<p><img src="https://oss.yayoi.love/blog/image/20240428195101.png" alt="img"></p>
+<p>Fortunately, Tabby provides a “<strong>Custom CSS</strong>“ feature under “<strong>Settings - Appearance</strong>“, allowing us to customize our Tabby window.</p>
+<p>Paste this code into your “Custom CSS” module. Remember to replace it with your <code>YOUR_IMAGE_URL</code>.</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Image Background */</span></span><br><span class="line"><span class="selector-class">.content</span><span class="selector-class">.tabs-on-top</span> &#123;</span><br><span class="line"><span class="attribute">background</span>: <span class="built_in">url</span>(<span class="string">&quot;https://oss.yayoi.love/blog/image/20240428195101.png&quot;</span>) no-repeat;</span><br><span class="line"><span class="attribute">background-size</span>:cover;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/* Semi-Transparent Overlay Mask */</span></span><br><span class="line"><span class="selector-class">.content</span> &#123;</span><br><span class="line"><span class="attribute">background-color</span>:<span class="built_in">rgba</span>(<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0.45</span>)</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/* Remove Duplicate Mask */</span></span><br><span class="line"><span class="selector-class">.terminal-toolbar-spacer</span> ~ <span class="selector-class">.content</span> &#123;</span><br><span class="line"> <span class="attribute">background-color</span>: transparent;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>Edit the SNMP configuration file <code>/etc/snmp/snmpd.conf</code> using your preferred text editor.</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">rocommunity public</span><br><span class="line">sysLocation &quot;Data Center Room 101&quot;</span><br><span class="line">sysContact &quot;Kinoko &lt;kzsoso@163.com&gt;&quot;</span><br></pre></td></tr></table></figure>
-
-<p>In this example, <code>public</code> is the community string, meaning any client using this string can read SNMP information.</p>
-<p>Start the SNMP agent service using systemd on Rocky Linux. Use the <code>status</code> command to check the SNMP service running status.</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> systemctl start snmpd </span><br><span class="line"><span class="built_in">sudo</span> systemctl status snmpd </span><br></pre></td></tr></table></figure>
-
-<p><img src="https://agu-img.oss-cn-hangzhou.aliyuncs.com/image2506/image-20250620002708870.png" alt="image-20250620002708870"></p>
-<p>Execute the following command using SNMP version 2c with community name “public” to fetch system information from the local host. If you receive proper output, it confirms your SNMP service is running correctly.</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">snmpwalk -v2c -c public localhost system</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://agu-img.oss-cn-hangzhou.aliyuncs.com/image2506/image-20250620004347130.png" alt="image-20250620004347130"></p>
+<p>You may have noticed the lack of indentation in above code. This is because Tabby’s “Custom CSS” module does not support indentation.</p>
+<p>Then, enable the “<strong>Acrylic background</strong>“ option under “<strong>Settings - Window</strong>“. Otherwise, your selected image won’t be displayed.</p>
+<p>The final result is as follows:</p>
+<p><img src="https://agu-img.oss-cn-hangzhou.aliyuncs.com/image2506/image-20250621004917079.png" alt="image-20250621004917079"></p>
+<p>END.</p>
 
         </div>
 
@@ -288,9 +219,9 @@
                 <span class="tag">
                     
                     
-                        <a href="/tags/Network/"># Network</a>
+                        <a href="/tags/Tabby/"># Tabby</a>
                     
-                        <a href="/tags/SNMP/"># SNMP</a>
+                        <a href="/tags/Tools/"># Tools</a>
                     
                         
                 </span>
@@ -304,7 +235,7 @@
         <section class="post-nav">
             
             
-            <a class="next" rel="next" href="/2025/06/18/2025/hdu-computer-network-management-revoew/">Final Review of HDU course - Computer Network Management</a>
+            <a class="next" rel="next" href="/2025/06/19/2025/install-and-text-snmp-on-rockylinux/">Install and Test SNMP on Rocky Linux</a>
             
         </section>
 
